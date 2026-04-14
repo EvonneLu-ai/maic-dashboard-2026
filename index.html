@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MAIC Dashboard 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f2f2f7;--card:#fff;--text:#1d1d1f;--text2:#6e6e73;
+  --blue:#0071e3;--green:#34c759;--orange:#ff9500;--red:#ff3b30;
+  --purple:#af52de;--teal:#5ac8fa;--pink:#ff2d55;--gray:#8e8e93;
+  --border:#d2d2d7;--shadow:0 2px 14px rgba(0,0,0,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+header{background:var(--card);border-bottom:1px solid var(--border);padding:16px 28px 0;position:sticky;top:0;z-index:100}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.logo{display:flex;align-items:center;gap:11px}
+.logo-icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#0071e3,#af52de);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px}
+.badge-hdr{font-size:11px;padding:3px 10px;border-radius:100px;background:#fff3cd;color:#92400e;font-weight:600;border:1px solid #fde68a}
+.tabs{display:flex}
+.tab{padding:10px 24px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;color:var(--text2);border-bottom:2.5px solid transparent;transition:all .2s}
+.tab .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.tab.op .dot{background:var(--blue)}.tab.mk .dot{background:var(--orange)}.tab.tr .dot{background:var(--green)}
+.tab.op.active{color:var(--blue);border-color:var(--blue)}
+.tab.mk.active{color:var(--orange);border-color:var(--orange)}
+.tab.tr.active{color:var(--green);border-color:var(--green)}
+.page{display:none;padding:26px 28px 48px}
+.page.active{display:block}
+.sec{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:700;margin-bottom:16px;margin-top:6px}
+.pill{font-size:10px;font-weight:600;padding:3px 9px;border-radius:100px}
+.pill-op{background:#dbeafe;color:#1e40af}
+.pill-mk{background:#ffedd5;color:#9a3412}
+.pill-tr{background:#dcfce7;color:#14532d}
+.krow{display:grid;gap:13px;margin-bottom:18px}
+.k5{grid-template-columns:repeat(5,1fr)}.k4{grid-template-columns:repeat(4,1fr)}.k3{grid-template-columns:repeat(3,1fr)}.k2{grid-template-columns:repeat(2,1fr)}
+.kpi{background:var(--card);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+.kpi-lbl{font-size:11px;color:var(--text2);font-weight:500;margin-bottom:4px}
+.kpi-val{font-size:28px;font-weight:700;line-height:1.1}
+.kpi-sub{font-size:11px;color:var(--text2);margin-top:4px}
+.bdg{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:100px;margin-top:5px}
+.bg{background:#d1fae5;color:#065f46}.bo{background:#fff3cd;color:#92400e}
+.bb{background:#dbeafe;color:#1e3a8a}.br{background:#fee2e2;color:#991b1b}
+.bp{background:#f3e8ff;color:#6b21a8}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.card{background:var(--card);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow)}
+.card-title{font-size:13px;font-weight:600;margin-bottom:14px}
+.ch200{position:relative;height:200px}.ch240{position:relative;height:240px}.ch260{position:relative;height:260px}
+.prog{margin-bottom:10px}
+.prog-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:3px}
+.prog-bar{height:7px;background:#f0f0f5;border-radius:100px;overflow:hidden}
+.prog-fill{height:100%;border-radius:100px}
+.tl-wrap{max-height:520px;overflow-y:auto;padding-right:4px}
+.tl-wrap::-webkit-scrollbar{width:4px}
+.tl-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.month-hd{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;padding:8px 0 5px;border-bottom:1px solid var(--border);margin-bottom:6px}
+.act{display:flex;gap:8px;padding:6px 9px;border-radius:7px;margin-bottom:4px;border-left:3px solid}
+.act.op{background:#eff6ff;border-color:var(--blue)}
+.act.mk{background:#fff7ed;border-color:var(--orange)}
+.act.tr{background:#f0fdf4;border-color:var(--green)}
+.act.gc{background:#fdf4ff;border-color:var(--purple)}
+.act-date{font-size:10px;color:var(--text2);white-space:nowrap;min-width:54px;margin-top:1px;flex-shrink:0}
+.act-name{font-size:11px;font-weight:600}
+.act-meta{font-size:10px;color:var(--text2);margin-top:1px}
+.session{display:flex;gap:12px;padding:11px 13px;border-radius:10px;background:var(--bg);margin-bottom:8px;align-items:flex-start}
+.snum{width:30px;height:30px;border-radius:8px;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.sinfo{flex:1}.sname{font-size:12px;font-weight:600}.smeta{font-size:10px;color:var(--text2);margin-top:2px;line-height:1.5}
+.sright{text-align:right;flex-shrink:0}
+.sppl{font-size:20px;font-weight:700}.sppl-lbl{font-size:9px;color:var(--text2)}
+.erow{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--bg);margin-bottom:7px}
+.eicon{font-size:20px;flex-shrink:0}
+.einfo{flex:1}.ename{font-size:12px;font-weight:600}.emeta{font-size:10px;color:var(--text2);margin-top:1px}
+.emetrics{display:flex;gap:14px;flex-shrink:0}
+.metric{text-align:center}.mval{font-size:14px;font-weight:700}.mlbl{font-size:9px;color:var(--text2)}
+.rtc{display:flex;gap:11px;padding:10px 12px;border-radius:9px;background:var(--bg);margin-bottom:6px;align-items:center}
+.rnum{width:26px;height:26px;border-radius:7px;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rinfo{flex:1}.rname{font-size:12px;font-weight:600}.rmeta{font-size:10px;color:var(--text2);margin-top:1px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;font-size:10px;font-weight:600;color:var(--text2);padding:5px 8px;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.3px}
+td{padding:8px 8px;border-bottom:1px solid #f5f5f7;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:100px;background:var(--bg);color:var(--text2);border:1px solid var(--border);white-space:nowrap}
+hr{border:none;border-top:1px solid var(--border);margin:20px 0}
+@media(max-width:900px){.k5,.k4,.k3{grid-template-columns:repeat(2,1fr)}.g2,.g3{grid-template-columns:1fr}}
+
+/* ── 篩選按鈕 ── */
+.tl-btn{padding:5px 13px;border-radius:100px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:11px;font-weight:600;color:var(--text2);transition:all .15s}
+.tl-btn:hover{opacity:.8}
+.tl-btn.act-all{background:var(--text);color:#fff;border-color:var(--text)}
+.tl-btn.act-op{background:var(--blue);color:#fff;border-color:var(--blue)}
+.tl-btn.act-mk{background:var(--orange);color:#fff;border-color:var(--orange)}
+.tl-btn.act-tr{background:var(--green);color:#fff;border-color:var(--green)}
+.tl-btn.act-gc{background:var(--purple);color:#fff;border-color:var(--purple)}
+
+/* ── 7天截止高亮 ── */
+.act.soon{background:#fff7ed!important;border-left-color:var(--red)!important}
+.deadline-badge{font-size:9px;font-weight:700;color:var(--red);background:#fee2e2;padding:2px 7px;border-radius:100px;white-space:nowrap;flex-shrink:0}
+
+/* ── 匯出按鈕 ── */
+.exp-btn{padding:6px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;font-weight:600;color:var(--text);display:inline-flex;align-items:center;gap:5px;transition:all .15s}
+.exp-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* ── 決議追蹤 tab ── */
+.tab.dc .dot{background:var(--red)}
+.tab.dc.active{color:var(--red);border-color:var(--red)}
+.pill-dc{background:#fee2e2;color:#991b1b}
+
+/* ── 決議卡片 ── */
+.dec-item{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:10px;background:var(--bg);margin-bottom:8px;border-left:3px solid var(--border);transition:opacity .2s}
+.dec-item.done{opacity:.5}
+.dec-item.done .dec-text{text-decoration:line-through;color:var(--text2)}
+.dec-item.pri-high{border-left-color:var(--red)}
+.dec-item.pri-mid{border-left-color:var(--orange)}
+.dec-item.pri-low{border-left-color:var(--teal)}
+
+/* ── Checkbox ── */
+.dec-cb{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);background:var(--card);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
+.dec-cb:hover{border-color:var(--blue)}
+.dec-cb.checked{background:var(--green);border-color:var(--green)}
+.dec-cb.checked::after{content:'✓';font-size:12px;font-weight:700;color:#fff}
+
+/* ── 狀態 badge ── */
+.st-open{background:#dbeafe;color:#1e40af}
+.st-done{background:#d1fae5;color:#065f46}
+.st-delay{background:#fee2e2;color:#991b1b}
+
+/* ── 優先度 dot ── */
+.pri-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px}
+
+@media print{
+  header{position:static!important}
+  .tabs,.tl-btn,.exp-btn,button{display:none!important}
+  .page{display:block!important;padding:10px!important}
+  .card{box-shadow:none!important;border:1px solid #ddd!important}
+}
+
+/* ── CSV Import Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-box{background:var(--card);border-radius:18px;padding:28px 30px;width:600px;max-width:96vw;max-height:86vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.22)}
+.modal-box::-webkit-scrollbar{width:4px}.modal-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.imp-select{width:100%;padding:9px 12px;border-radius:9px;border:1.5px solid var(--border);font-size:13px;font-family:inherit;background:var(--bg);color:var(--text);margin-bottom:12px}
+.imp-hint{font-size:11px;color:var(--text2);background:var(--bg);border-radius:8px;padding:10px 13px;margin-bottom:14px;line-height:1.7}
+.imp-hint code{font-family:monospace;background:#e5e5ea;border-radius:3px;padding:1px 4px;font-size:10px;color:var(--text)}
+.imp-drop{border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px}
+.imp-drop:hover,.imp-drop.drag{border-color:var(--blue);background:#eff6ff}
+.imp-preview{border-radius:10px;overflow:hidden;border:1px solid var(--border);margin-bottom:16px;font-size:11px}
+.imp-preview table{width:100%;border-collapse:collapse}
+.imp-preview th{background:var(--bg);padding:6px 10px;text-align:left;font-size:10px;color:var(--text2);border-bottom:1px solid var(--border)}
+.imp-preview td{padding:6px 10px;border-bottom:1px solid #f5f5f7;color:var(--text)}
+.imp-preview tr:last-child td{border-bottom:none}
+.imp-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;padding:3px 9px;border-radius:100px;background:#d1fae5;color:#065f46;border:1px solid #6ee7b7}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <div class="logo">
+      <div class="logo-icon">M</div>
+      <div>
+        <div style="font-size:18px;font-weight:700">MAIC Dashboard</div>
+        <div style="font-size:11px;color:var(--text2)">行動應用創新賽 · 2026 Season · Straight A × Apple</div>
+      </div>
+    </div>
+    <span class="badge-hdr" id="hdr-date"></span>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="exp-btn" onclick="openImport()" style="padding:6px 14px;font-weight:700">📂 匯入 CSV</button>
+      <div id="progress-ring" style="display:flex;flex-direction:column;align-items:center"></div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab op active" onclick="switchTab('operation')"><span class="dot"></span>Operation</button>
+    <button class="tab mk" onclick="switchTab('marketing')"><span class="dot"></span>Marketing</button>
+    <button class="tab tr" onclick="switchTab('training')"><span class="dot"></span>Training</button>
+    <button class="tab dc" onclick="switchTab('decision')"><span class="dot"></span>決議追蹤</button>
+  </div>
+</header>
+
+<!-- ════════════ OPERATION ════════════ -->
+<div class="page active" id="page-operation">
+  <div class="sec">📋 報名數據 <span class="pill pill-op">Operation</span>
+    <span style="font-size:12px;color:var(--text2);font-weight:400" id="op-date-label"></span>
+  </div>
+
+  <div class="krow k5" id="op-kpi-row1"></div>
+  <div class="krow k3" style="margin-bottom:20px" id="op-kpi-row2"></div>
+
+  <div class="g3">
+    <div class="card">
+      <div class="card-title">🎓 科系分佈（報名隊伍）</div>
+      <div class="ch200"><canvas id="deptChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🏫 學校分佈（報名隊伍）</div>
+      <div class="ch200"><canvas id="schoolChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 活動類型分佈</div>
+      <div class="ch200"><canvas id="actTypeChart"></canvas></div>
+      <div style="margin-top:14px" id="actTypeProgs"></div>
+    </div>
+  </div>
+
+  <hr>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;margin-top:6px">
+    <div class="sec" style="margin:0">📅 全年活動排程 <span class="pill pill-op">Operation</span></div>
+    <div style="display:flex;gap:8px">
+      <button class="exp-btn" onclick="exportCSV()">📥 匯出 CSV</button>
+      <button class="exp-btn" onclick="exportPDF()">🖨️ 列印 PDF</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="timeline-title">🗂 活動時間軸&nbsp;
+      <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#eff6ff;color:#1d4ed8">OP</span>
+      <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#fff7ed;color:#c2410c">MK</span>
+      <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#f0fdf4;color:#15803d">TR</span>
+      <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#fdf4ff;color:#7e22ce">GC</span>
+    </div>
+    <div id="tl-filter-bar" style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+      <button class="tl-btn act-all" id="fbtn-all" onclick="setTlFilter('all')">全部</button>
+      <button class="tl-btn" id="fbtn-op" onclick="setTlFilter('op')">🔵 OP</button>
+      <button class="tl-btn" id="fbtn-mk" onclick="setTlFilter('mk')">🟠 MK</button>
+      <button class="tl-btn" id="fbtn-tr" onclick="setTlFilter('tr')">🟢 TR</button>
+      <button class="tl-btn" id="fbtn-gc" onclick="setTlFilter('gc')">🟣 GC</button>
+    </div>
+    <div id="tl-debug" style="font-size:10px;color:var(--text2);margin-bottom:8px;padding:4px 8px;background:var(--bg);border-radius:6px"></div>
+    <div class="tl-wrap" style="max-height:420px" id="timeline"></div>
+  </div>
+</div>
+
+<!-- ════════════ MARKETING ════════════ -->
+<div class="page" id="page-marketing">
+  <div class="sec">🎤 宣講會 <span class="pill pill-mk">Marketing</span></div>
+
+  <div class="krow k4" id="mk-kpi-row1"></div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">📋 宣講會場次詳情</div>
+      <div id="sessionList"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 各場次出席人數</div>
+      <div class="ch260"><canvas id="sessionChart"></canvas></div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="sec">📣 Email 宣傳 <span class="pill pill-mk">Marketing</span></div>
+
+  <div class="krow k3" id="mk-kpi-row2"></div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">✉️ Email 宣傳效益分析</div>
+      <div id="emailList"></div>
+      <div style="margin-top:14px;padding:11px 13px;background:var(--bg);border-radius:9px;font-size:11px;color:var(--text2)" id="emailNote"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 開信率 vs 點擊率比較</div>
+      <div class="ch240"><canvas id="emailChart"></canvas></div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="sec">📱 其他宣傳管道 <span class="pill pill-mk">Marketing</span></div>
+
+  <div class="g3">
+    <div class="card" id="line-card"></div>
+    <div class="card" id="announcement-card"></div>
+    <div class="card">
+      <div class="card-title">📊 各管道觸及量比較</div>
+      <div class="ch200"><canvas id="channelChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ TRAINING ════════════ -->
+<div class="page" id="page-training">
+  <div class="sec">📚 RTC 課程 <span class="pill pill-tr">Training</span></div>
+
+  <div class="krow k4" id="tr-kpi-row1"></div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🗓 RTC 課程列表</div>
+      <div id="rtcList"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 課程主題分佈</div>
+      <div class="ch260"><canvas id="rtcThemeChart"></canvas></div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="sec">🌟 多元能力強化講座 <span class="pill pill-tr">Training</span></div>
+
+  <div class="card" style="margin-bottom:18px" id="workshopSummary"></div>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
+    <span style="font-size:12px;color:var(--text2);font-weight:500">圖例：</span>
+    <span style="font-size:11px;padding:3px 10px;border-radius:100px;background:#dbeafe;color:#1e40af;font-weight:600">📻 線上</span>
+    <span style="font-size:11px;padding:3px 10px;border-radius:100px;background:#dcfce7;color:#14532d;font-weight:600">🏛 實體</span>
+    <span style="font-size:11px;padding:3px 10px;border-radius:100px;background:#d1fae5;color:#065f46;font-weight:600">✅ 完成</span>
+    <span style="font-size:11px;padding:3px 10px;border-radius:100px;background:#fff3cd;color:#92400e;font-weight:600">⏳ 待辦</span>
+  </div>
+  <div id="workshopCards"></div>
+</div>
+
+<!-- ════════════ DECISION ════════════ -->
+<div class="page" id="page-decision">
+  <div class="sec">📋 決議追蹤 <span class="pill pill-dc">Decisions</span></div>
+
+  <div class="krow k4" id="dc-kpi-row"></div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div style="display:flex;gap:6px;flex-wrap:wrap" id="dc-filter-bar">
+      <button class="tl-btn act-all" onclick="setDcFilter('all')">全部</button>
+      <button class="tl-btn" id="dcf-open"  onclick="setDcFilter('open')">🔵 進行中</button>
+      <button class="tl-btn" id="dcf-done"  onclick="setDcFilter('done')">🟢 已完成</button>
+      <button class="tl-btn" id="dcf-delay" onclick="setDcFilter('delay')">🔴 延誤</button>
+    </div>
+    <button class="exp-btn" onclick="resetDecisions()" style="font-size:11px">↺ 重設全部</button>
+  </div>
+
+  <div id="dc-groups"></div>
+</div>
+
+
+<!-- ════════════ CSV IMPORT MODAL ════════════ -->
+<div id="import-overlay" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeImport()">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div>
+        <div style="font-size:17px;font-weight:700">📂 匯入 CSV 資料</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px">選擇資料類型 → 下載範本 → 填入資料 → 上傳確認</div>
+      </div>
+      <button onclick="closeImport()" style="border:none;background:none;font-size:20px;cursor:pointer;color:var(--text2);padding:4px 8px">✕</button>
+    </div>
+    <select class="imp-select" id="imp-section" onchange="updateImpHint()">
+      <option value="timeline">📅 時間軸（活動排程）</option>
+      <option value="sessions">🎤 宣講會場次</option>
+      <option value="emails">✉️ Email 宣傳</option>
+      <option value="rtc">📚 RTC 課程</option>
+      <option value="decisions">📋 決議追蹤</option>
+    </select>
+    <div class="imp-hint" id="imp-hint"></div>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="exp-btn" onclick="downloadTemplate()" style="flex:1;justify-content:center">⬇ 下載範本 CSV</button>
+      <button class="exp-btn" onclick="clearSection()" style="color:var(--red);border-color:#ff3b3088;flex-shrink:0">🗑 清除此區塊匯入資料</button>
+    </div>
+    <div class="imp-drop" id="imp-drop" onclick="document.getElementById('imp-file').click()"
+      ondragover="event.preventDefault();this.classList.add('drag')"
+      ondragleave="this.classList.remove('drag')"
+      ondrop="event.preventDefault();this.classList.remove('drag');handleFile(event.dataTransfer.files[0])">
+      <input type="file" id="imp-file" accept=".csv" onchange="handleFile(this.files[0])">
+      <div style="font-size:28px;margin-bottom:8px">📄</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text)">點擊選擇或拖曳 CSV 檔案</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:4px">支援 .csv · UTF-8 編碼</div>
+    </div>
+    <div id="imp-preview-area" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:12px;font-weight:600" id="imp-preview-label"></div>
+        <label style="display:flex;align-items:center;gap:6px;font-size:11px;cursor:pointer">
+          <input type="checkbox" id="imp-skip-header" checked> 忽略第一行標題列
+        </label>
+      </div>
+      <div class="imp-preview" id="imp-preview-table"></div>
+      <button onclick="confirmImport()" style="width:100%;padding:12px;border-radius:10px;border:none;background:var(--blue);color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px">✅ 確認匯入（取代現有資料）</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 全域錯誤捕捉 ──────────────────────────────────────
+window.onerror = function(msg, src, line, col, err) {
+  var b = document.createElement('div');
+  b.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#ff3b30;color:#fff;padding:10px 16px;z-index:9999;font-size:12px;font-family:monospace;cursor:pointer';
+  b.textContent = '⚠️ JS Error (line ' + line + '): ' + msg;
+  b.onclick = function(){ b.remove(); };
+  document.body && document.body.prepend ? document.body.prepend(b) : document.body.appendChild(b);
+};
+// ════════════════════════════════════════════════════════
+//  ██████╗  █████╗ ████████╗ █████╗
+//  ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
+//
+//  ⬇️  所有數字、文字、清單都在這裡修改  ⬇️
+// ════════════════════════════════════════════════════════
+
+const DATA = {
+
+  // ── 全域設定 ──────────────────────────────────────────
+  meta: {
+    title:       'MAIC Dashboard',
+    subtitle:    '行動應用創新賽 · 2026 Season · Straight A × Apple',
+    dataAsOf:    '📅 資料截至 2026/04/10',
+    currentDate: '2026-04-10',  // ← 用於 7 天截止計算
+  },
+
+  // ── OPERATION：報名數據 KPI ───────────────────────────
+  operation: {
+    registrationTarget: 800,   // ← 報名目標隊伍數
+    registrationDateLabel: '截至 2026/04/07',
+
+    // 第一排 KPI（4格）
+    kpi1: [
+      { label: '累計報名隊伍', value: '5', unit: '組', sub: '本週新增 +2 隊', badge: '⏫ 報名進行中', badgeClass: 'bo', color: 'var(--blue)' },
+      { label: '目標達成率',   value: '0.6%', unit: '', sub: 'TW Season 初期階段（5/800）', badge: '🎯 持續衝刺中', badgeClass: 'bo', color: 'var(--orange)' },
+      { label: '累計註冊帳號', value: '31',  unit: '位', sub: '已驗證帳號 29 位', badge: '持續成長中', badgeClass: 'bb', color: 'var(--teal)' },
+      { label: '報名學生人數', value: '10',  unit: '人', sub: '參加過 3 人（30%）', badge: '跨校跨系', badgeClass: 'bp', color: 'var(--purple)' },
+      { label: '涵蓋學校數',   value: '9',   unit: '所', sub: '全台各地學校', badge: '全台分佈', badgeClass: 'bb', color: 'var(--blue)' },
+    ],
+
+    // 第二排 KPI（3格）- 組別＋網站
+    groupBreakdown: {
+      creative: 2, // 創意組
+      innovative: 2, // 創新組
+      startup: 1, // 創業組
+      submitted: 1, // 企劃書已繳
+      notSubmitted: 4, // 企劃書未繳
+    },
+    websites: [
+      { label: '🌐 maic.straighta.com.tw', value: '14,733', sub: '今日 +53 次瀏覽',   badge: '主要報名入口', color: 'var(--blue)' },
+      { label: '🌐 bts.straighta.com.tw',  value: '8,536',  sub: '今日 +28・附件下載 175/115/113', badge: '資源平台', color: 'var(--teal)' },
+    ],
+
+    // 科系分佈 Donut
+    deptChart: {
+      labels: ['資訊工程學系(30%)', '行銷與流通管理系(20%)', '醫學系(10%)', '學習科學與科技研究所(10%)', '數位科技設計學系(10%)', '電機工程學系(10%)', '教育與學習科技學系(10%)'],
+      data:   [30, 20, 10, 10, 10, 10, 10],
+    },
+
+    // 學校分佈 Donut
+    schoolChart: {
+      labels: ['逢甲大學(30%)', '國立清華大學(20%)', '慈濟科技大學(20%)', '台北醫學大學(10%)', '國立台北教育大學(10%)', '國立台灣大學(10%)'],
+      data:   [30, 20, 20, 10, 10, 10],
+    },
+
+    // 活動類型分佈 Donut + 進度條
+    actTypeChart: {
+      labels: ['多元能力講座', '宣講會/工作坊', 'RTC課程', 'TW初賽/決賽', 'GC活動'],
+      data:   [12, 10, 10, 7, 2],
+    },
+    actTypeProgs: [
+      { label: '多元能力強化講座',   count: 12, width: 77,  color: 'var(--teal)' },
+      { label: '宣講會 / 宣講+工作坊', count: 10, width: 64,  color: 'var(--orange)' },
+      { label: 'RTC 課程',          count: 10, width: 64,  color: 'var(--green)' },
+      { label: 'TW 初賽 / 決賽',    count:  7, width: 45,  color: 'var(--blue)' },
+      { label: 'GC 夏令營 / 決賽',  count:  2, width: 13,  color: 'var(--purple)' },
+    ],
+
+    // 活動時間軸
+    timeline: [
+      { month: '3月', items: [
+        { type:'op', date:'3/2(一)',  name:'TW初賽 — 賽事網站公開', meta:'線上網站' },
+        { type:'op', date:'3/6(五)',  name:'TW初賽 — MAIC賽事開放報名', meta:'線上網站' },
+        { type:'tr', date:'3/6(五)',  name:'RTC｜趨勢AI置感助理：說出想法，形成計畫', meta:'臺灣大學 · 講師：13 · 14:00–17:00' },
+        { type:'tr', date:'3/13(五)', name:'RTC｜與AI一起開發：Agentic CLI實作', meta:'臺灣大學 · 講師：13 · 14:00–17:00' },
+        { type:'tr', date:'3/14(六)', name:'多元講座 — AI Coding Summer Camp 第一次宣傳體驗', meta:'TBC' },
+        { type:'mk', date:'3/18(三)', name:'高雄科技大學宣講會', meta:'講師：YY · 燕巢校區 · 150餘人 · 14:00–14:30' },
+        { type:'mk', date:'3/19(四)', name:'臺灣大學宣講會暨實體工作坊', meta:'講師：Ethan/Brandi · 15人 · 09:30–12:30' },
+        { type:'tr', date:'3/20(五)', name:'RTC｜行動裝置本地端原生AI功能開發實務', meta:'臺灣大學 · 講師：13 · 14:00–17:00' },
+        { type:'mk', date:'3/20(五)', name:'文化大學宣講會', meta:'講師：Edick & Brandi · 30人 · 10:00–11:00' },
+        { type:'mk', date:'3/25(三)', name:'海洋大學宣講會', meta:'講師：Brandi · 15人 · 11:40–12:30' },
+        { type:'tr', date:'3/27(五)', name:'RTC｜裝置端開源模型AI功能開發實務', meta:'臺灣大學 · 講師：13 · 14:00–17:00' },
+      ]},
+      { month: '4月', items: [
+        { type:'mk', date:'4/1(三)',   name:'慈濟大學宣講會', meta:'講師：Lynn · 45人 · 16:10–16:30' },
+        { type:'mk', date:'4/1+4/9',  name:'東華大學學生社群（LINE群組）', meta:'觸及1,259人，潛在4,038人' },
+        { type:'mk', date:'4/2+4/9',  name:'東華大學線上宣講會', meta:'講師：Lynn · 線上 · 累計10人 · 12:30–13:30' },
+        { type:'mk', date:'4/8+4/9',  name:'東華大學全校公告 + 校內信', meta:'估計觸及超過10,000人' },
+        { type:'mk', date:'4/9(四)',   name:'東華大學宣講會', meta:'東華大學' },
+        { type:'tr', date:'4/10(五)',  name:'RTC｜多模態AI技術在教學情境中的應用', meta:'臺灣大學 · 講師：Raymond（侯智薰）· 14:00–17:00' },
+        { type:'mk', date:'4/24',     name:'逢甲大學校長分享宣講會', meta:'逢甲大學' },
+        { type:'mk', date:'4月下旬',  name:'成功大學宣講會暨工作坊', meta:'講師：13 · 等Edick確認' },
+        { type:'mk', date:'4月下旬',  name:'清華大學宣講會', meta:'TBC · SA有跟Max提及' },
+        { type:'tr', date:'4月下旬',  name:'多元講座 — AI Coding與Swift開發入門（實體）', meta:'TBC' },
+        { type:'mk', date:'4/30(四)', name:'臺灣大學宣講會（90分鐘完成一支作品）', meta:'講師：Curly · Beat Detection節奏快剪 · 09:30–12:30' },
+        { type:'mk', date:'4/30(四)', name:'逢甲大學宣講會 & AI Coding', meta:'逢甲大學' },
+        { type:'tr', date:'4/30(四)', name:'多元講座 — UI/UX 設計', meta:'線上' },
+      ]},
+      { month: '5月', items: [
+        { type:'tr', date:'5/7(四)',   name:'多元講座 — AI Coding 從點子到App最短路徑（上）', meta:'線上' },
+        { type:'tr', date:'5月上旬',  name:'多元講座 — UI/UX設計（實體）', meta:'TBC' },
+        { type:'tr', date:'5/8(五)',   name:'RTC｜產品設計思考', meta:'臺灣大學 · 講師：Mia · 14:00–17:00' },
+        { type:'tr', date:'5/15(五)', name:'RTC｜空間體驗設計', meta:'臺灣大學 · 講師：Mia · 14:00–17:00' },
+        { type:'mk', date:'5/15',     name:'逢甲大學 AI coding 工作坊', meta:'講師：Peter' },
+        { type:'mk', date:'5/20(三)', name:'臺灣大學宣講會', meta:'講師：13 · 09:30–12:30' },
+        { type:'mk', date:'5/20(三)', name:'海洋大學宣講會', meta:'海洋大學' },
+        { type:'tr', date:'5/21(四)', name:'多元講座 — AI模型整合實務：把AI變成App的大腦', meta:'線上' },
+        { type:'tr', date:'5/22(五)', name:'RTC｜空間應用元件設計', meta:'臺灣大學 · 講師：Mia · 14:00–17:00' },
+        { type:'tr', date:'5/29(五)', name:'RTC｜表達與溝通協商技巧', meta:'臺灣大學 · 講師：Apple 專業學習專家 · 14:00–17:00' },
+        { type:'tr', date:'5月下旬',  name:'多元講座 — 行銷與影片剪輯（實體）', meta:'TBC' },
+        { type:'op', date:'5/31(日)', name:'TW初賽 — 創新創意組報名截止 + 企劃書截止', meta:'線上網站' },
+        { type:'tr', date:'5/31(日)', name:'多元講座 — AI Coding Summer Camp 第二次宣傳體驗', meta:'TBC' },
+      ]},
+      { month: '6月', items: [
+        { type:'op', date:'6/4(四)',  name:'TW初賽 — 臺灣初賽評審', meta:'Apple HQ · Apple x5、企業代表x1、教育代表x1' },
+        { type:'tr', date:'6/5(五)',  name:'RTC｜AI剪輯新紀元：FCP AI助你說好故事', meta:'臺灣大學 · 講師：Curly · 14:00–17:00' },
+        { type:'op', date:'6/10(三)', name:'TW初賽 — 臺灣初賽結果公布', meta:'線上網站' },
+        { type:'tr', date:'6/10(三)', name:'多元講座 — 包裝故事：行銷與AI影片剪輯', meta:'線上' },
+        { type:'tr', date:'6/17(三)', name:'多元講座 — 簡報設計與答辯技巧（實體）', meta:'需借場地 訂101-1-101-2' },
+        { type:'op', date:'6/30(二)', name:'TW決賽 — 決賽隊伍繳交作品截止', meta:'線上網站' },
+      ]},
+      { month: '7月', items: [
+        { type:'op', date:'7/7(二)',  name:'TW決賽 — 臺灣決賽評審', meta:'臺灣大學綜合教學館 · Apple x5、企業代表x1、教育代表x1' },
+        { type:'tr', date:'7/16(四)', name:'多元講座 — AI Coding Summer Camp Day1', meta:'TBC' },
+        { type:'tr', date:'7/17(五)', name:'多元講座 — AI Coding Summer Camp Day2', meta:'TBC' },
+      ]},
+      { month: '8–10月', items: [
+        { type:'gc', date:'8月中',  name:'GC 夏令營 — 開發者中心夏令營', meta:'杭州' },
+        { type:'gc', date:'10月底', name:'GC 決賽 — MAIC 總決賽', meta:'浙江大學' },
+      ]},
+    ],
+  },
+
+  // ── MARKETING：宣講會 KPI ─────────────────────────────
+  marketing: {
+    kpi1: [
+      { label: '已舉辦場次', value: '6', unit: '場', sub: '線下 5 + 線上 1', badge: '3月～4月', badgeClass: 'bo', color: 'var(--orange)' },
+      { label: '最大單場人數', value: '150+', unit: '', sub: '高雄科技大學 3/18', badge: '燕巢校區', badgeClass: 'bb', color: 'var(--blue)' },
+      { label: '宣講累計出席', value: '265+', unit: '', sub: '6 場合計實際出席', badge: '線上+線下合計', badgeClass: 'bg', color: 'var(--green)' },
+      { label: '下一場（預計）', value: '清華大學', unit: '', sub: '4月下旬 TBC', badge: '協調中', badgeClass: 'bp', color: 'var(--purple)', smallVal: true },
+    ],
+
+    // 宣講會清單
+    sessions: [
+      { school:'高雄科技大學',     date:'3/18', lecturer:'YY',           type:'線下', time:'14:00–14:30', people:150, venue:'燕巢校區',               note:'學生反應熱烈，活動結束前紛紛掃 LINE QR Code', color: '#ff9500' },
+      { school:'臺灣大學（工作坊）', date:'3/19', lecturer:'Ethan / Brandi', type:'線下', time:'09:30–12:30', people:15,  venue:'臺大共同教學館 1F 103',   note:'所有學生認真參與，對賽事高度興趣，活動後前來詢問', color: '#0071e3' },
+      { school:'文化大學',         date:'3/20', lecturer:'Edick & Brandi', type:'線下', time:'10:00–11:00', people:30,  venue:'資訊傳播學系教室',         note:'分享得獎作品時，學生表現出高度興趣', color: '#af52de' },
+      { school:'海洋大學',         date:'3/25', lecturer:'Brandi',         type:'線下', time:'12:20–12:40', people:15,  venue:'資訊工程學系',             note:'分享 Apple 創業基金後，學生興趣大增', color: '#34c759' },
+      { school:'慈濟大學',         date:'4/1',  lecturer:'Lynn',           type:'線下', time:'16:10–16:30', people:45,  venue:'經管系 自媒體傳播課程',   note:'老師安排於課程中分享，學校及課程另外提供參賽及獲獎獎勵', color: '#ff3b30' },
+      { school:'東華大學（線上）',  date:'4/2+4/9', lecturer:'Lynn',      type:'線上', time:'12:30–13:30', people:10,  venue:'線上',                   note:'學生敢於分享瞭解賽事的原因，積極了解比賽及參賽方式', color: '#5ac8fa' },
+    ],
+
+    // Email KPI（3格）
+    kpi2: [
+      { label: 'Email 總發送量', value: '2,993', unit: '', sub: '三份名單合計', badge: '教授 + 學生 + 台大問卷', badgeClass: 'bo', color: 'var(--orange)' },
+      { label: '最高開信率', value: '65.9%', unit: '', sub: '指導教授名單', badge: '精準投遞有效', badgeClass: 'bg', color: 'var(--green)' },
+      { label: '最高點擊率', value: '11.3%', unit: '', sub: '台大問卷校園名單', badge: '分眾導流效果佳', badgeClass: 'bb', color: 'var(--blue)' },
+    ],
+
+    // Email 清單
+    emails: [
+      { name:'2025年參賽隊伍「指導教授」', icon:'👨‍🏫', sent:82,   opened:54,   openRate:65.9, clicks:7,   ctr:8.5  },
+      { name:'2025年參賽隊伍「學生」',     icon:'🎓',   sent:274,  opened:141,  openRate:51.5, clicks:8,   ctr:2.9  },
+      { name:'台大問卷調查校園名單',       icon:'🏫',   sent:2637, opened:1092, openRate:41.4, clicks:298, ctr:11.3 },
+    ],
+    emailNote: '💡 <strong>觀察：</strong>教授名單開信率最高（65.9%）；台大問卷名單點擊率最高（11.3%），顯示分眾投遞具實際導流效果。',
+
+    // LINE / 全校公告
+    lineCard: {
+      title: '💬 東華大學學生社群（LINE）',
+      dates: '20260401 · 20260409',
+      reached: 1259,
+      potential: 4038,
+      note: '社群貼文增加校內曝光度，並成功吸引同學參與線上宣講會。',
+    },
+    announcementCard: {
+      title: '📢 東華大學全校公告 + 校內信',
+      dates: '4/8 發佈公告・4/9 發佈校內信',
+      total: '10,000+',
+      note: '東華大學 USR 友好積極，協助刊登全校公告系統並發佈校內信，觸及全校師生。',
+    },
+
+    // 各管道觸及量 Donut
+    channelChart: {
+      labels: ['東華全校公告', 'Email台大問卷', 'Email學生', 'Email教授', '東華社群LINE'],
+      data:   [10000, 2637, 274, 82, 1259],
+    },
+  },
+
+  // ── TRAINING：RTC 課程 ────────────────────────────────
+  training: {
+    kpi1: [
+      { label: 'RTC 課程總場次', value: '10', unit: '場', sub: '3月 ~ 6月，每週五', badge: '台灣大學', badgeClass: 'bg', color: 'var(--green)' },
+      { label: '已完成場次', value: '5', unit: '/ 10', sub: '截至 4/10（含今日課程）', badge: '50% 完成', badgeClass: 'bb', color: 'var(--blue)' },
+      { label: '課程時段', value: '週五下午', unit: '', sub: '每場 14:00–17:00（3小時）', badge: '實體課程', badgeClass: 'bp', color: 'var(--purple)', smallVal: true },
+      { label: '授課講師數', value: '5', unit: '', sub: '13 / Raymond / Mia / Curly / Apple專家', badge: '多元背景', badgeClass: 'bb', color: 'var(--teal)' },
+    ],
+
+    // RTC 課程清單
+    rtc: [
+      { date:'3/6(五)',  name:'趨勢AI置感助理：說出想法，形成計畫',        lecturer:'13',              done:true  },
+      { date:'3/13(五)', name:'與AI一起開發：Agentic CLI 實作',            lecturer:'13',              done:true  },
+      { date:'3/20(五)', name:'行動裝置本地端原生AI功能開發實務',           lecturer:'13',              done:true  },
+      { date:'3/27(五)', name:'裝置端開源模型AI功能開發實務',              lecturer:'13',              done:true  },
+      { date:'4/10(五)', name:'多模態AI技術在教學情境中的應用',            lecturer:'Raymond（侯智薰）', done:true  },
+      { date:'5/8(五)',  name:'產品設計思考',                              lecturer:'Mia',             done:false },
+      { date:'5/15(五)', name:'空間體驗設計',                              lecturer:'Mia',             done:false },
+      { date:'5/22(五)', name:'空間應用元件設計',                          lecturer:'Mia',             done:false },
+      { date:'5/29(五)', name:'表達與溝通協商技巧',                        lecturer:'Apple 專業學習專家', done:false },
+      { date:'6/5(五)',  name:'AI剪輯新紀元：把時間還給創意，FCP AI助你說好故事', lecturer:'Curly',  done:false },
+    ],
+
+    // RTC Radar 圖
+    rtcThemeChart: {
+      labels:  ['AI技術應用', '行動開發', '產品設計', '空間設計', '溝通表達', '創意影音'],
+      data:    [3, 2, 1, 2, 1, 1],
+    },
+
+    // 多元講座總覽
+    workshopSummary: {
+      total: 12,
+      inPerson: 8,
+      online: 4,
+      general: 9,
+      summerCamp: 3,
+      summerCampDates: '3/14 · 5/31 · 7/16–17',
+    },
+
+    // 多元講座月份分組
+    workshops: [
+      { month: '3月', color: '#0071e3', items: [
+        { date:'3/14(六)', name:'AI Coding Summer Camp\n第一次宣傳體驗活動', format:'實體', done:true },
+      ]},
+      { month: '4月', color: '#ff9500', items: [
+        { date:'4月下旬', name:'AI Coding 與 Swift 開發入門', format:'實體', done:false },
+        { date:'4/30(四)', name:'UI/UX 設計', format:'線上', done:false },
+      ]},
+      { month: '5月', color: '#34c759', items: [
+        { date:'5/7(四)',  name:'AI Coding 從點子到 App 的最短路徑（上）', format:'線上', done:false },
+        { date:'5月上旬', name:'UI/UX 設計（實體）', format:'實體', done:false },
+        { date:'5/21(四)', name:'AI 模型整合實務：把 AI 變成 App 的大腦', format:'線上', done:false },
+        { date:'5月下旬', name:'行銷與影片剪輯（實體）', format:'實體', done:false },
+        { date:'5/31(日)', name:'AI Coding Summer Camp\n第二次宣傳體驗活動', format:'實體', done:false },
+      ]},
+      { month: '6月', color: '#af52de', items: [
+        { date:'6/10(三)', name:'包裝故事：行銷與 AI 影片剪輯', format:'線上', done:false },
+        { date:'6/17(三)', name:'簡報設計與答辯技巧', format:'實體', done:false },
+      ]},
+      { month: '7月', color: '#5ac8fa', items: [
+        { date:'7/16(四)', name:'AI Coding Student Summer Camp Day1', format:'實體', done:false },
+        { date:'7/17(五)', name:'AI Coding Student Summer Camp Day2', format:'實體', done:false },
+      ]},
+    ],
+  },
+
+  // ── 決議追蹤 ──────────────────────────────────────────
+  // status: 'open'（進行中）| 'done'（已完成）| 'delay'（延誤）
+  // priority: 'high'（紅）| 'mid'（橘）| 'low'（藍）
+  decisions: [
+    { meeting: '週會 W16｜2026/04/10', items: [
+      { id:'d11', owner:'SA 團隊', item:'補齊資料，產出 PDF 版賽事規劃書並寄給 Max（CC 正奎、Evonne）',         deadline:'4/14', priority:'high', status:'open' },
+      { id:'d12', owner:'SA 團隊', item:'更新受眾名單並發送新一波 EDM（主視覺確認後執行，導入分眾客製化策略）',   deadline:'4/17', priority:'mid',  status:'open' },
+      { id:'d13', owner:'Edick',   item:'回覆成功大學場地費洽談進展',                                            deadline:'4/17', priority:'mid',  status:'open' },
+      { id:'d14', owner:'Edick',   item:'確認逢甲大學 4/24 宣講會講師費用支付對象（SA 或逢甲大學買單）',         deadline:'4/17', priority:'mid',  status:'open' },
+      { id:'d15', owner:'Brandi',  item:'在追蹤表格新增「已註冊人數」欄位',                                      deadline:'4/10', priority:'low',  status:'done' },
+      { id:'d16', owner:'正奎',    item:'牽線聯繫「傳揚」窗口，收集前年台大決賽場地規劃結案資料',               deadline:'4/15', priority:'mid',  status:'open' },
+      { id:'d17', owner:'Brandi',  item:'提醒 Edick 下週三（4/15）下午 2:00 中教大拜訪行程',                    deadline:'4/14', priority:'mid',  status:'done' },
+      { id:'d18', owner:'Brandi',  item:'向易璇索取臺大宣講會學生名單（易璇過往已提供，下週一更新名單並發送賽事資訊）', deadline:'4/21', priority:'low',  status:'open' },
+      { id:'d19', owner:'正奎',    item:'協助處理中教大 Logo 向量檔（AI 格式），解決 PNG 解析度不佳問題',         deadline:'4/14', priority:'mid',  status:'open' },
+      { id:'d20', owner:'正奎',    item:'確認清華大學宣講會執行可能性（對口：邱富源教授）',                       deadline:'4/17', priority:'mid',  status:'open' },
+      { id:'d21', owner:'正奎',    item:'將 Kat 與 Amy 的信箱加入試算表與簡報共編權限',                          deadline:'4/10', priority:'low',  status:'done' },
+    ]},
+    { meeting: '週會 W15｜2026/04/09', items: [
+      { id:'d01', owner:'Brandi', item:'清華大學宣講時間確認，回覆給 Max',              deadline:'4/15', priority:'high', status:'open'  },
+      { id:'d02', owner:'Lynn',   item:'東華大學宣講後有興趣同學名單整理，提醒報名',    deadline:'4/16', priority:'high', status:'open'  },
+      { id:'d03', owner:'13',     item:'成功大學宣講等 Edick 確認後排定時間',           deadline:'4/20', priority:'mid',  status:'open'  },
+      { id:'d04', owner:'全體',   item:'企劃書未繳 4 組隊伍發提醒信',                  deadline:'4/18', priority:'mid',  status:'open'  },
+      { id:'d05', owner:'YY',     item:'逢甲大學 4/24 宣講場地確認與講義準備',          deadline:'4/22', priority:'mid',  status:'open'  },
+    ]},
+    { meeting: '週會 W14｜2026/04/02', items: [
+      { id:'d06', owner:'Lynn',   item:'慈濟大學宣講投影片更新（加入 Apple 創業基金資訊）', deadline:'4/05', priority:'mid', status:'done'  },
+      { id:'d07', owner:'Brandi', item:'海洋大學宣講後有興趣同學 follow-up',            deadline:'4/08', priority:'low',  status:'done'  },
+      { id:'d08', owner:'13',     item:'RTC W4（3/27）課程投影片上傳至 BTS 平台',       deadline:'4/05', priority:'low',  status:'done'  },
+    ]},
+    { meeting: '週會 W13｜2026/03/26', items: [
+      { id:'d09', owner:'Edick',  item:'文化大學後續接洽，安排第二次工作坊',            deadline:'4/15', priority:'mid',  status:'delay' },
+      { id:'d10', owner:'全體',   item:'更新 maic.straighta.com.tw 首頁報名截止倒數',  deadline:'3/31', priority:'high', status:'done'  },
+    ]},
+  ],
+
+}; // ← END of DATA
+
+// ════ LOAD IMPORTED DATA（必須在 Render Engine 之前執行）════
+// 中文類型 → 英文代碼
+function _toCode(t) {
+  var m = {'TW初賽':'op','TW決賽':'op','GC夏令營':'gc','GC決賽':'gc',
+           'RTC課程':'tr','多元能力強化講座課程':'tr',
+           '宣講會':'mk','宣講會＋培訓工作坊':'mk'};
+  return m[t] || t || 'op';
+}
+(function loadImported() {
+  var load = function(key) { try { var d=localStorage.getItem(key); return d?JSON.parse(d):null; } catch(e){return null;} };
+
+  var tl = load('maic_import_timeline');
+  if (tl && Array.isArray(tl)) {
+    var g = {};
+    tl.forEach(function(r){
+      var month = (r[0]||'未知').trim();
+      if (!g[month]) g[month] = [];
+      g[month].push({type:_toCode((r[2]||'').trim()), date:(r[1]||'').trim(), name:(r[3]||'').trim(), meta:(r[4]||'').trim()});
+    });
+    DATA.operation.timeline = Object.entries(g).map(function(e){ return {month:e[0],items:e[1]}; });
+  }
+
+  var sess = load('maic_import_sessions');
+  if (sess && Array.isArray(sess)) DATA.marketing.sessions = sess.map(function(r){ return {school:r[0],date:r[1],lecturer:r[2],type:r[3],time:r[4],people:parseInt(r[5])||0,venue:r[6],note:r[7],color:r[8]||'#0071e3'}; });
+
+  var em = load('maic_import_emails');
+  if (em && Array.isArray(em)) DATA.marketing.emails = em.map(function(r){ return {name:r[0],icon:r[1]||'📧',sent:parseInt(r[2])||0,opened:parseInt(r[3])||0,openRate:parseFloat(r[4])||0,clicks:parseInt(r[5])||0,ctr:parseFloat(r[6])||0}; });
+
+  var rtc = load('maic_import_rtc');
+  if (rtc && Array.isArray(rtc)) DATA.training.rtc = rtc.map(function(r){ return {date:r[0],name:r[1],lecturer:r[2],done:(r[3]||'').toLowerCase()==='true'}; });
+
+  var dec = load('maic_import_decisions');
+  if (dec && Array.isArray(dec)) {
+    var dg = {};
+    dec.forEach(function(r,idx){ var m=r[0]||'會議'; if(!dg[m])dg[m]=[]; dg[m].push({id:'imp'+idx,owner:r[1],item:r[2],deadline:r[3],priority:r[4]||'mid',status:r[5]||'open'}); });
+    DATA.decisions = Object.entries(dg).map(function(e){ return {meeting:e[0],items:e[1]}; });
+  }
+
+  // 還原上次分頁（reload 後跳回正確 tab）
+  var _tab = sessionStorage.getItem('maic_reload_tab');
+  if (_tab) { sessionStorage.removeItem('maic_reload_tab'); setTimeout(function(){ switchTab(_tab); }, 80); }
+})();
+
+// ════════════════════════════════════════════════════════
+//  RENDER ENGINE — 以下勿動，除非要調整 UI 樣式
+// ════════════════════════════════════════════════════════
+
+const C = {
+  blue:'#0071e3', green:'#34c759', orange:'#ff9500',
+  red:'#ff3b30', purple:'#af52de', teal:'#5ac8fa', pink:'#ff2d55', gray:'#8e8e93'
+};
+const rgba = (hex, a) => {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return 'rgba('+r+','+g+','+b+','+a+')';
+};
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif";
+Chart.defaults.color = '#6e6e73';
+
+// ── 全域 Meta ──
+document.getElementById('hdr-date').textContent = DATA.meta.dataAsOf;
+document.querySelector('.logo-icon').textContent = 'M';
+document.querySelector('header .logo div div:first-child').textContent = DATA.meta.title;
+document.querySelector('header .logo div div:last-child').textContent = DATA.meta.subtitle;
+
+// ── KPI Builder ──
+function buildKPI(items) {
+  return items.map(k => {
+    const valHtml = k.smallVal
+      ? `<div class="kpi-val" style="color:${k.color};font-size:18px;margin-top:4px">${k.value}</div>`
+      : `<div class="kpi-val" style="color:${k.color}">${k.value}${k.unit ? `<span style="font-size:14px;color:var(--text2);font-weight:500"> ${k.unit}</span>` : ''}</div>`;
+    return `<div class="kpi"><div class="kpi-lbl">${k.label}</div>${valHtml}<div class="kpi-sub">${k.sub}</div><span class="bdg ${k.badgeClass}">${k.badge}</span></div>`;
+  }).join('');
+}
+
+// ════ OPERATION RENDER ════
+
+document.getElementById('op-date-label').textContent = DATA.operation.registrationDateLabel;
+document.getElementById('op-kpi-row1').innerHTML = buildKPI(DATA.operation.kpi1);
+
+// 第二排：組別 + 網站
+const g = DATA.operation.groupBreakdown;
+const ws = DATA.operation.websites;
+document.getElementById('op-kpi-row2').innerHTML = `
+  <div class="kpi" style="display:flex;align-items:center;gap:16px">
+    <div style="text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">創意組</div><div style="font-size:26px;font-weight:700;color:var(--blue)">${g.creative}</div></div>
+    <div style="text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">創新組</div><div style="font-size:26px;font-weight:700;color:var(--purple)">${g.innovative}</div></div>
+    <div style="text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">創業組</div><div style="font-size:26px;font-weight:700;color:var(--green)">${g.startup}</div></div>
+    <div style="flex:1;padding-left:10px;border-left:1px solid var(--border)"><div style="font-size:11px;color:var(--text2)">企劃書繳交</div><div style="font-size:13px;font-weight:600;margin-top:4px">已繳 <span style="color:var(--green)">${g.submitted}</span> 組・未繳 <span style="color:var(--orange)">${g.notSubmitted}</span> 組</div></div>
+  </div>
+  ${ws.map(w => `<div class="kpi"><div class="kpi-lbl">${w.label}</div><div class="kpi-val" style="color:${w.color}">${w.value}</div><div class="kpi-sub">${w.sub}</div><span class="bdg bb">${w.badge}</span></div>`).join('')}
+`;
+
+// 活動時間軸 → 由下方 buildTimeline() IIFE 負責渲染（支援篩選 + 7天截止）
+
+// 活動進度條
+document.getElementById('actTypeProgs').innerHTML = DATA.operation.actTypeProgs.map(p =>
+  `<div class="prog"><div class="prog-lbl"><span>${p.label}</span><span style="font-weight:600">${p.count} 場</span></div><div class="prog-bar"><div class="prog-fill" style="width:${p.width}%;background:${p.color}"></div></div></div>`
+).join('');
+
+// 科系 Donut
+new Chart(document.getElementById('deptChart'), {
+  type: 'doughnut',
+  data: { labels: DATA.operation.deptChart.labels, datasets: [{ data: DATA.operation.deptChart.data, backgroundColor: [C.blue,C.orange,C.red,C.green,C.purple,C.teal,C.pink], borderWidth:2, borderColor:'#ffffff' }] },
+  options: { responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{ legend:{ position:'right', labels:{ boxWidth:10, padding:6, font:{size:9.5} } } } }
+});
+
+// 學校 Donut
+new Chart(document.getElementById('schoolChart'), {
+  type: 'doughnut',
+  data: { labels: DATA.operation.schoolChart.labels, datasets: [{ data: DATA.operation.schoolChart.data, backgroundColor: [C.orange,C.blue,C.purple,C.red,C.teal,C.green], borderWidth:2, borderColor:'#ffffff' }] },
+  options: { responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{ legend:{ position:'right', labels:{ boxWidth:10, padding:6, font:{size:9.5} } } } }
+});
+
+// 活動類型 Donut
+new Chart(document.getElementById('actTypeChart'), {
+  type: 'doughnut',
+  data: { labels: DATA.operation.actTypeChart.labels, datasets: [{ data: DATA.operation.actTypeChart.data, backgroundColor:[C.teal,C.orange,C.green,C.blue,C.purple], borderWidth:2, borderColor:'#ffffff' }] },
+  options: { responsive:true, maintainAspectRatio:false, cutout:'50%', plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10, padding:8, font:{size:10} } } } }
+});
+
+// ════ MARKETING RENDER ════
+
+document.getElementById('mk-kpi-row1').innerHTML = buildKPI(DATA.marketing.kpi1);
+
+// 宣講會清單
+(function buildSessions(){
+  document.getElementById('sessionList').innerHTML = DATA.marketing.sessions.map((s,i) =>
+    `<div class="session">
+      <div class="snum" style="background:${s.color}">${i+1}</div>
+      <div class="sinfo">
+        <div class="sname">${s.school}</div>
+        <div class="smeta">${s.date} · 講師：${s.lecturer} · ${s.time}<br>${s.venue}</div>
+        <div class="smeta" style="font-style:italic;margin-top:3px">${s.note}</div>
+      </div>
+      <div class="sright"><div class="sppl" style="color:${s.color}">${s.people}</div><div class="sppl-lbl">人</div><div class="tag" style="margin-top:5px">${s.type}</div></div>
+    </div>`
+  ).join('');
+})();
+
+// 宣講會 Bar Chart
+new Chart(document.getElementById('sessionChart'), {
+  type: 'bar',
+  data: {
+    labels: DATA.marketing.sessions.map(s => s.school.replace('（', '\n（')),
+    datasets: [{ label:'出席人數', data: DATA.marketing.sessions.map(s => s.people), backgroundColor: DATA.marketing.sessions.map(s => rgba(s.color,.8)), borderRadius:8, borderSkipped:false }]
+  },
+  options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11}}}, x:{grid:{display:false},ticks:{font:{size:10}}} } }
+});
+
+document.getElementById('mk-kpi-row2').innerHTML = buildKPI(DATA.marketing.kpi2);
+
+// Email 清單
+(function buildEmails(){
+  document.getElementById('emailList').innerHTML = DATA.marketing.emails.map(e => {
+    const oc = e.openRate >= 60 ? C.green : e.openRate >= 45 ? C.orange : C.red;
+    return `<div class="erow">
+      <div class="eicon">${e.icon}</div>
+      <div class="einfo"><div class="ename">${e.name}</div><div class="emeta">發送 ${e.sent.toLocaleString()} 封・開信 ${e.opened.toLocaleString()} 封・點擊 ${e.clicks} 次</div></div>
+      <div class="emetrics">
+        <div class="metric"><div class="mval" style="color:${oc}">${e.openRate}%</div><div class="mlbl">開信率</div></div>
+        <div class="metric"><div class="mval" style="color:${C.blue}">${e.ctr}%</div><div class="mlbl">點擊率</div></div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('emailNote').innerHTML = DATA.marketing.emailNote;
+})();
+
+// Email Bar Chart
+new Chart(document.getElementById('emailChart'), {
+  type: 'bar',
+  data: {
+    labels: DATA.marketing.emails.map(e => e.name.replace('2025年參賽隊伍', '').replace('「','').replace('」','')),
+    datasets: [
+      { label:'開信率 %', data: DATA.marketing.emails.map(e => e.openRate), backgroundColor: rgba(C.orange,.75), borderRadius:6 },
+      { label:'點擊率 %', data: DATA.marketing.emails.map(e => e.ctr),      backgroundColor: rgba(C.blue,.75),   borderRadius:6 },
+    ]
+  },
+  options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{boxWidth:11,padding:10,font:{size:11}}}}, scales:{ y:{beginAtZero:true,max:80,ticks:{callback:v=>v+'%',font:{size:11}},grid:{color:'rgba(0,0,0,0.05)'}}, x:{grid:{display:false},ticks:{font:{size:11}}} } }
+});
+
+// LINE Card
+(function buildLineCard(){
+  const l = DATA.marketing.lineCard;
+  document.getElementById('line-card').innerHTML = `
+    <div class="card-title">${l.title}</div>
+    <div style="font-size:11px;color:var(--text2);margin-bottom:10px">${l.dates}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div style="text-align:center;background:var(--bg);border-radius:10px;padding:14px"><div style="font-size:24px;font-weight:700;color:var(--orange)">${l.reached.toLocaleString()}</div><div style="font-size:10px;color:var(--text2)">已觸及人數</div></div>
+      <div style="text-align:center;background:var(--bg);border-radius:10px;padding:14px"><div style="font-size:24px;font-weight:700;color:var(--blue)">${l.potential.toLocaleString()}</div><div style="font-size:10px;color:var(--text2)">潛在觸及總數</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--text2)">${l.note}</div>`;
+})();
+
+// Announcement Card
+(function buildAnnouncementCard(){
+  const a = DATA.marketing.announcementCard;
+  document.getElementById('announcement-card').innerHTML = `
+    <div class="card-title">${a.title}</div>
+    <div style="font-size:11px;color:var(--text2);margin-bottom:10px">${a.dates}</div>
+    <div style="text-align:center;background:var(--bg);border-radius:10px;padding:18px;margin-bottom:12px"><div style="font-size:32px;font-weight:700;color:var(--green)">${a.total}</div><div style="font-size:11px;color:var(--text2)">估計觸及師生人數</div></div>
+    <div style="font-size:11px;color:var(--text2)">${a.note}</div>`;
+})();
+
+// 管道觸及 Donut
+new Chart(document.getElementById('channelChart'), {
+  type: 'doughnut',
+  data: { labels: DATA.marketing.channelChart.labels, datasets: [{ data: DATA.marketing.channelChart.data, backgroundColor:[C.teal,C.blue,C.orange,C.green,C.purple], borderWidth:2, borderColor:'#ffffff' }] },
+  options: { responsive:true, maintainAspectRatio:false, cutout:'50%', plugins:{ legend:{ position:'bottom', labels:{ boxWidth:9, padding:6, font:{size:9.5} } } } }
+});
+
+// ════ TRAINING RENDER ════
+
+document.getElementById('tr-kpi-row1').innerHTML = buildKPI(DATA.training.kpi1);
+
+// RTC 課程列表
+(function buildRTC(){
+  document.getElementById('rtcList').innerHTML = DATA.training.rtc.map((c,i) =>
+    `<div class="rtc">
+      <div class="rnum" style="background:${c.done ? C.green : '#c7c7cc'}">${i+1}</div>
+      <div class="rinfo">
+        <div class="rname" style="color:${c.done ? 'var(--text)' : 'var(--text2)'}">${c.name}</div>
+        <div class="rmeta">${c.date} · 14:00–17:00 · 臺灣大學 · 講師：${c.lecturer}</div>
+      </div>
+      <span class="bdg ${c.done?'bg':'bo'}" style="flex-shrink:0">${c.done?'✅ 已完成':'⏳ 待舉辦'}</span>
+    </div>`
+  ).join('');
+})();
+
+// RTC Radar
+new Chart(document.getElementById('rtcThemeChart'), {
+  type: 'radar',
+  data: { labels: DATA.training.rtcThemeChart.labels, datasets: [{ label:'RTC 主題比重', data: DATA.training.rtcThemeChart.data, backgroundColor:rgba(C.green,.15), borderColor:C.green, borderWidth:2, pointBackgroundColor:C.green, pointRadius:5 }] },
+  options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{r:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},pointLabels:{font:{size:11}}}} }
+});
+
+// 多元講座總覽
+(function buildWorkshopSummary(){
+  const s = DATA.training.workshopSummary;
+  document.getElementById('workshopSummary').innerHTML = `
+    <div class="card-title">📊 多元能力強化講座 — 總覽</div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center">
+      <div style="text-align:center;padding:0 16px 0 4px;border-right:1px solid var(--border)">
+        <div style="font-size:48px;font-weight:700;color:var(--green);line-height:1">${s.total}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:4px">總場次</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:6px"><span>舉辦形式</span><span>共 ${s.total} 場</span></div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="flex:${s.inPerson};background:#dcfce7;border-radius:6px;padding:7px 12px;text-align:center"><span style="font-size:18px;font-weight:700;color:#15803d">${s.inPerson}</span><span style="font-size:11px;color:#15803d;margin-left:4px">場 🏛 實體</span></div>
+            <div style="flex:${s.online};background:#dbeafe;border-radius:6px;padding:7px 12px;text-align:center"><span style="font-size:18px;font-weight:700;color:#1d4ed8">${s.online}</span><span style="font-size:11px;color:#1d4ed8;margin-left:4px">場 📻 線上</span></div>
+          </div>
+          <div style="display:flex;height:6px;border-radius:100px;overflow:hidden;margin-top:6px"><div style="flex:${s.inPerson};background:#22c55e"></div><div style="flex:${s.online};background:#3b82f6"></div></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div style="background:var(--bg);border-radius:8px;padding:8px 14px;flex:1;min-width:140px">
+            <div style="font-size:10px;color:var(--text2);margin-bottom:3px">一般技能講座</div>
+            <div style="font-size:16px;font-weight:700;color:var(--green)">${s.general} <span style="font-size:11px;font-weight:400;color:var(--text2)">場</span></div>
+            <div style="font-size:10px;color:var(--text2);margin-top:2px">AI / 設計 / 行銷 / 簡報</div>
+          </div>
+          <div style="background:#fef9c3;border-radius:8px;padding:8px 14px;flex:1;min-width:140px;border:1px solid #fde047">
+            <div style="font-size:10px;color:#713f12;margin-bottom:3px">☀️ AI Coding Summer Camp</div>
+            <div style="font-size:16px;font-weight:700;color:#d97706">${s.summerCamp} <span style="font-size:11px;font-weight:400;color:#92400e">場</span></div>
+            <div style="font-size:10px;color:#92400e;margin-top:2px">${s.summerCampDates}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+})();
+
+// 多元講座卡片
+(function buildWorkshopCards(){
+  function fmtBadge(fmt) {
+    return fmt === '線上'
+      ? '<span style="font-size:10px;padding:2px 8px;border-radius:100px;background:#dbeafe;color:#1e40af;font-weight:600">📻 線上</span>'
+      : '<span style="font-size:10px;padding:2px 8px;border-radius:100px;background:#dcfce7;color:#14532d;font-weight:600">🏛 實體</span>';
+  }
+  let html = '';
+  DATA.training.workshops.forEach(m => {
+    const doneCount = m.items.filter(i => i.done).length;
+    html += `<div style="margin-bottom:22px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${m.color};flex-shrink:0"></div>
+        <div style="font-size:14px;font-weight:700;color:${m.color}">${m.month}</div>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <div style="font-size:11px;color:var(--text2)">${doneCount} / ${m.items.length} 完成</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">`;
+    m.items.forEach(w => {
+      const nameDisp = w.name.replace('\n', '<br>');
+      html += `<div style="background:${w.done?'#f0fdf4':'#ffffff'};border:1.5px solid ${w.done?'#86efac':'var(--border)'};border-radius:12px;padding:14px 15px;position:relative;box-shadow:0 1px 6px rgba(0,0,0,.05)">
+        <div style="position:absolute;top:12px;right:12px">${w.done
+          ? '<span style="font-size:10px;padding:2px 8px;border-radius:100px;background:#d1fae5;color:#065f46;font-weight:600">✅ 完成</span>'
+          : '<span style="font-size:10px;padding:2px 8px;border-radius:100px;background:#fff3cd;color:#92400e;font-weight:600">⏳ 待辦</span>'
+        }</div>
+        <div style="font-size:11px;font-weight:700;color:${m.color};margin-bottom:6px">${w.date}</div>
+        <div style="font-size:12px;font-weight:600;color:${w.done?'var(--text2)':'var(--text)'};line-height:1.5;padding-right:52px;margin-bottom:10px">${nameDisp}</div>
+        ${fmtBadge(w.format)}</div>`;
+    });
+    html += '</div></div>';
+  });
+  document.getElementById('workshopCards').innerHTML = html;
+})();
+
+// ════ TIMELINE FILTER ════
+let tlFilter = 'all';
+
+function setTlFilter(type) {
+  tlFilter = type;
+  ['all','op','mk','tr','gc'].forEach(function(t) {
+    const btn = document.getElementById('fbtn-' + t);
+    if (btn) btn.className = 'tl-btn' + (t === type ? ' act-' + t : '');
+  });
+  buildTimeline();
+}
+
+// ════ PROGRESS RING ════
+function buildProgressRing() {
+  const target  = DATA.operation.registrationTarget;
+  const current = parseInt(DATA.operation.kpi1[0].value);
+  const pct     = (current / target * 100);
+  const pctStr  = pct.toFixed(1);
+  const circ    = 99.9;
+  const dash    = (pct / 100 * circ).toFixed(2);
+  document.getElementById('progress-ring').innerHTML = `
+    <div title="整體報名進度 ${pctStr}%" style="position:relative;width:50px;height:50px">
+      <svg viewBox="0 0 36 36" width="50" height="50">
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e5e5ea" stroke-width="3"/>
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#0071e3" stroke-width="3"
+          stroke-dasharray="${dash} ${(circ - parseFloat(dash)).toFixed(2)}"
+          stroke-linecap="round" transform="rotate(-90 18 18)"/>
+      </svg>
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0">
+        <span style="font-size:8px;font-weight:800;color:#0071e3;line-height:1">${pctStr}%</span>
+        <span style="font-size:6.5px;color:#6e6e73;line-height:1.3">報名進度</span>
+      </div>
+    </div>
+    <div style="font-size:9px;color:#6e6e73;margin-top:2px;text-align:center">${current} / ${target} 隊</div>`;
+}
+buildProgressRing();
+
+// ════ 7-DAY DEADLINE HELPER ════
+function parseActDate(dateStr) {
+  if (!dateStr || typeof dateStr !== 'string') return null;
+  const m = dateStr.match(/^(\d{1,2})\/(\d{1,2})/);
+  if (!m) return null;
+  return new Date(2026, parseInt(m[1]) - 1, parseInt(m[2]));
+}
+const _today   = new Date(DATA.meta.currentDate);
+const _in7days = new Date(_today); _in7days.setDate(_today.getDate() + 7);
+function isSoon(dateStr) {
+  try { const d = parseActDate(dateStr); return d && d >= _today && d <= _in7days; }
+  catch(e) { return false; }
+}
+
+// ════ ENHANCED buildTimeline（全域函式，供篩選重複呼叫）════
+function buildTimeline(){
+  const tl = document.getElementById('timeline');
+  const dbg = document.getElementById('tl-debug');
+  if (!tl) return;
+  try {
+    const timeline = (DATA && DATA.operation && DATA.operation.timeline) || [];
+    const total = timeline.reduce(function(s,m){ return s + (m&&m.items?m.items.length:0); }, 0);
+    // 類型分佈 debug
+    var typeCounts = {op:0,mk:0,tr:0,gc:0,other:0};
+    timeline.forEach(function(m){ (m&&m.items||[]).forEach(function(i){ var t=i&&i.type||'other'; typeCounts[t]=(typeCounts[t]||0)+1; }); });
+    if (dbg) dbg.textContent = '📊 資料來源：' + (localStorage.getItem('maic_import_timeline') ? '已匯入' : '預設') + ' | 共 ' + total + ' 筆 | op:' + typeCounts.op + ' mk:' + typeCounts.mk + ' tr:' + typeCounts.tr + ' gc:' + typeCounts.gc + ' | 篩選：' + tlFilter;
+
+    let html = '';
+    let shownCount = 0;
+    timeline.forEach(function(m){
+      if (!m || !m.items) return;
+      const filteredItems = tlFilter === 'all'
+        ? m.items
+        : m.items.filter(function(i){ return i && i.type === tlFilter; });
+      if (!filteredItems.length) return;
+      html += '<div class="month-hd">📅 ' + (m.month || '') + '</div>';
+      filteredItems.forEach(function(i){
+        if (!i) return;
+        const d    = i.date || '';
+        const soon = isSoon(d);
+        html += '<div class="act ' + (i.type||'') + (soon ? ' soon' : '') + '">'
+              + '<div class="act-date">' + d + '</div>'
+              + '<div style="flex:1"><div class="act-name">' + (i.name||'') + '</div>'
+              + '<div class="act-meta">' + (i.meta||'') + '</div></div>'
+              + (soon ? '<span class="deadline-badge">🔔 7天內</span>' : '')
+              + '</div>';
+        shownCount++;
+      });
+    });
+    if (!shownCount) html = '<div style="text-align:center;padding:30px;color:var(--text2);font-size:12px">無此類別活動</div>';
+    tl.innerHTML = html;
+    const shown   = tlFilter === 'all' ? '共 ' + total + ' 項' : shownCount + ' 項（已篩選）';
+    const titleEl = document.getElementById('timeline-title');
+    if (titleEl) titleEl.innerHTML = '🗂 活動時間軸（' + shown + ')&nbsp;'
+      + '<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#eff6ff;color:#1d4ed8">OP</span>'
+      + '<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#fff7ed;color:#c2410c">MK</span>'
+      + '<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#f0fdf4;color:#15803d">TR</span>'
+      + '<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#fdf4ff;color:#7e22ce">GC</span>';
+  } catch(e) {
+    if (dbg) dbg.textContent = '❌ 錯誤：' + e.message;
+    tl.innerHTML = '<div style="color:var(--red);padding:16px;font-size:12px">⚠️ 顯示錯誤：' + e.message + '</div>';
+  }
+}
+buildTimeline();
+
+// ════ EXPORT CSV ════
+function exportCSV() {
+  const rows = [['月份','日期','類型','活動名稱','說明']];
+  DATA.operation.timeline.forEach(m => m.items.forEach(i =>
+    rows.push([m.month, i.date, i.type.toUpperCase(), i.name, i.meta])
+  ));
+  const csv = '\uFEFF' + rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'})),
+    download: 'MAIC_活動時間軸.csv'
+  });
+  a.click();
+}
+
+// ════ EXPORT PDF ════
+function exportPDF() {
+  // 1. 先展開所有分頁、強制 Chart.js resize 重繪
+  _printShowPages();
+  // 2. 等 300ms 讓隱藏頁面的圖表完成渲染，再轉圖 + 列印
+  setTimeout(function() {
+    _printCanvasToImg();
+    window.print();
+  }, 300);
+}
+
+// ════ DECISION TRACKER ════
+const DC_KEY = 'maic_dec_done';
+let dcDoneIds = new Set(JSON.parse(localStorage.getItem(DC_KEY) || '[]'));
+let dcFilter  = 'all';
+
+function saveDc() { localStorage.setItem(DC_KEY, JSON.stringify([...dcDoneIds])); }
+
+function toggleDec(id) {
+  dcDoneIds.has(id) ? dcDoneIds.delete(id) : dcDoneIds.add(id);
+  saveDc();
+  buildDecisions();
+}
+
+function resetDecisions() {
+  if (!confirm('確定要重設所有勾選狀態嗎？')) return;
+  dcDoneIds.clear(); saveDc(); buildDecisions();
+}
+
+function setDcFilter(f) {
+  dcFilter = f;
+  document.querySelectorAll('#dc-filter-bar .tl-btn').forEach(b => b.className = 'tl-btn');
+  const map = { all: 0, open: 1, done: 2, delay: 3 };
+  const cls = { all:'act-all', open:'act-op', done:'act-tr', delay:'act-mk' };
+  document.querySelectorAll('#dc-filter-bar .tl-btn')[map[f]].classList.add(cls[f]);
+  buildDecisions();
+}
+
+function buildDecisions() {
+  const priColor = { high: 'var(--red)', mid: 'var(--orange)', low: 'var(--teal)' };
+  const priLabel = { high: '緊急', mid: '一般', low: '低' };
+
+  // 統計（以原始 status + 是否 checked 為準）
+  let total = 0, nOpen = 0, nDone = 0, nDelay = 0;
+  DATA.decisions.forEach(g => g.items.forEach(i => {
+    total++;
+    const eff = dcDoneIds.has(i.id) ? 'done' : i.status;
+    if (eff === 'done') nDone++;
+    else if (eff === 'delay') nDelay++;
+    else nOpen++;
+  }));
+
+  // KPI
+  document.getElementById('dc-kpi-row').innerHTML = `
+    <div class="kpi"><div class="kpi-lbl">總決議事項</div><div class="kpi-val" style="color:var(--blue)">${total}</div><div class="kpi-sub">共 ${DATA.decisions.length} 場會議</div><span class="bdg bb">全部</span></div>
+    <div class="kpi"><div class="kpi-lbl">進行中</div><div class="kpi-val" style="color:var(--orange)">${nOpen}</div><div class="kpi-sub">待完成事項</div><span class="bdg bo">🔵 Open</span></div>
+    <div class="kpi"><div class="kpi-lbl">已完成</div><div class="kpi-val" style="color:var(--green)">${nDone}</div><div class="kpi-sub">完成率 ${total ? Math.round(nDone/total*100) : 0}%</div><span class="bdg bg">✅ Done</span></div>
+    <div class="kpi"><div class="kpi-lbl">延誤</div><div class="kpi-val" style="color:var(--red)">${nDelay}</div><div class="kpi-sub">需關注</div><span class="bdg br">⚠️ Delay</span></div>`;
+
+  // 清單
+  let html = '';
+  DATA.decisions.forEach(g => {
+    const filtered = g.items.filter(i => {
+      const eff = dcDoneIds.has(i.id) ? 'done' : i.status;
+      return dcFilter === 'all' || eff === dcFilter;
+    });
+    if (!filtered.length) return;
+
+    html += `<div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;color:var(--text2);padding:6px 0 8px;border-bottom:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:8px">
+        📅 ${g.meeting}
+        <span style="font-size:10px;background:var(--bg);padding:2px 8px;border-radius:100px;font-weight:500">${filtered.length} 項</span>
+      </div>`;
+
+    filtered.forEach(i => {
+      const checked = dcDoneIds.has(i.id);
+      const eff     = checked ? 'done' : i.status;
+      const stMap   = { open:['st-open','進行中'], done:['st-done','已完成'], delay:['st-delay','延誤'] };
+      const [stCls, stLbl] = stMap[eff] || stMap.open;
+      const soon    = isSoon(i.deadline.replace('/','/'));
+
+      html += `<div class="dec-item pri-${i.priority}${checked ? ' done' : ''}">
+        <div class="dec-cb${checked ? ' checked' : ''}" onclick="toggleDec('${i.id}')"></div>
+        <div style="flex:1">
+          <div class="dec-text" style="font-size:13px;font-weight:600;margin-bottom:4px">${i.item}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <span style="font-size:10px;color:var(--text2)">👤 ${i.owner}</span>
+            <span style="font-size:10px;color:var(--text2)">📅 截止 ${i.deadline}</span>
+            <span class="bdg ${stCls}" style="font-size:9px">${stLbl}</span>
+            <span style="font-size:10px;background:var(--bg);padding:1px 7px;border-radius:100px;color:${priColor[i.priority]};font-weight:600;border:1px solid ${priColor[i.priority]}33">${priLabel[i.priority]}</span>
+            ${soon && eff !== 'done' ? '<span class="deadline-badge">🔔 7天內</span>' : ''}
+          </div>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  if (!html) html = '<div style="text-align:center;padding:40px;color:var(--text2);font-size:13px">此篩選條件無資料</div>';
+  document.getElementById('dc-groups').innerHTML = html;
+}
+buildDecisions();
+
+// ════ CSV IMPORT SYSTEM ════
+
+const IMP_SCHEMAS = {
+  timeline: {
+    label: '📅 時間軸（活動排程）',
+    headers: ['月份','日期','類型','活動名稱','說明'],
+    hint: `欄位說明：<br>・<code>月份</code>：如 <code>3月</code>、<code>4月</code><br>・<code>日期</code>：如 <code>4/10(五)</code><br>・<code>類型</code>：<code>op</code>（運營）/ <code>mk</code>（行銷）/ <code>tr</code>（培訓）/ <code>gc</code>（全球賽）<br>・<code>活動名稱</code>、<code>說明</code>：自由填寫`,
+    sample: [['3月','3/2(一)','op','TW初賽 — 賽事網站公開','線上網站'],['4月','4/10(五)','tr','RTC｜多模態AI技術在教學情境中的應用','臺灣大學 · 講師：Raymond']],
+  },
+  sessions: {
+    label: '🎤 宣講會場次',
+    headers: ['學校','日期','講師','類型','時間','人數','場地','備註','顏色'],
+    hint: `欄位說明：<br>・<code>類型</code>：<code>線下</code> / <code>線上</code><br>・<code>人數</code>：數字<br>・<code>顏色</code>：十六進位如 <code>#ff9500</code>（可留空，預設藍色）`,
+    sample: [['高雄科技大學','3/18','YY','線下','14:00–14:30','150','燕巢校區','學生反應熱烈','#ff9500'],['臺灣大學','3/19','Ethan / Brandi','線下','09:30–12:30','15','共同教學館','認真參與','#0071e3']],
+  },
+  emails: {
+    label: '✉️ Email 宣傳',
+    headers: ['名稱','圖示','發送數','開信數','開信率','點擊數','點擊率'],
+    hint: `欄位說明：<br>・<code>開信率</code> / <code>點擊率</code>：填數字（如 <code>65.9</code> 代表 65.9%）<br>・<code>圖示</code>：emoji（可留空）`,
+    sample: [['2025年參賽隊伍「指導教授」','👨‍🏫','82','54','65.9','7','8.5'],['台大問卷調查校園名單','🏫','2637','1092','41.4','298','11.3']],
+  },
+  rtc: {
+    label: '📚 RTC 課程',
+    headers: ['日期','課程名稱','講師','已完成'],
+    hint: `欄位說明：<br>・<code>日期</code>：如 <code>3/6(五)</code><br>・<code>已完成</code>：<code>true</code> / <code>false</code>`,
+    sample: [['3/6(五)','趨勢AI置感助理：說出想法，形成計畫','13','true'],['4/10(五)','多模態AI技術在教學情境中的應用','Raymond（侯智薰）','false']],
+  },
+  decisions: {
+    label: '📋 決議追蹤',
+    headers: ['會議','負責人','事項','截止日','優先度','狀態'],
+    hint: `欄位說明：<br>・<code>優先度</code>：<code>high</code>（緊急）/ <code>mid</code>（一般）/ <code>low</code>（低）<br>・<code>狀態</code>：<code>open</code>（進行中）/ <code>done</code>（已完成）/ <code>delay</code>（延誤）`,
+    sample: [['週會 W15｜2026/04/09','Brandi','清華大學宣講時間確認，回覆給 Max','4/15','high','open'],['週會 W14｜2026/04/02','Lynn','慈濟大學宣講投影片更新','4/05','mid','done']],
+  },
+};
+
+// ── CSV Parser ──
+function parseCSV(text) {
+  const rows = []; let cur = '', inQ = false, row = [];
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { row.push(cur.trim()); cur = ''; }
+    else if ((c === '\n' || c === '\r') && !inQ) {
+      if (c === '\r' && text[i+1] === '\n') i++;
+      row.push(cur.trim()); if (row.some(Boolean)) rows.push(row); row = []; cur = '';
+    } else { cur += c; }
+  }
+  row.push(cur.trim()); if (row.some(Boolean)) rows.push(row);
+  return rows;
+}
+
+// ── Modal Controls ──
+let _impRows = [];
+function openImport()  { document.getElementById('import-overlay').style.display='flex'; updateImpHint(); document.getElementById('imp-preview-area').style.display='none'; }
+function closeImport() { document.getElementById('import-overlay').style.display='none'; document.getElementById('imp-file').value=''; }
+
+function updateImpHint() {
+  const s = document.getElementById('imp-section').value;
+  document.getElementById('imp-hint').innerHTML = IMP_SCHEMAS[s].hint;
+  document.getElementById('imp-preview-area').style.display = 'none';
+  document.getElementById('imp-file').value = '';
+  _impRows = [];
+}
+
+function downloadTemplate() {
+  const s  = document.getElementById('imp-section').value;
+  const sc = IMP_SCHEMAS[s];
+  const bom = '\uFEFF';
+  const header = sc.headers.join(',');
+  const rows   = sc.sample.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(','));
+  const csv = bom + [header, ...rows].join('\n');
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'})),
+    download: `MAIC_範本_${sc.label.replace(/[^\w\u4e00-\u9fff]/g,'')}.csv`
+  });
+  a.click();
+}
+
+function handleFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const rows = parseCSV(e.target.result);
+    _impRows = rows;
+    showPreview(rows);
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function showPreview(rows) {
+  if (!rows.length) return;
+  const skip = document.getElementById('imp-skip-header').checked;
+  const data = skip ? rows.slice(1) : rows;
+  const s = IMP_SCHEMAS[document.getElementById('imp-section').value];
+
+  document.getElementById('imp-preview-label').textContent = `預覽（共 ${data.length} 筆，顯示前 5 筆）`;
+  let html = '<table><tr>' + s.headers.map(h=>`<th>${h}</th>`).join('') + '</tr>';
+  data.slice(0,5).forEach(r => {
+    html += '<tr>' + s.headers.map((_,i) => `<td>${r[i]||''}</td>`).join('') + '</tr>';
+  });
+  html += '</table>';
+  document.getElementById('imp-preview-table').innerHTML = html;
+  document.getElementById('imp-preview-area').style.display = 'block';
+}
+
+// ── Apply imported data to DATA + re-render ──
+function applyToData(section, rows) {
+  const IMP_KEY = 'maic_import_' + section;
+  localStorage.setItem(IMP_KEY, JSON.stringify(rows));
+
+  if (section === 'timeline') {
+    const groups = {};
+    rows.forEach(r => { const m=r[0]||'未知'; if(!groups[m])groups[m]=[]; groups[m].push({type:r[2],date:r[1],name:r[3],meta:r[4]||''}); });
+    DATA.operation.timeline = Object.entries(groups).map(([month,items])=>({month,items}));
+    buildTimeline();
+  } else if (section === 'sessions') {
+    DATA.marketing.sessions = rows.map((r,i)=>({school:r[0],date:r[1],lecturer:r[2],type:r[3],time:r[4],people:parseInt(r[5])||0,venue:r[6],note:r[7],color:r[8]||'#0071e3'}));
+    // re-render sessions + chart
+    sessionStorage.setItem('maic_reload_tab','marketing');
+    location.reload(); return;
+  } else if (section === 'emails') {
+    DATA.marketing.emails = rows.map(r=>({name:r[0],icon:r[1]||'📧',sent:parseInt(r[2])||0,opened:parseInt(r[3])||0,openRate:parseFloat(r[4])||0,clicks:parseInt(r[5])||0,ctr:parseFloat(r[6])||0}));
+    sessionStorage.setItem('maic_reload_tab','marketing');
+    location.reload(); return;
+  } else if (section === 'rtc') {
+    DATA.training.rtc = rows.map(r=>({date:r[0],name:r[1],lecturer:r[2],done:(r[3]||'').toLowerCase()==='true'}));
+    sessionStorage.setItem('maic_reload_tab','training');
+    location.reload(); return;
+  } else if (section === 'decisions') {
+    const groups = {};
+    rows.forEach((r,idx)=>{ const m=r[0]||'會議'; if(!groups[m])groups[m]=[]; groups[m].push({id:'imp'+idx,owner:r[1],item:r[2],deadline:r[3],priority:r[4]||'mid',status:r[5]||'open'}); });
+    DATA.decisions = Object.entries(groups).map(([meeting,items])=>({meeting,items}));
+    buildDecisions();
+  }
+  closeImport();
+  alert('✅ 匯入成功！共 ' + rows.length + ' 筆資料已更新。');
+}
+
+function confirmImport() {
+  const skip = document.getElementById('imp-skip-header').checked;
+  const rows = skip ? _impRows.slice(1) : _impRows;
+  if (!rows.length) { alert('請先選擇 CSV 檔案'); return; }
+  const s = document.getElementById('imp-section').value;
+  applyToData(s, rows);
+}
+
+function clearSection() {
+  const s = document.getElementById('imp-section').value;
+  if (!confirm(`確定清除「${IMP_SCHEMAS[s].label}」的匯入資料，恢復預設值？`)) return;
+  localStorage.removeItem('maic_import_' + s);
+  alert('已清除，頁面將重新載入');
+  location.reload();
+}
+
+// ── Load imported data from localStorage on page load ──
+// ════ PRINT: canvas → image fix ════
+function _printShowPages() {
+  document.querySelectorAll('.page').forEach(function(p) {
+    p.dataset.wasHidden = p.classList.contains('active') ? '0' : '1';
+    p.style.display = 'block';
+  });
+  // Chart.js 隱藏頁面初始化時尺寸為 0，需強制 resize 重繪
+  if (window.Chart && Chart.instances) {
+    Object.values(Chart.instances).forEach(function(c) { try { c.resize(); } catch(e) {} });
+  }
+}
+
+function _printCanvasToImg() {
+  document.querySelectorAll('canvas').forEach(function(canvas) {
+    try {
+      var img = document.createElement('img');
+      img.src = canvas.toDataURL('image/png');
+      img.style.cssText = 'width:' + canvas.offsetWidth + 'px;height:' + canvas.offsetHeight + 'px;display:block;max-width:100%';
+      img.setAttribute('data-print-img', '1');
+      canvas.parentNode.insertBefore(img, canvas.nextSibling);
+      canvas.style.display = 'none';
+    } catch(e) {}
+  });
+}
+
+function _printRestore() {
+  document.querySelectorAll('[data-print-img]').forEach(function(img) { img.remove(); });
+  document.querySelectorAll('canvas').forEach(function(c) { c.style.display = ''; });
+  document.querySelectorAll('.page').forEach(function(p) {
+    if (p.dataset.wasHidden === '1') p.style.display = '';
+    delete p.dataset.wasHidden;
+  });
+}
+
+// Cmd+P 直接列印：beforeprint 內無法等待，盡力而為
+window.addEventListener('beforeprint', function() {
+  _printShowPages();
+  _printCanvasToImg();
+});
+window.addEventListener('afterprint', _printRestore);
+
+
+function switchTab(tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  const cls = { operation:'op', marketing:'mk', training:'tr', decision:'dc' }[tab] || 'op';
+  document.querySelector('.tab.' + cls).classList.add('active');
+}
+</script>
+</body>
+</html>
