@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>MAIC Dashboard 2026</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 :root{
   --bg:#f2f2f7;--card:#fff;--text:#1d1d1f;--text2:#6e6e73;
@@ -133,7 +132,9 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
 
 @page { margin: 0; }
 @media print{
-  body { padding: 8mm !important; }
+  /* 頁面內距（@page margin:0 可移除 Chrome URL，padding 補回留白）*/
+  body { padding: 18mm 10mm !important; background:#fff!important; color:#000!important; font-size:10.5pt; }
+
   /* 隱藏互動元素 */
   header{position:static!important}
   .tabs,.tl-btn,.exp-btn,button,
@@ -141,10 +142,9 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
   #tl-debug,.circ-wrap{display:none!important}
 
   /* 所有分頁都顯示 */
-  .page{display:block!important;padding:8px 12px!important}
+  .page{display:block!important;padding:0 0 24px 0!important}
 
-  /* 版面設定 */
-  body{background:#fff!important;color:#000!important;font-size:11pt}
+  /* 色彩精確輸出 */
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
 
   /* 卡片樣式 */
@@ -153,7 +153,16 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
     border:1px solid #ddd!important;
     page-break-inside:avoid!important;
     break-inside:avoid!important;
-    margin-bottom:12px!important;
+    margin-bottom:14px!important;
+  }
+
+  /* KPI 卡片 */
+  .kpi{
+    box-shadow:none!important;
+    border:1px solid #ddd!important;
+    page-break-inside:avoid!important;
+    break-inside:avoid!important;
+    margin-bottom:8px!important;
   }
 
   /* 表格不被切斷 */
@@ -174,10 +183,18 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
   /* 時間軸不限高度 */
   .tl-wrap{max-height:none!important;overflow:visible!important}
 
-  /* 活動項目不被切斷 */
-  .act,.session,.rtc,.dec-item,.erow{
+  /* 活動/宣講/RTC/決議 各項目不被切斷 */
+  .act,.session,.rtc,.dec-item,.erow,
+  .dc-meeting-group,.ws-card{
     page-break-inside:avoid!important;
     break-inside:avoid!important;
+  }
+
+  /* 決議群組整體不切斷 */
+  .dc-meeting-group{
+    page-break-inside:avoid!important;
+    break-inside:avoid!important;
+    margin-bottom:16px!important;
   }
 
   /* 月份分組卡片 */
@@ -186,7 +203,7 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
     break-inside:avoid!important;
   }
 
-  /* 每個分頁之間換頁 */
+  /* 每個分頁之間強制換頁 */
   #page-operation{page-break-after:always}
   #page-marketing{page-break-after:always}
   #page-training{page-break-after:always}
@@ -1201,51 +1218,37 @@ function exportCSV() {
 
 // ════ EXPORT PDF ════
 function exportPDF() {
-  var btn = document.querySelector('[onclick="exportPDF()"]');
-  if (btn) { btn.textContent = '⏳ 產生中…'; btn.disabled = true; }
-
-  // 1. 展開所有分頁，確保 Chart.js 圖表正確渲染
+  // 1. 展開所有分頁，確保圖表正確渲染
   _printShowPages();
 
   setTimeout(function() {
     _printCanvasToImg();
 
-    // 2. 隱藏 UI 互動元素
-    var hideEls = document.querySelectorAll('.tabs,.tl-btn,.exp-btn,button,.tl-filters,#tl-filter-bar,#tl-debug,.circ-wrap');
-    hideEls.forEach(function(el) { el.dataset.pdfHide = el.style.display; el.style.display = 'none'; });
-
-    // 3. 隱藏「已完成」決議項目（不納入 PDF）
+    // 2. 隱藏「已完成」決議項目
     var doneDecs = document.querySelectorAll('.dec-item.done');
     doneDecs.forEach(function(el) { el.dataset.pdfHideDec = '1'; el.style.display = 'none'; });
 
-    // 4. 隱藏因此變成空的會議群組
+    // 3. 隱藏因此變成空的會議群組
     document.querySelectorAll('.dc-meeting-group').forEach(function(group) {
-      var visible = Array.from(group.querySelectorAll('.dec-item')).filter(function(el) { return el.style.display !== 'none'; });
+      var visible = Array.from(group.querySelectorAll('.dec-item'))
+        .filter(function(el) { return el.style.display !== 'none'; });
       if (visible.length === 0) { group.dataset.pdfHideGroup = '1'; group.style.display = 'none'; }
     });
 
-    var opt = {
-      margin:      [18, 10, 18, 10],
-      filename:    'MAIC-Dashboard-2026.pdf',
-      image:       { type: 'jpeg', quality: 0.97 },
-      html2canvas: { scale: 2, useCORS: true, logging: false, scrollY: 0 },
-      jsPDF:       { unit: 'mm', format: 'a4', orientation: 'landscape' },
-      pagebreak:   {
-        mode:  ['avoid-all', 'css', 'legacy'],
-        avoid: ['.card', '.kpi', '.dec-item', '.dc-meeting-group', '.rtc', '.ws-card']
-      }
-    };
-
-    html2pdf().set(opt).from(document.body).save()
-      .then(function() {
-        // 5. 全部還原
-        hideEls.forEach(function(el) { el.style.display = el.dataset.pdfHide || ''; delete el.dataset.pdfHide; });
-        doneDecs.forEach(function(el) { el.style.display = ''; delete el.dataset.pdfHideDec; });
-        document.querySelectorAll('.dc-meeting-group[data-pdf-hide-group]').forEach(function(g) { g.style.display = ''; delete g.dataset.pdfHideGroup; });
-        _printRestore();
-        if (btn) { btn.textContent = '🖨️ 列印 PDF'; btn.disabled = false; }
+    // 4. 列印結束後自動還原（不管是確認列印還是取消）
+    function restore() {
+      window.removeEventListener('afterprint', restore);
+      doneDecs.forEach(function(el) { el.style.display = ''; delete el.dataset.pdfHideDec; });
+      document.querySelectorAll('.dc-meeting-group[data-pdf-hide-group]').forEach(function(g) {
+        g.style.display = ''; delete g.dataset.pdfHideGroup;
       });
-  }, 500);
+      _printRestore();
+    }
+    window.addEventListener('afterprint', restore);
+
+    // 5. 開啟列印對話框
+    window.print();
+  }, 300);
 }
 
 // ════ DECISION TRACKER ════
