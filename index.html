@@ -1162,135 +1162,150 @@ function exportCSV() {
 
 // ════ EXPORT PDF ════
 function exportPDF() {
-  // ── Step 1: 展開所有分頁，圖表重繪 ──
+  // ── Step 1: 展開所有分頁 ──
   _printShowPages();
 
+  // 800ms 讓隱藏 tab 的 Chart.js 完成初次渲染
   setTimeout(function() {
-    _printCanvasToImg();
 
-    var saved = [];
-
-    function setInline(el, styles) {
-      if (!el) return;
-      var prev = {};
-      Object.keys(styles).forEach(function(k) {
-        prev[k] = el.style[k];
-        el.style[k] = styles[k];
+    // 強制所有圖表 resize + update，確保隱藏 tab 的圖表都渲染完整
+    if (window.Chart && Chart.instances) {
+      Object.values(Chart.instances).forEach(function(c) {
+        try { c.resize(); c.update('none'); } catch(e) {}
       });
-      saved.push({ el: el, prev: prev });
     }
 
-    // ── 判斷元素是否在「報名數據」區塊（hr 之前）──
-    var opPage = document.getElementById('page-operation');
-    var opHr   = opPage ? opPage.querySelector('hr') : null;
-    var regEls = [];   // 報名數據區的直屬子節點清單
-    if (opPage) {
-      var c = opPage.firstElementChild;
-      while (c && c !== opHr) { regEls.push(c); c = c.nextElementSibling; }
-    }
-    function inReg(el) {
-      return regEls.some(function(r) { return r === el || r.contains(el); });
-    }
+    // 再等 300ms 讓 update 完成，才 capture canvas
+    setTimeout(function() {
+      _printCanvasToImg();
 
-    // ── Step 2: 時間軸 / 圖表容器解鎖（高度保留，只解除 overflow 截斷）──
-    document.querySelectorAll('.tl-wrap').forEach(function(el) {
-      setInline(el, { maxHeight:'none', overflow:'visible', height:'auto' });
-    });
-    // 報名數據的圖表略縮高度讓三張圖排成一排時更緊湊
-    document.querySelectorAll('.ch200,.ch240,.ch260').forEach(function(el) {
-      if (inReg(el)) {
-        setInline(el, { height:'140px', overflow:'visible' });
-      } else {
-        // 保留原始高度，只解除 overflow 避免圖表被裁切
-        setInline(el, { overflow:'visible', minHeight:'160px' });
+      var saved = [];
+
+      function setInline(el, styles) {
+        if (!el) return;
+        var prev = {};
+        Object.keys(styles).forEach(function(k) {
+          prev[k] = el.style[k];
+          el.style[k] = styles[k];
+        });
+        saved.push({ el: el, prev: prev });
       }
-    });
 
-    // ── Step 3: Grid → 單欄 block ──
-    // 報名數據區：krow（KPI行）→ block；g3（圖表行）→ 保留三欄
-    // 其他區：全部 → block
-    document.querySelectorAll('.g2,.g3,.g4,.g13,.krow,.k5,.k4,.k3,.k2').forEach(function(el) {
-      if (inReg(el)) {
-        // 圖表三欄（g3）保留，KPI 行全部改 block
-        var isChartRow = el.classList.contains('g3') && el.querySelector('canvas,img[data-print-img]');
-        if (!isChartRow) setInline(el, { display:'block', width:'100%' });
-      } else {
-        setInline(el, { display:'block', width:'100%' });
+      // ── 判斷元素是否在「報名數據」區塊（hr 之前）──
+      var opPage = document.getElementById('page-operation');
+      var opHr   = opPage ? opPage.querySelector('hr') : null;
+      var regEls = [];
+      if (opPage) {
+        var c = opPage.firstElementChild;
+        while (c && c !== opHr) { regEls.push(c); c = c.nextElementSibling; }
       }
-    });
-    document.querySelectorAll('.g2>*,.g3>*,.g4>*,.krow>*').forEach(function(el) {
-      if (!inReg(el)) {
-        setInline(el, { display:'block', breakInside:'avoid', pageBreakInside:'avoid', marginBottom:'10px' });
+      function inReg(el) {
+        return regEls.some(function(r) { return r === el || r.contains(el); });
       }
-    });
 
-    // ── Step 4: 卡片去陰影、禁止切斷 ──
-    document.querySelectorAll('.card,.kpi').forEach(function(el) {
-      setInline(el, { boxShadow:'none', border:'1px solid #ddd', breakInside:'avoid', pageBreakInside:'avoid', marginBottom:'10px' });
-    });
-
-    // ── Step 5: 行項目禁止切斷 ──
-    document.querySelectorAll('.act,.session,.rtc,.dec-item,.dc-meeting-group,.erow,.ws-card').forEach(function(el) {
-      setInline(el, { breakInside:'avoid', pageBreakInside:'avoid' });
-    });
-
-    // ── Step 6: 標題不孤立（break-after:avoid）──
-    document.querySelectorAll('.sec').forEach(function(el) {
-      setInline(el, { breakAfter:'avoid', pageBreakAfter:'avoid' });
-    });
-    document.querySelectorAll('.card-title').forEach(function(el) {
-      setInline(el, { breakAfter:'avoid', pageBreakAfter:'avoid' });
-    });
-
-    // ── Step 7: 報名數據 與 全年活動排程 之間換頁 ──
-    if (opHr) {
-      setInline(opHr, { display:'none' });
-      var tlHeader = opHr.nextElementSibling;
-      if (tlHeader) setInline(tlHeader, { pageBreakBefore:'always', breakBefore:'page' });
-    }
-
-    // ── Step 8: 分頁換頁（只加 op/mk/tr，不加 decision 避免空白頁）──
-    ['page-operation','page-marketing','page-training'].forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el) setInline(el, { pageBreakAfter:'always', breakAfter:'page' });
-    });
-
-    // ── Step 9: 若 decision 頁完全無內容，整頁隱藏 ──
-    var dcPage = document.getElementById('page-decision');
-    if (dcPage) {
-      var visibleDec = dcPage.querySelectorAll('.dec-item:not([data-pdf-hide-dec])');
-      if (visibleDec.length === 0) {
-        setInline(dcPage, { display:'none' });
-        var trPage = document.getElementById('page-training');
-        if (trPage) setInline(trPage, { pageBreakAfter:'auto', breakAfter:'auto' });
-      }
-    }
-
-    // ── Step 10: 隱藏「已完成」決議 ──
-    var doneDecs = document.querySelectorAll('.dec-item.done');
-    doneDecs.forEach(function(el) { el.dataset.pdfHideDec = '1'; el.style.display = 'none'; });
-    document.querySelectorAll('.dc-meeting-group').forEach(function(group) {
-      var visible = Array.from(group.querySelectorAll('.dec-item')).filter(function(e) { return e.style.display !== 'none'; });
-      if (visible.length === 0) { group.dataset.pdfHideGroup = '1'; group.style.display = 'none'; }
-    });
-
-    // ── Step 11: 列印後全部還原 ──
-    function restore() {
-      window.removeEventListener('afterprint', restore);
-      saved.forEach(function(s) {
-        Object.keys(s.prev).forEach(function(k) { s.el.style[k] = s.prev[k]; });
+      // ── Step 2: 時間軸 / 圖表容器解鎖 ──
+      document.querySelectorAll('.tl-wrap').forEach(function(el) {
+        setInline(el, { maxHeight:'none', overflow:'visible', height:'auto' });
       });
-      doneDecs.forEach(function(el) { el.style.display = ''; delete el.dataset.pdfHideDec; });
-      document.querySelectorAll('.dc-meeting-group[data-pdf-hide-group]').forEach(function(g) {
-        g.style.display = ''; delete g.dataset.pdfHideGroup;
+      document.querySelectorAll('.ch200,.ch240,.ch260').forEach(function(el) {
+        if (inReg(el)) {
+          setInline(el, { height:'140px', overflow:'visible' });
+        } else {
+          setInline(el, { overflow:'visible', minHeight:'160px' });
+        }
       });
-      _printRestore();
-    }
-    window.addEventListener('afterprint', restore);
 
-    // ── Step 12: 開啟列印對話框 ──
-    window.print();
+      // ── Step 3: Grid → block ──
+      // 報名數據區：g3（圖表行）保留三欄，其餘全部 block
+      document.querySelectorAll('.g2,.g3,.g4,.g13,.krow,.k5,.k4,.k3,.k2').forEach(function(el) {
+        if (inReg(el)) {
+          var isChartRow = el.classList.contains('g3') && el.querySelector('canvas,img[data-print-img]');
+          if (!isChartRow) setInline(el, { display:'block', width:'100%' });
+        } else {
+          setInline(el, { display:'block', width:'100%' });
+        }
+      });
+      document.querySelectorAll('.g2>*,.g3>*,.g4>*,.krow>*').forEach(function(el) {
+        if (!inReg(el)) {
+          setInline(el, { display:'block', breakInside:'avoid', pageBreakInside:'avoid', marginBottom:'10px' });
+        }
+      });
 
+      // ── Step 4: 報名數據區 KPI 子元素 inline flex 強制 block ──
+      // op-kpi-row1 / op-kpi-row2 的 .kpi 子卡片可能有 inline display:flex
+      document.querySelectorAll('#op-kpi-row1 .kpi, #op-kpi-row2 .kpi').forEach(function(el) {
+        setInline(el, { display:'block', marginBottom:'6px' });
+      });
+      // 群組分解卡片內的小 flex div 也轉 block
+      document.querySelectorAll('#op-kpi-row2 .kpi>div').forEach(function(el) {
+        setInline(el, { display:'block', textAlign:'left' });
+      });
+
+      // ── Step 5: 卡片去陰影、禁止切斷 ──
+      document.querySelectorAll('.card,.kpi').forEach(function(el) {
+        setInline(el, { boxShadow:'none', border:'1px solid #ddd', breakInside:'avoid', pageBreakInside:'avoid', marginBottom:'10px' });
+      });
+
+      // ── Step 6: 行項目禁止切斷 ──
+      document.querySelectorAll('.act,.session,.rtc,.dec-item,.dc-meeting-group,.erow,.ws-card').forEach(function(el) {
+        setInline(el, { breakInside:'avoid', pageBreakInside:'avoid' });
+      });
+
+      // ── Step 7: 標題不孤立 ──
+      document.querySelectorAll('.sec,.card-title').forEach(function(el) {
+        setInline(el, { breakAfter:'avoid', pageBreakAfter:'avoid' });
+      });
+
+      // ── Step 8: 報名數據 → 全年活動排程 換頁 ──
+      if (opHr) {
+        setInline(opHr, { display:'none' });
+        var tlHeader = opHr.nextElementSibling;
+        if (tlHeader) setInline(tlHeader, { pageBreakBefore:'always', breakBefore:'page' });
+      }
+
+      // ── Step 9: 分頁換頁（op/mk/tr，不加 decision）──
+      ['page-operation','page-marketing','page-training'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) setInline(el, { pageBreakAfter:'always', breakAfter:'page' });
+      });
+
+      // ── Step 10: decision 頁全空則隱藏 ──
+      var dcPage = document.getElementById('page-decision');
+      if (dcPage) {
+        var visibleDec = dcPage.querySelectorAll('.dec-item:not([data-pdf-hide-dec])');
+        if (visibleDec.length === 0) {
+          setInline(dcPage, { display:'none' });
+          var trPage = document.getElementById('page-training');
+          if (trPage) setInline(trPage, { pageBreakAfter:'auto', breakAfter:'auto' });
+        }
+      }
+
+      // ── Step 11: 隱藏已完成決議 ──
+      var doneDecs = document.querySelectorAll('.dec-item.done');
+      doneDecs.forEach(function(el) { el.dataset.pdfHideDec = '1'; el.style.display = 'none'; });
+      document.querySelectorAll('.dc-meeting-group').forEach(function(group) {
+        var visible = Array.from(group.querySelectorAll('.dec-item')).filter(function(e) { return e.style.display !== 'none'; });
+        if (visible.length === 0) { group.dataset.pdfHideGroup = '1'; group.style.display = 'none'; }
+      });
+
+      // ── Step 12: 列印後還原 ──
+      function restore() {
+        window.removeEventListener('afterprint', restore);
+        saved.forEach(function(s) {
+          Object.keys(s.prev).forEach(function(k) { s.el.style[k] = s.prev[k]; });
+        });
+        doneDecs.forEach(function(el) { el.style.display = ''; delete el.dataset.pdfHideDec; });
+        document.querySelectorAll('.dc-meeting-group[data-pdf-hide-group]').forEach(function(g) {
+          g.style.display = ''; delete g.dataset.pdfHideGroup;
+        });
+        _printRestore();
+      }
+      window.addEventListener('afterprint', restore);
+
+      // ── Step 13: 開啟列印對話框 ──
+      window.print();
+
+    }, 300);
   }, 800);
 }
 
