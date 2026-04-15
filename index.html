@@ -130,85 +130,32 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
 /* ── 優先度 dot ── */
 .pri-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px}
 
-@page { size: A4; margin: 15mm 10mm; }
+@page { size: A4 portrait; margin: 15mm 10mm; }
 @media print{
-
-  /* ── 1. 核彈式展開：所有容器高度解鎖、溢出可見 ── */
-  *{
-    overflow:visible!important;
-    max-height:none!important;
-    min-height:0!important;
-    -webkit-print-color-adjust:exact!important;
-    print-color-adjust:exact!important;
-  }
-
-  /* ── 2. 頁面基本設定 ── */
-  html,body{
-    background:#fff!important;
-    color:#000!important;
-    font-size:10pt!important;
-    padding:0!important;
-    margin:0!important;
-  }
-
-  /* ── 3. 隱藏互動元素與 header ── */
-  header,
-  .tabs,.tl-btn,.exp-btn,
+  /* 色彩精確輸出 */
+  *{ -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; }
+  /* 背景白、文字黑 */
+  html,body{ background:#fff!important; color:#000!important; }
+  /* 隱藏互動元素 */
+  header,.tabs,.tl-btn,.exp-btn,button,
   .tl-filter,.tl-filters,#tl-filter-bar,
-  #tl-debug,.circ-wrap,
-  button{ display:none!important; }
-
-  /* ── 4. 所有分頁全部顯示，間距清楚 ── */
-  .page{ display:block!important; padding:0 0 20px!important; }
-
-  /* ── 5. 每個分頁之間強制換頁 ── */
+  #tl-debug,.circ-wrap{ display:none!important; }
+  /* 所有分頁顯示 */
+  .page{ display:block!important; }
+  /* 卡片去陰影 */
+  .card,.kpi{ box-shadow:none!important; border:1px solid #ddd!important; }
+  /* 禁止切斷 */
+  .card,.kpi,.dec-item,.dc-meeting-group,
+  .act,.session,.rtc,.erow,.ws-card,
+  #workshopCards>div,table,tr{
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
+  }
+  /* 分頁間強制換頁 */
   #page-operation{ page-break-after:always; break-after:page; }
   #page-marketing{ page-break-after:always; break-after:page; }
   #page-training{  page-break-after:always; break-after:page; }
-
-  /* ── 6. 所有 Grid / Flex → 單欄 block ── */
-  .g2,.g3,.g4,.g13,
-  .krow,.k5,.k4,.k3,.k2{
-    display:block!important;
-    width:100%!important;
-  }
-
-  /* ── 7. 卡片樣式（去陰影、加邊框、禁止切斷）── */
-  .card,.kpi{
-    display:block!important;
-    box-shadow:none!important;
-    border:1px solid #ddd!important;
-    margin-bottom:12px!important;
-    break-inside:avoid!important;
-    page-break-inside:avoid!important;
-  }
-  .g2>*,.g3>*,.g4>*,.krow>*{
-    display:block!important;
-    margin-bottom:10px!important;
-    break-inside:avoid!important;
-    page-break-inside:avoid!important;
-  }
-
-  /* ── 8. 所有內容行項目禁止切斷 ── */
-  .act,.session,.rtc,
-  .dec-item,.dc-meeting-group,
-  .erow,.ws-card,
-  #workshopCards>div{
-    break-inside:avoid!important;
-    page-break-inside:avoid!important;
-  }
-  .dc-meeting-group{ margin-bottom:16px!important; }
-
-  /* ── 9. 表格 ── */
-  table{ break-inside:avoid!important; page-break-inside:avoid!important; }
-  tr{    break-inside:avoid!important; page-break-inside:avoid!important; }
   thead{ display:table-header-group; }
-
-  /* ── 10. 圖表固定高度解除 ── */
-  .ch200,.ch240,.ch260{ height:auto!important; }
-
-  /* ── 11. 段落標題後不換頁 ── */
-  .sec{ break-after:avoid!important; page-break-after:avoid!important; }
 }
 
 /* ── CSV Import Modal ── */
@@ -1211,26 +1158,77 @@ function exportCSV() {
 
 // ════ EXPORT PDF ════
 function exportPDF() {
-  // 1. 展開所有分頁，確保圖表正確渲染
+  // ── Step 1: 展開所有分頁，圖表重繪 ──
   _printShowPages();
 
   setTimeout(function() {
     _printCanvasToImg();
 
-    // 2. 隱藏「已完成」決議項目
+    var saved = [];   // 用來還原
+
+    function setInline(el, styles) {
+      var prev = {};
+      Object.keys(styles).forEach(function(k) {
+        prev[k] = el.style[k];
+        el.style[k] = styles[k];
+      });
+      saved.push({ el: el, prev: prev });
+    }
+
+    // ── Step 2: 直接用 inline style 修復所有容器 ──
+
+    // 時間軸捲動容器 → 解除 max-height/overflow 限制
+    document.querySelectorAll('.tl-wrap').forEach(function(el) {
+      setInline(el, { maxHeight:'none', overflow:'visible', height:'auto' });
+    });
+
+    // 圖表容器固定高度 → 解除
+    document.querySelectorAll('.ch200,.ch240,.ch260').forEach(function(el) {
+      setInline(el, { height:'auto', overflow:'visible' });
+    });
+
+    // Grid 容器 → 改成 block 單欄
+    document.querySelectorAll('.g2,.g3,.g4,.g13,.krow,.k5,.k4,.k3,.k2').forEach(function(el) {
+      setInline(el, { display:'block', width:'100%' });
+    });
+
+    // Grid 子元素 → break-inside avoid
+    document.querySelectorAll('.g2>*,.g3>*,.g4>*,.krow>*').forEach(function(el) {
+      setInline(el, { display:'block', breakInside:'avoid', pageBreakInside:'avoid', marginBottom:'10px' });
+    });
+
+    // 卡片：去陰影、禁止切斷
+    document.querySelectorAll('.card,.kpi').forEach(function(el) {
+      setInline(el, { boxShadow:'none', border:'1px solid #ddd', breakInside:'avoid', pageBreakInside:'avoid', marginBottom:'12px' });
+    });
+
+    // 所有行項目：禁止切斷
+    document.querySelectorAll('.act,.session,.rtc,.dec-item,.dc-meeting-group,.erow,.ws-card').forEach(function(el) {
+      setInline(el, { breakInside:'avoid', pageBreakInside:'avoid' });
+    });
+
+    // 分頁容器：強制換頁
+    ['page-operation','page-marketing','page-training'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) setInline(el, { pageBreakAfter:'always', breakAfter:'page' });
+    });
+
+    // ── Step 3: 隱藏「已完成」決議 ──
     var doneDecs = document.querySelectorAll('.dec-item.done');
     doneDecs.forEach(function(el) { el.dataset.pdfHideDec = '1'; el.style.display = 'none'; });
 
-    // 3. 隱藏因此變成空的會議群組
+    // 隱藏因此變成空的會議群組
     document.querySelectorAll('.dc-meeting-group').forEach(function(group) {
-      var visible = Array.from(group.querySelectorAll('.dec-item'))
-        .filter(function(el) { return el.style.display !== 'none'; });
+      var visible = Array.from(group.querySelectorAll('.dec-item')).filter(function(e) { return e.style.display !== 'none'; });
       if (visible.length === 0) { group.dataset.pdfHideGroup = '1'; group.style.display = 'none'; }
     });
 
-    // 4. 列印結束後自動還原（不管是確認列印還是取消）
+    // ── Step 4: 列印後全部還原 ──
     function restore() {
       window.removeEventListener('afterprint', restore);
+      saved.forEach(function(s) {
+        Object.keys(s.prev).forEach(function(k) { s.el.style[k] = s.prev[k]; });
+      });
       doneDecs.forEach(function(el) { el.style.display = ''; delete el.dataset.pdfHideDec; });
       document.querySelectorAll('.dc-meeting-group[data-pdf-hide-group]').forEach(function(g) {
         g.style.display = ''; delete g.dataset.pdfHideGroup;
@@ -1239,9 +1237,10 @@ function exportPDF() {
     }
     window.addEventListener('afterprint', restore);
 
-    // 5. 開啟列印對話框
+    // ── Step 5: 開啟列印對話框 ──
     window.print();
-  }, 300);
+
+  }, 400);
 }
 
 // ════ DECISION TRACKER ════
