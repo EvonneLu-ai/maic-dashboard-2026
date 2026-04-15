@@ -457,14 +457,14 @@ const DATA = {
   meta: {
     title:       'MAIC Dashboard',
     subtitle:    '行動應用創新賽 · 2026 Season · Straight A × Apple',
-    dataAsOf:    '📅 資料截至 2026/04/13',
-    currentDate: '2026-04-13',  // ← 用於 7 天截止計算
+    dataAsOf:    '📅 資料截至 2026/04/15',
+    currentDate: '2026-04-15',  // ← 用於 7 天截止計算
   },
 
   // ── OPERATION：報名數據 KPI ───────────────────────────
   operation: {
     registrationTarget: 800,   // ← 報名目標隊伍數
-    registrationDateLabel: '截至 2026/04/13',
+    registrationDateLabel: '截至 2026/04/15',
 
     // 第一排 KPI（4格）
     kpi1: [
@@ -948,6 +948,42 @@ new Chart(document.getElementById('channelChart'), {
 });
 
 // ════ TRAINING RENDER ════
+
+// ── 自動標記已過期課程為「已完成」────────────────────────
+(function autoMarkTrainingDone() {
+  const today = new Date(DATA.meta.currentDate);
+  today.setHours(23, 59, 59, 999); // 包含當天
+
+  // RTC 課程：解析 '3/6(五)' 格式
+  DATA.training.rtc.forEach(c => {
+    const m = c.date.match(/^(\d+)\/(\d+)/);
+    if (m) {
+      const courseDate = new Date(2026, parseInt(m[1]) - 1, parseInt(m[2]));
+      if (courseDate <= today) c.done = true;
+    }
+  });
+
+  // 多元講座：同樣解析日期
+  DATA.training.workshops.forEach(w => {
+    w.items.forEach(item => {
+      const m = item.date.match(/^(\d+)\/(\d+)/);
+      if (m) {
+        const itemDate = new Date(2026, parseInt(m[1]) - 1, parseInt(m[2]));
+        if (itemDate <= today) item.done = true;
+      }
+    });
+  });
+
+  // 動態更新「已完成場次」KPI
+  const doneCount = DATA.training.rtc.filter(c => c.done).length;
+  const total     = DATA.training.rtc.length;
+  const pct       = Math.round(doneCount / total * 100);
+  const kpi       = DATA.training.kpi1[1];
+  kpi.value = String(doneCount);
+  kpi.unit  = `/ ${total}`;
+  kpi.sub   = `截至 ${DATA.meta.currentDate.replace(/-/g,'/')} 自動計算`;
+  kpi.badge = `${pct}% 完成`;
+})();
 
 document.getElementById('tr-kpi-row1').innerHTML = buildKPI(DATA.training.kpi1);
 
