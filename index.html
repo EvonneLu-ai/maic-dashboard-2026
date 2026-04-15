@@ -151,10 +151,14 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
     break-inside:avoid!important;
     page-break-inside:avoid!important;
   }
-  /* 分頁間強制換頁 */
+  /* 標題不孤立：後面不換頁，讓標題必定帶著內容 */
+  .sec{
+    break-after:avoid!important;
+    page-break-after:avoid!important;
+  }
+  /* 分頁間強制換頁（只有前三頁，decision 不加，避免空白頁）*/
   #page-operation{ page-break-after:always; break-after:page; }
   #page-marketing{ page-break-after:always; break-after:page; }
-  #page-training{  page-break-after:always; break-after:page; }
   thead{ display:table-header-group; }
 }
 
@@ -1164,9 +1168,10 @@ function exportPDF() {
   setTimeout(function() {
     _printCanvasToImg();
 
-    var saved = [];   // 用來還原
+    var saved = [];
 
     function setInline(el, styles) {
+      if (!el) return;
       var prev = {};
       Object.keys(styles).forEach(function(k) {
         prev[k] = el.style[k];
@@ -1175,45 +1180,68 @@ function exportPDF() {
       saved.push({ el: el, prev: prev });
     }
 
-    // ── Step 2: 直接用 inline style 修復所有容器 ──
-
-    // 時間軸捲動容器 → 解除 max-height/overflow 限制
+    // ── Step 2: 時間軸 / 圖表容器高度解鎖 ──
     document.querySelectorAll('.tl-wrap').forEach(function(el) {
       setInline(el, { maxHeight:'none', overflow:'visible', height:'auto' });
     });
-
-    // 圖表容器固定高度 → 解除
     document.querySelectorAll('.ch200,.ch240,.ch260').forEach(function(el) {
       setInline(el, { height:'auto', overflow:'visible' });
     });
 
-    // Grid 容器 → 改成 block 單欄
+    // ── Step 3: Grid → 單欄 block ──
     document.querySelectorAll('.g2,.g3,.g4,.g13,.krow,.k5,.k4,.k3,.k2').forEach(function(el) {
       setInline(el, { display:'block', width:'100%' });
     });
-
-    // Grid 子元素 → break-inside avoid
     document.querySelectorAll('.g2>*,.g3>*,.g4>*,.krow>*').forEach(function(el) {
       setInline(el, { display:'block', breakInside:'avoid', pageBreakInside:'avoid', marginBottom:'10px' });
     });
 
-    // 卡片：去陰影、禁止切斷
+    // ── Step 4: 卡片去陰影、禁止切斷 ──
     document.querySelectorAll('.card,.kpi').forEach(function(el) {
       setInline(el, { boxShadow:'none', border:'1px solid #ddd', breakInside:'avoid', pageBreakInside:'avoid', marginBottom:'12px' });
     });
 
-    // 所有行項目：禁止切斷
+    // ── Step 5: 行項目禁止切斷 ──
     document.querySelectorAll('.act,.session,.rtc,.dec-item,.dc-meeting-group,.erow,.ws-card').forEach(function(el) {
       setInline(el, { breakInside:'avoid', pageBreakInside:'avoid' });
     });
 
-    // 分頁容器：強制換頁
+    // ── Step 6: 標題不孤立（break-after:avoid）──
+    document.querySelectorAll('.sec').forEach(function(el) {
+      setInline(el, { breakAfter:'avoid', pageBreakAfter:'avoid' });
+    });
+    document.querySelectorAll('.card-title').forEach(function(el) {
+      setInline(el, { breakAfter:'avoid', pageBreakAfter:'avoid' });
+    });
+
+    // ── Step 7: 報名數據 與 全年活動排程 之間換頁 ──
+    // 讓 KPI+圖表（報名數據）自成一頁
+    var opHr = document.querySelector('#page-operation hr');
+    if (opHr) {
+      setInline(opHr, { display:'none' }); // 隱藏 hr 本身
+      var tlHeader = opHr.nextElementSibling; // 全年活動排程的 flex 容器
+      if (tlHeader) setInline(tlHeader, { pageBreakBefore:'always', breakBefore:'page' });
+    }
+
+    // ── Step 8: 分頁換頁（只加 op/mk/tr，不加 decision 避免空白頁）──
     ['page-operation','page-marketing','page-training'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) setInline(el, { pageBreakAfter:'always', breakAfter:'page' });
     });
 
-    // ── Step 3: 隱藏「已完成」決議 ──
+    // ── Step 9: 若 decision 頁完全無內容，整頁隱藏 ──
+    var dcPage = document.getElementById('page-decision');
+    if (dcPage) {
+      var visibleDec = dcPage.querySelectorAll('.dec-item:not([data-pdf-hide-dec])');
+      if (visibleDec.length === 0) {
+        setInline(dcPage, { display:'none' });
+        // 同時移除 training 的 page-break-after 以防空白頁
+        var trPage = document.getElementById('page-training');
+        if (trPage) setInline(trPage, { pageBreakAfter:'auto', breakAfter:'auto' });
+      }
+    }
+
+    // ── Step 10: 隱藏「已完成」決議 ──
     var doneDecs = document.querySelectorAll('.dec-item.done');
     doneDecs.forEach(function(el) { el.dataset.pdfHideDec = '1'; el.style.display = 'none'; });
 
@@ -1223,7 +1251,7 @@ function exportPDF() {
       if (visible.length === 0) { group.dataset.pdfHideGroup = '1'; group.style.display = 'none'; }
     });
 
-    // ── Step 4: 列印後全部還原 ──
+    // ── Step 11: 列印後全部還原 ──
     function restore() {
       window.removeEventListener('afterprint', restore);
       saved.forEach(function(s) {
@@ -1237,7 +1265,7 @@ function exportPDF() {
     }
     window.addEventListener('afterprint', restore);
 
-    // ── Step 5: 開啟列印對話框 ──
+    // ── Step 12: 開啟列印對話框 ──
     window.print();
 
   }, 400);
