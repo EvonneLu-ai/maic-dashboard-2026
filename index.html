@@ -1171,7 +1171,13 @@ function exportPDF() {
       Object.values(Chart.instances).forEach(function(c) { try { c.resize(); } catch(e) {} });
     }
 
-    // Stage B: 300ms 後 update（強制重繪）
+    // ── pre-capture：把科系/學校圖表容器拉高，讓 Chart.js 有足夠空間渲染全部圖例 ──
+    ['deptChart','schoolChart'].forEach(function(id) {
+      var canvas = document.getElementById(id);
+      if (canvas && canvas.parentElement) canvas.parentElement.style.height = '280px';
+    });
+
+    // Stage B: 300ms 後 update（強制重繪，套用新高度）
     setTimeout(function() {
       if (window.Chart && Chart.instances) {
         Object.values(Chart.instances).forEach(function(c) { try { c.update('none'); } catch(e) {} });
@@ -1202,25 +1208,43 @@ function exportPDF() {
         });
 
         // ── Step 3: 報名數據區塊排版 ──
-        // KPI 行：k5→3欄、k3→2欄（維持多欄可讀）
+        // KPI 行：k5→3欄、k3→2欄
         var opKpi1 = document.getElementById('op-kpi-row1');
         var opKpi2 = document.getElementById('op-kpi-row2');
         if (opKpi1) setInline(opKpi1, { gridTemplateColumns:'repeat(3,1fr)' });
         if (opKpi2) setInline(opKpi2, { gridTemplateColumns:'repeat(2,1fr)' });
 
-        // 圖表行：改成 2欄，3張圖排列如下：
-        //   行1: [科系分佈][學校分佈]
-        //   行2: [活動類型分佈]（50% 寬，自然落在左側）
+        // 圖表行：2欄 grid
+        //   行1: [科系分佈 280px 高][學校分佈 280px 高]
+        //   行2: [活動類型分佈 全寬]
         var regG3 = opPage ? opPage.querySelector('.g3') : null;
         if (regG3 && inReg(regG3)) {
           setInline(regG3, { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'14px' });
-          // 圖表容器高度統一 200px
-          regG3.querySelectorAll('.ch200,.ch240,.ch260').forEach(function(el) {
-            setInline(el, { height:'200px', overflow:'visible', position:'relative' });
+          var kids = regG3.children;
+
+          // 活動類型 → 全寬第二行
+          if (kids[2]) setInline(kids[2], { gridColumn:'1 / -1' });
+
+          // 科系/學校：高度已在 pre-capture 設為 280px，這裡只解 overflow
+          if (kids[0]) kids[0].querySelectorAll('.ch200,.ch240,.ch260,.ch280').forEach(function(el) {
+            setInline(el, { height:'280px', overflow:'visible' });
           });
-          // captured img 自適應寬度
+          if (kids[1]) kids[1].querySelectorAll('.ch200,.ch240,.ch260,.ch280').forEach(function(el) {
+            setInline(el, { height:'280px', overflow:'visible' });
+          });
+          // 活動類型：全寬，高度 200px
+          if (kids[2]) kids[2].querySelectorAll('.ch200,.ch240,.ch260').forEach(function(el) {
+            setInline(el, { height:'200px', overflow:'visible' });
+          });
+
+          // captured img 自適應
           regG3.querySelectorAll('img[data-print-img]').forEach(function(img) {
-            setInline(img, { width:'100%', height:'200px', objectFit:'contain', display:'block' });
+            setInline(img, { width:'100%', height:'100%', objectFit:'contain', display:'block' });
+          });
+
+          // 確保卡片不跨頁
+          Array.from(regG3.children).forEach(function(card) {
+            setInline(card, { breakInside:'avoid', pageBreakInside:'avoid' });
           });
         }
         // 其他圖表容器解鎖
