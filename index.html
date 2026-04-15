@@ -36,7 +36,7 @@ header{background:var(--card);border-bottom:1px solid var(--border);padding:16px
 .pill-tr{background:#dcfce7;color:#14532d}
 .krow{display:grid;gap:13px;margin-bottom:18px}
 .k5{grid-template-columns:repeat(5,1fr)}.k4{grid-template-columns:repeat(4,1fr)}.k3{grid-template-columns:repeat(3,1fr)}.k2{grid-template-columns:repeat(2,1fr)}
-.kpi{background:var(--card);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
+.kpi{background:var(--card);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);break-inside:avoid;page-break-inside:avoid}
 .kpi-lbl{font-size:11px;color:var(--text2);font-weight:500;margin-bottom:4px}
 .kpi-val{font-size:28px;font-weight:700;line-height:1.1}
 .kpi-sub{font-size:11px;color:var(--text2);margin-top:4px}
@@ -46,7 +46,7 @@ header{background:var(--card);border-bottom:1px solid var(--border);padding:16px
 .bp{background:#f3e8ff;color:#6b21a8}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
-.card{background:var(--card);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow)}
+.card{background:var(--card);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow);break-inside:avoid;page-break-inside:avoid}
 .card-title{font-size:13px;font-weight:600;margin-bottom:14px}
 .ch200{position:relative;height:200px}.ch240{position:relative;height:240px}.ch260{position:relative;height:260px}
 .prog{margin-bottom:10px}
@@ -109,8 +109,9 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
 .pill-dc{background:#fee2e2;color:#991b1b}
 
 /* ── 決議卡片 ── */
-.dec-item{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:10px;background:var(--bg);margin-bottom:8px;border-left:3px solid var(--border);transition:opacity .2s}
+.dec-item{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:10px;background:var(--bg);margin-bottom:8px;border-left:3px solid var(--border);transition:opacity .2s;break-inside:avoid;page-break-inside:avoid}
 .dec-item.done{opacity:.5}
+.dc-meeting-group{break-inside:avoid;page-break-inside:avoid}
 .dec-item.done .dec-text{text-decoration:line-through;color:var(--text2)}
 .dec-item.pri-high{border-left-color:var(--red)}
 .dec-item.pri-mid{border-left-color:var(--orange)}
@@ -1206,27 +1207,41 @@ function exportPDF() {
   // 1. 展開所有分頁，確保 Chart.js 圖表正確渲染
   _printShowPages();
 
-  // 2. 等圖表重繪完成後，轉為靜態圖片再輸出
   setTimeout(function() {
     _printCanvasToImg();
 
-    // 隱藏不需列印的 UI 元素
+    // 2. 隱藏 UI 互動元素
     var hideEls = document.querySelectorAll('.tabs,.tl-btn,.exp-btn,button,.tl-filters,#tl-filter-bar,#tl-debug,.circ-wrap');
     hideEls.forEach(function(el) { el.dataset.pdfHide = el.style.display; el.style.display = 'none'; });
 
+    // 3. 隱藏「已完成」決議項目（不納入 PDF）
+    var doneDecs = document.querySelectorAll('.dec-item.done');
+    doneDecs.forEach(function(el) { el.dataset.pdfHideDec = '1'; el.style.display = 'none'; });
+
+    // 4. 隱藏因此變成空的會議群組
+    document.querySelectorAll('.dc-meeting-group').forEach(function(group) {
+      var visible = Array.from(group.querySelectorAll('.dec-item')).filter(function(el) { return el.style.display !== 'none'; });
+      if (visible.length === 0) { group.dataset.pdfHideGroup = '1'; group.style.display = 'none'; }
+    });
+
     var opt = {
-      margin:     [8, 8, 8, 8],
-      filename:   'MAIC-Dashboard-2026.pdf',
-      image:      { type: 'jpeg', quality: 0.97 },
+      margin:      [18, 10, 18, 10],
+      filename:    'MAIC-Dashboard-2026.pdf',
+      image:       { type: 'jpeg', quality: 0.97 },
       html2canvas: { scale: 2, useCORS: true, logging: false, scrollY: 0 },
-      jsPDF:      { unit: 'mm', format: 'a4', orientation: 'landscape' },
-      pagebreak:  { mode: ['css', 'legacy'] }
+      jsPDF:       { unit: 'mm', format: 'a4', orientation: 'landscape' },
+      pagebreak:   {
+        mode:  ['avoid-all', 'css', 'legacy'],
+        avoid: ['.card', '.kpi', '.dec-item', '.dc-meeting-group', '.rtc', '.ws-card']
+      }
     };
 
     html2pdf().set(opt).from(document.body).save()
       .then(function() {
-        // 還原
+        // 5. 全部還原
         hideEls.forEach(function(el) { el.style.display = el.dataset.pdfHide || ''; delete el.dataset.pdfHide; });
+        doneDecs.forEach(function(el) { el.style.display = ''; delete el.dataset.pdfHideDec; });
+        document.querySelectorAll('.dc-meeting-group[data-pdf-hide-group]').forEach(function(g) { g.style.display = ''; delete g.dataset.pdfHideGroup; });
         _printRestore();
         if (btn) { btn.textContent = '🖨️ 列印 PDF'; btn.disabled = false; }
       });
@@ -1290,7 +1305,7 @@ function buildDecisions() {
     });
     if (!filtered.length) return;
 
-    html += `<div style="margin-bottom:20px">
+    html += `<div class="dc-meeting-group" style="margin-bottom:20px">
       <div style="font-size:11px;font-weight:700;color:var(--text2);padding:6px 0 8px;border-bottom:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:8px">
         📅 ${g.meeting}
         <span style="font-size:10px;background:var(--bg);padding:2px 8px;border-radius:100px;font-weight:500">${filtered.length} 項</span>
