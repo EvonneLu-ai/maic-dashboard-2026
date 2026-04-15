@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>MAIC Dashboard 2026</title>
+<title>MAIC Dashboard 2026 <!-- v20260415c --></title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <style>
 :root{
@@ -130,92 +130,85 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
 /* ── 優先度 dot ── */
 .pri-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px}
 
-@page { margin: 0; }
+@page { size: A4; margin: 15mm 10mm; }
 @media print{
-  /* 頁面內距（@page margin:0 可移除 Chrome URL，padding 補回留白）*/
-  body { padding: 18mm 10mm !important; background:#fff!important; color:#000!important; font-size:10.5pt; }
 
-  /* 隱藏互動元素 */
-  header{position:static!important}
-  .tabs,.tl-btn,.exp-btn,button,
+  /* ── 1. 核彈式展開：所有容器高度解鎖、溢出可見 ── */
+  *{
+    overflow:visible!important;
+    max-height:none!important;
+    min-height:0!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+
+  /* ── 2. 頁面基本設定 ── */
+  html,body{
+    background:#fff!important;
+    color:#000!important;
+    font-size:10pt!important;
+    padding:0!important;
+    margin:0!important;
+  }
+
+  /* ── 3. 隱藏互動元素與 header ── */
+  header,
+  .tabs,.tl-btn,.exp-btn,
   .tl-filter,.tl-filters,#tl-filter-bar,
-  #tl-debug,.circ-wrap{display:none!important}
+  #tl-debug,.circ-wrap,
+  button{ display:none!important; }
 
-  /* 所有分頁都顯示 */
-  .page{display:block!important;padding:0 0 24px 0!important}
+  /* ── 4. 所有分頁全部顯示，間距清楚 ── */
+  .page{ display:block!important; padding:0 0 20px!important; }
 
-  /* 色彩精確輸出 */
-  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  /* ── 5. 每個分頁之間強制換頁 ── */
+  #page-operation{ page-break-after:always; break-after:page; }
+  #page-marketing{ page-break-after:always; break-after:page; }
+  #page-training{  page-break-after:always; break-after:page; }
 
-  /* 卡片樣式 */
-  .card{
-    box-shadow:none!important;
-    border:1px solid #ddd!important;
-    page-break-inside:avoid!important;
-    break-inside:avoid!important;
-    margin-bottom:14px!important;
-  }
-
-  /* KPI 卡片 */
-  .kpi{
-    box-shadow:none!important;
-    border:1px solid #ddd!important;
-    page-break-inside:avoid!important;
-    break-inside:avoid!important;
-    margin-bottom:8px!important;
-  }
-
-  /* 表格不被切斷 */
-  table{page-break-inside:avoid!important;break-inside:avoid!important}
-  tr{page-break-inside:avoid!important;break-inside:avoid!important}
-  thead{display:table-header-group}
-
-  /* Grid 改成單欄，避免排版跑掉 */
-  .g2,.g3,.g4,.g13,.krow,.k5,.k4,.k3,.k2{
+  /* ── 6. 所有 Grid / Flex → 單欄 block ── */
+  .g2,.g3,.g4,.g13,
+  .krow,.k5,.k4,.k3,.k2{
     display:block!important;
+    width:100%!important;
+  }
+
+  /* ── 7. 卡片樣式（去陰影、加邊框、禁止切斷）── */
+  .card,.kpi{
+    display:block!important;
+    box-shadow:none!important;
+    border:1px solid #ddd!important;
+    margin-bottom:12px!important;
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
   }
   .g2>*,.g3>*,.g4>*,.krow>*{
+    display:block!important;
     margin-bottom:10px!important;
-    page-break-inside:avoid!important;
     break-inside:avoid!important;
+    page-break-inside:avoid!important;
   }
 
-  /* 時間軸不限高度 */
-  .tl-wrap{max-height:none!important;overflow:visible!important}
-
-  /* 活動/宣講/RTC/決議 各項目不被切斷 */
-  .act,.session,.rtc,.dec-item,.erow,
-  .dc-meeting-group,.ws-card{
-    page-break-inside:avoid!important;
-    break-inside:avoid!important;
-  }
-
-  /* 決議群組整體不切斷 */
-  .dc-meeting-group{
-    page-break-inside:avoid!important;
-    break-inside:avoid!important;
-    margin-bottom:16px!important;
-  }
-
-  /* 月份分組卡片 */
+  /* ── 8. 所有內容行項目禁止切斷 ── */
+  .act,.session,.rtc,
+  .dec-item,.dc-meeting-group,
+  .erow,.ws-card,
   #workshopCards>div{
-    page-break-inside:avoid!important;
     break-inside:avoid!important;
-  }
-
-  /* 每個分頁之間強制換頁 */
-  #page-operation{page-break-after:always}
-  #page-marketing{page-break-after:always}
-  #page-training{page-break-after:always}
-
-  /* 圖表區塊 */
-  .ch200,.ch240,.ch260{
     page-break-inside:avoid!important;
-    break-inside:avoid!important;
   }
+  .dc-meeting-group{ margin-bottom:16px!important; }
 
-  /* 段落標題前不換頁 */
-  .sec{page-break-after:avoid!important;break-after:avoid!important}
+  /* ── 9. 表格 ── */
+  table{ break-inside:avoid!important; page-break-inside:avoid!important; }
+  tr{    break-inside:avoid!important; page-break-inside:avoid!important; }
+  thead{ display:table-header-group; }
+
+  /* ── 10. 圖表固定高度解除 ── */
+  .ch200,.ch240,.ch260{ height:auto!important; }
+
+  /* ── 11. 段落標題後不換頁 ── */
+  .sec{ break-after:avoid!important; page-break-after:avoid!important; }
 }
 
 /* ── CSV Import Modal ── */
