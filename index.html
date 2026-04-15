@@ -1192,7 +1192,7 @@ function exportPDF() {
       return regEls.some(function(r) { return r === el || r.contains(el); });
     }
 
-    // ── Step 2: 時間軸 / 圖表容器高度解鎖 ──
+    // ── Step 2: 時間軸 / 圖表容器解鎖（高度保留，只解除 overflow 截斷）──
     document.querySelectorAll('.tl-wrap').forEach(function(el) {
       setInline(el, { maxHeight:'none', overflow:'visible', height:'auto' });
     });
@@ -1201,7 +1201,8 @@ function exportPDF() {
       if (inReg(el)) {
         setInline(el, { height:'160px', overflow:'visible' });
       } else {
-        setInline(el, { height:'auto', overflow:'visible' });
+        // 保留原始高度，只解除 overflow 避免圖表被裁切
+        setInline(el, { overflow:'visible', minHeight:'160px' });
       }
     });
 
@@ -1282,7 +1283,7 @@ function exportPDF() {
     // ── Step 12: 開啟列印對話框 ──
     window.print();
 
-  }, 400);
+  }, 800);
 }
 
 // ════ DECISION TRACKER ════
