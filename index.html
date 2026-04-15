@@ -130,10 +130,71 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
 .pri-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px}
 
 @media print{
+  /* 隱藏互動元素 */
   header{position:static!important}
-  .tabs,.tl-btn,.exp-btn,button{display:none!important}
-  .page{display:block!important;padding:10px!important}
-  .card{box-shadow:none!important;border:1px solid #ddd!important}
+  .tabs,.tl-btn,.exp-btn,button,
+  .tl-filter,.tl-filters,#tl-filter-bar,
+  #tl-debug,.circ-wrap{display:none!important}
+
+  /* 所有分頁都顯示 */
+  .page{display:block!important;padding:8px 12px!important}
+
+  /* 版面設定 */
+  body{background:#fff!important;color:#000!important;font-size:11pt}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+
+  /* 卡片樣式 */
+  .card{
+    box-shadow:none!important;
+    border:1px solid #ddd!important;
+    page-break-inside:avoid!important;
+    break-inside:avoid!important;
+    margin-bottom:12px!important;
+  }
+
+  /* 表格不被切斷 */
+  table{page-break-inside:avoid!important;break-inside:avoid!important}
+  tr{page-break-inside:avoid!important;break-inside:avoid!important}
+  thead{display:table-header-group}
+
+  /* Grid 改成單欄，避免排版跑掉 */
+  .g2,.g3,.g4,.g13,.krow,.k5,.k4,.k3,.k2{
+    display:block!important;
+  }
+  .g2>*,.g3>*,.g4>*,.krow>*{
+    margin-bottom:10px!important;
+    page-break-inside:avoid!important;
+    break-inside:avoid!important;
+  }
+
+  /* 時間軸不限高度 */
+  .tl-wrap{max-height:none!important;overflow:visible!important}
+
+  /* 活動項目不被切斷 */
+  .act,.session,.rtc,.dec-item,.erow{
+    page-break-inside:avoid!important;
+    break-inside:avoid!important;
+  }
+
+  /* 月份分組卡片 */
+  #workshopCards>div{
+    page-break-inside:avoid!important;
+    break-inside:avoid!important;
+  }
+
+  /* 每個分頁之間換頁 */
+  #page-operation{page-break-after:always}
+  #page-marketing{page-break-after:always}
+  #page-training{page-break-after:always}
+
+  /* 圖表區塊 */
+  .ch200,.ch240,.ch260{
+    page-break-inside:avoid!important;
+    break-inside:avoid!important;
+  }
+
+  /* 段落標題前不換頁 */
+  .sec{page-break-after:avoid!important;break-after:avoid!important}
 }
 
 /* ── CSV Import Modal ── */
@@ -396,47 +457,47 @@ const DATA = {
   meta: {
     title:       'MAIC Dashboard',
     subtitle:    '行動應用創新賽 · 2026 Season · Straight A × Apple',
-    dataAsOf:    '📅 資料截至 2026/04/10',
-    currentDate: '2026-04-10',  // ← 用於 7 天截止計算
+    dataAsOf:    '📅 資料截至 2026/04/13',
+    currentDate: '2026-04-13',  // ← 用於 7 天截止計算
   },
 
   // ── OPERATION：報名數據 KPI ───────────────────────────
   operation: {
     registrationTarget: 800,   // ← 報名目標隊伍數
-    registrationDateLabel: '截至 2026/04/07',
+    registrationDateLabel: '截至 2026/04/13',
 
     // 第一排 KPI（4格）
     kpi1: [
-      { label: '累計報名隊伍', value: '5', unit: '組', sub: '本週新增 +2 隊', badge: '⏫ 報名進行中', badgeClass: 'bo', color: 'var(--blue)' },
-      { label: '目標達成率',   value: '0.6%', unit: '', sub: 'TW Season 初期階段（5/800）', badge: '🎯 持續衝刺中', badgeClass: 'bo', color: 'var(--orange)' },
-      { label: '累計註冊帳號', value: '31',  unit: '位', sub: '已驗證帳號 29 位', badge: '持續成長中', badgeClass: 'bb', color: 'var(--teal)' },
-      { label: '報名學生人數', value: '10',  unit: '人', sub: '參加過 3 人（30%）', badge: '跨校跨系', badgeClass: 'bp', color: 'var(--purple)' },
-      { label: '涵蓋學校數',   value: '9',   unit: '所', sub: '全台各地學校', badge: '全台分佈', badgeClass: 'bb', color: 'var(--blue)' },
+      { label: '累計報名隊伍', value: '89', unit: '組', sub: '本週新增 +84 隊', badge: '⏫ 報名進行中', badgeClass: 'bo', color: 'var(--blue)' },
+      { label: '目標達成率',   value: '11.1%', unit: '', sub: 'TW Season 初期階段（89/800）', badge: '🎯 持續衝刺中', badgeClass: 'bo', color: 'var(--orange)' },
+      { label: '累計註冊帳號', value: '142',  unit: '位', sub: '已驗證帳號 142 位', badge: '持續成長中', badgeClass: 'bb', color: 'var(--teal)' },
+      { label: '報名學生人數', value: '142',  unit: '人', sub: '參加過 3 人（2.11%）', badge: '跨校跨系', badgeClass: 'bp', color: 'var(--purple)' },
+      { label: '涵蓋學校數',   value: '12',   unit: '所', sub: '全台各地學校', badge: '全台分佈', badgeClass: 'bb', color: 'var(--blue)' },
     ],
 
     // 第二排 KPI（3格）- 組別＋網站
     groupBreakdown: {
-      creative: 2, // 創意組
-      innovative: 2, // 創新組
-      startup: 1, // 創業組
+      creative: 44, // 創意組
+      innovative: 40, // 創新組
+      startup: 50, // 創業組
       submitted: 1, // 企劃書已繳
-      notSubmitted: 4, // 企劃書未繳
+      notSubmitted: 88, // 企劃書未繳
     },
     websites: [
-      { label: '🌐 maic.straighta.com.tw', value: '14,733', sub: '今日 +53 次瀏覽',   badge: '主要報名入口', color: 'var(--blue)' },
-      { label: '🌐 bts.straighta.com.tw',  value: '8,536',  sub: '今日 +28・附件下載 175/115/113', badge: '資源平台', color: 'var(--teal)' },
+      { label: '🌐 maic.straighta.com.tw', value: '16,437', sub: '今日 +63 次瀏覽',   badge: '主要報名入口', color: 'var(--blue)' },
+      { label: '🌐 bts.straighta.com.tw',  value: '9,199',  sub: '今日 +42・附件下載 198/126/124', badge: '資源平台', color: 'var(--teal)' },
     ],
 
     // 科系分佈 Donut
     deptChart: {
-      labels: ['資訊工程學系(30%)', '行銷與流通管理系(20%)', '醫學系(10%)', '學習科學與科技研究所(10%)', '數位科技設計學系(10%)', '電機工程學系(10%)', '教育與學習科技學系(10%)'],
-      data:   [30, 20, 10, 10, 10, 10, 10],
+      labels: ['教育(19%)', '資訊通訊科技(13%)', '藝術及人文(13%)', '工程、製造及營建(12%)', '社會科學、新聞及圖書資訊(12%)', '商業管理與法律(10%)', '其他(21%)'],
+      data:   [19, 13, 13, 12, 12, 10, 21],
     },
 
     // 學校分佈 Donut
     schoolChart: {
-      labels: ['逢甲大學(30%)', '國立清華大學(20%)', '慈濟科技大學(20%)', '台北醫學大學(10%)', '國立台北教育大學(10%)', '國立台灣大學(10%)'],
-      data:   [30, 20, 20, 10, 10, 10],
+      labels: ['國立臺灣大學(57%)', '國立政治大學(13%)', '國立清華大學(8%)', '東海大學(7%)', '逢甲大學(6%)', '國立陽明交通大學(4%)', '臺北醫學大學(1%)', '慈濟科技大學(1%)', '國立臺中教育大學(1%)', '國立臺北科技大學(1%)', '其他(1%)'],
+      data:   [57, 13, 8, 7, 6, 4, 1, 1, 1, 1, 1],
     },
 
     // 活動類型分佈 Donut + 進度條
