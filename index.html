@@ -1199,16 +1199,24 @@ function exportPDF() {
     // 報名數據的圖表略縮高度讓三張圖排成一排時更緊湊
     document.querySelectorAll('.ch200,.ch240,.ch260').forEach(function(el) {
       if (inReg(el)) {
-        setInline(el, { height:'160px', overflow:'visible' });
+        setInline(el, { height:'140px', overflow:'visible' });
       } else {
         // 保留原始高度，只解除 overflow 避免圖表被裁切
         setInline(el, { overflow:'visible', minHeight:'160px' });
       }
     });
 
-    // ── Step 3: Grid → 單欄 block（報名數據區保留原格線）──
+    // ── Step 3: Grid → 單欄 block ──
+    // 報名數據區：krow（KPI行）→ block；g3（圖表行）→ 保留三欄
+    // 其他區：全部 → block
     document.querySelectorAll('.g2,.g3,.g4,.g13,.krow,.k5,.k4,.k3,.k2').forEach(function(el) {
-      if (!inReg(el)) setInline(el, { display:'block', width:'100%' });
+      if (inReg(el)) {
+        // 圖表三欄（g3）保留，KPI 行全部改 block
+        var isChartRow = el.classList.contains('g3') && el.querySelector('canvas,img[data-print-img]');
+        if (!isChartRow) setInline(el, { display:'block', width:'100%' });
+      } else {
+        setInline(el, { display:'block', width:'100%' });
+      }
     });
     document.querySelectorAll('.g2>*,.g3>*,.g4>*,.krow>*').forEach(function(el) {
       if (!inReg(el)) {
