@@ -807,14 +807,14 @@ document.getElementById('actTypeProgs').innerHTML = DATA.operation.actTypeProgs.
 new Chart(document.getElementById('deptChart'), {
   type: 'doughnut',
   data: { labels: DATA.operation.deptChart.labels, datasets: [{ data: DATA.operation.deptChart.data, backgroundColor: [C.blue,C.orange,C.red,C.green,C.purple,C.teal,C.pink], borderWidth:2, borderColor:'#ffffff' }] },
-  options: { responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{ legend:{ position:'right', labels:{ boxWidth:12, padding:8, font:{size:12} } } } }
+  options: { responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{ legend:{ position:'right', labels:{ boxWidth:14, padding:8, font:{size:15} } } } }
 });
 
 // 學校 Donut
 new Chart(document.getElementById('schoolChart'), {
   type: 'doughnut',
   data: { labels: DATA.operation.schoolChart.labels, datasets: [{ data: DATA.operation.schoolChart.data, backgroundColor: [C.orange,C.blue,C.purple,C.red,C.teal,C.green], borderWidth:2, borderColor:'#ffffff' }] },
-  options: { responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{ legend:{ position:'right', labels:{ boxWidth:12, padding:8, font:{size:12} } } } }
+  options: { responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{ legend:{ position:'right', labels:{ boxWidth:14, padding:8, font:{size:15} } } } }
 });
 
 // 活動類型 Donut
