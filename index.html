@@ -1171,11 +1171,20 @@ function exportPDF() {
       Object.values(Chart.instances).forEach(function(c) { try { c.resize(); } catch(e) {} });
     }
 
-    // ── pre-capture：把科系/學校圖表容器拉高，讓 Chart.js 有足夠空間渲染全部圖例 ──
-    ['deptChart','schoolChart'].forEach(function(id) {
-      var canvas = document.getElementById(id);
-      if (canvas && canvas.parentElement) canvas.parentElement.style.height = '280px';
-    });
+    // ── pre-capture：暫時把科系/學校圖例改成 bottom 並拉高，確保所有標籤完整顯示 ──
+    var deptInst, schoolInst;
+    if (window.Chart && Chart.instances) {
+      Object.values(Chart.instances).forEach(function(c) {
+        if (c.canvas && c.canvas.id === 'deptChart')   { deptInst   = c; }
+        if (c.canvas && c.canvas.id === 'schoolChart') { schoolInst = c; }
+      });
+    }
+    var deptEl   = document.getElementById('deptChart')   ? document.getElementById('deptChart').parentElement   : null;
+    var schoolEl = document.getElementById('schoolChart') ? document.getElementById('schoolChart').parentElement : null;
+    if (deptInst)   { deptInst.options.plugins.legend.position   = 'bottom'; }
+    if (schoolInst) { schoolInst.options.plugins.legend.position = 'bottom'; }
+    if (deptEl)   deptEl.style.height   = '320px';
+    if (schoolEl) schoolEl.style.height = '380px';
 
     // Stage B: 300ms 後 update（強制重繪，套用新高度）
     setTimeout(function() {
@@ -1225,12 +1234,12 @@ function exportPDF() {
           // 活動類型 → 全寬第二行
           if (kids[2]) setInline(kids[2], { gridColumn:'1 / -1' });
 
-          // 科系/學校：高度已在 pre-capture 設為 280px，這裡只解 overflow
+          // 科系/學校：高度對應 bottom legend（320/380px）
           if (kids[0]) kids[0].querySelectorAll('.ch200,.ch240,.ch260,.ch280').forEach(function(el) {
-            setInline(el, { height:'280px', overflow:'visible' });
+            setInline(el, { height:'320px', overflow:'visible' });
           });
           if (kids[1]) kids[1].querySelectorAll('.ch200,.ch240,.ch260,.ch280').forEach(function(el) {
-            setInline(el, { height:'280px', overflow:'visible' });
+            setInline(el, { height:'380px', overflow:'visible' });
           });
           // 活動類型：全寬，高度 200px
           if (kids[2]) kids[2].querySelectorAll('.ch200,.ch240,.ch260').forEach(function(el) {
@@ -1318,6 +1327,11 @@ function exportPDF() {
           saved.forEach(function(s) { Object.keys(s.prev).forEach(function(k) { s.el.style[k] = s.prev[k]; }); });
           doneDecs.forEach(function(el) { el.style.display = ''; delete el.dataset.pdfHideDec; });
           document.querySelectorAll('.dc-meeting-group[data-pdf-hide-group]').forEach(function(g) { g.style.display = ''; delete g.dataset.pdfHideGroup; });
+          // 還原科系/學校圖例為 right
+          if (deptInst)   { deptInst.options.plugins.legend.position   = 'right'; deptInst.update('none'); }
+          if (schoolInst) { schoolInst.options.plugins.legend.position = 'right'; schoolInst.update('none'); }
+          if (deptEl)   deptEl.style.height   = '';
+          if (schoolEl) schoolEl.style.height = '';
           _printRestore();
         }
         window.addEventListener('afterprint', restore);
