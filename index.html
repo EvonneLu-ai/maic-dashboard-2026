@@ -1202,15 +1202,18 @@ function exportPDF() {
         });
 
         // ── Step 3: 報名數據的圖表區 ──
-        // 科系分佈+學校分佈 → 2欄；活動類型分佈 → 獨立全寬
+        // 科系+學校 → 2欄；活動類型自然落到第二行左側（50%）
         var regG3 = opPage ? opPage.querySelector('.g3') : null;
         if (regG3 && inReg(regG3)) {
           setInline(regG3, { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px' });
-          var g3Kids = regG3.children;
-          if (g3Kids[2]) setInline(g3Kids[2], { gridColumn:'1 / -1' }); // 活動類型 → 全寬
-          // 縮小圖表高度
+          // 第三張圖不設 gridColumn，讓它自然在第二行左側 50%
+          // 圖表容器高度固定 150px
           regG3.querySelectorAll('.ch200,.ch240,.ch260').forEach(function(el) {
-            setInline(el, { height:'150px', overflow:'visible' });
+            setInline(el, { height:'150px', overflow:'visible', position:'relative' });
+          });
+          // 讓 reg 區 captured img 自適應容器寬度
+          regG3.querySelectorAll('img[data-print-img]').forEach(function(img) {
+            setInline(img, { width:'100%', height:'150px', objectFit:'contain' });
           });
         }
         // 其他圖表容器：保留高度，只解除 overflow
