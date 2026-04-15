@@ -129,7 +129,9 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
 /* ── 優先度 dot ── */
 .pri-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px}
 
+@page { margin: 0; }
 @media print{
+  body { padding: 8mm !important; }
   /* 隱藏互動元素 */
   header{position:static!important}
   .tabs,.tl-btn,.exp-btn,button,
@@ -535,21 +537,21 @@ const DATA = {
         { type:'mk', date:'4/8+4/9',  name:'東華大學全校公告 + 校內信', meta:'估計觸及超過10,000人' },
         { type:'mk', date:'4/9(四)',   name:'東華大學宣講會', meta:'東華大學' },
         { type:'tr', date:'4/10(五)',  name:'RTC｜多模態AI技術在教學情境中的應用', meta:'臺灣大學 · 講師：Raymond（侯智薰）· 14:00–17:00' },
-        { type:'mk', date:'4/24',     name:'逢甲大學校長分享宣講會', meta:'逢甲大學' },
+        { type:'tr', date:'4/23(四)',  name:'多元講座 — 【AI Coding】從點子到 App 的最短路徑（上）', meta:'18:30–21:30' },
+        { type:'mk', date:'4/24',     name:'逢甲大學學長姐分享宣講會', meta:'逢甲大學' },
         { type:'mk', date:'4月下旬',  name:'成功大學宣講會暨工作坊', meta:'講師：13 · 等Edick確認' },
         { type:'mk', date:'4月下旬',  name:'清華大學宣講會', meta:'TBC · SA有跟Max提及' },
-        { type:'tr', date:'4月下旬',  name:'多元講座 — AI Coding與Swift開發入門（實體）', meta:'TBC' },
-        { type:'mk', date:'4/30(四)', name:'臺灣大學宣講會（90分鐘完成一支作品）', meta:'講師：Curly · Beat Detection節奏快剪 · 09:30–12:30' },
+        { type:'mk', date:'4/30(四)', name:'臺灣大學宣講會 & 90分鐘完成一支作品：參賽短片拍攝知識＋Beat Detection 節奏快剪技巧', meta:'講師：Curly · 09:30–12:30 · 宣傳：學生iOS club FB，SA會跟社長聯繫協助宣傳' },
         { type:'mk', date:'4/30(四)', name:'逢甲大學宣講會 & AI Coding', meta:'逢甲大學' },
-        { type:'tr', date:'4/30(四)', name:'多元講座 — UI/UX 設計', meta:'線上' },
+        { type:'tr', date:'4/30(四)', name:'多元講座 — 【UI/UX 設計】讓點子落地的介面設計與交互魔法', meta:'線上 · 講師：UI UX 學姊 · 14:00–17:00' },
       ]},
       { month: '5月', items: [
-        { type:'tr', date:'5/7(四)',   name:'多元講座 — AI Coding 從點子到App最短路徑（上）', meta:'線上' },
+        { type:'tr', date:'5/7(四)',   name:'多元講座 — 【AI Coding】從點子到 App 的最短路徑（上）', meta:'線上 · 18:30–21:30' },
         { type:'tr', date:'5月上旬',  name:'多元講座 — UI/UX設計（實體）', meta:'TBC' },
         { type:'tr', date:'5/8(五)',   name:'RTC｜產品設計思考', meta:'臺灣大學 · 講師：Mia · 14:00–17:00' },
         { type:'tr', date:'5/15(五)', name:'RTC｜空間體驗設計', meta:'臺灣大學 · 講師：Mia · 14:00–17:00' },
         { type:'mk', date:'5/15',     name:'逢甲大學 AI coding 工作坊', meta:'講師：Peter' },
-        { type:'mk', date:'5/20(三)', name:'臺灣大學宣講會', meta:'講師：13 · 09:30–12:30' },
+        { type:'mk', date:'5/20(三)', name:'臺灣大學宣講會 &【AI Coding 驅動創意】從點子到 App 的最短路徑', meta:'講師：13 · 09:30–12:30 · 宣傳：學生iOS club FB / 提醒講師課程框架才能幫忙寫文稿' },
         { type:'mk', date:'5/20(三)', name:'海洋大學宣講會', meta:'海洋大學' },
         { type:'tr', date:'5/21(四)', name:'多元講座 — AI模型整合實務：把AI變成App的大腦', meta:'線上' },
         { type:'tr', date:'5/22(五)', name:'RTC｜空間應用元件設計', meta:'臺灣大學 · 講師：Mia · 14:00–17:00' },
@@ -560,10 +562,11 @@ const DATA = {
       ]},
       { month: '6月', items: [
         { type:'op', date:'6/4(四)',  name:'TW初賽 — 臺灣初賽評審', meta:'Apple HQ · Apple x5、企業代表x1、教育代表x1' },
-        { type:'tr', date:'6/5(五)',  name:'RTC｜AI剪輯新紀元：FCP AI助你說好故事', meta:'臺灣大學 · 講師：Curly · 14:00–17:00' },
+        { type:'tr', date:'6/5(五)',  name:'RTC｜AI 剪輯新紀元：把時間還給創意，FCP AI 助你專注說好故事', meta:'臺灣大學 · 講師：Curly · 14:00–17:00' },
         { type:'op', date:'6/10(三)', name:'TW初賽 — 臺灣初賽結果公布', meta:'線上網站' },
         { type:'tr', date:'6/10(三)', name:'多元講座 — 包裝故事：行銷與AI影片剪輯', meta:'線上' },
-        { type:'tr', date:'6/17(三)', name:'多元講座 — 簡報設計與答辯技巧（實體）', meta:'需借場地 訂101-1-101-2' },
+        { type:'tr', date:'6/17(三)', name:'多元講座 — 精確呈現與表達：提案簡報贏家秘笈', meta:'實體 · 講師：Matt · SA借場地 訂101-1-101-2（已完成）' },
+        { type:'tr', date:'6/17(三)', name:'多元講座 — 賽場應對風範：答辯技巧', meta:'實體 · 講師：Daniel · SA借場地 訂101-1-101-2（已完成）' },
         { type:'op', date:'6/30(二)', name:'TW決賽 — 決賽隊伍繳交作品截止', meta:'線上網站' },
       ]},
       { month: '7月', items: [
@@ -679,8 +682,9 @@ const DATA = {
         { date:'3/14(六)', name:'AI Coding Summer Camp\n第一次宣傳體驗活動', format:'實體', done:true },
       ]},
       { month: '4月', color: '#ff9500', items: [
+        { date:'4/23(四)', name:'多元講座 — 【AI Coding】從點子到 App 的最短路徑（上）', format:'實體', done:false },
         { date:'4月下旬', name:'AI Coding 與 Swift 開發入門', format:'實體', done:false },
-        { date:'4/30(四)', name:'UI/UX 設計', format:'線上', done:false },
+        { date:'4/30(四)', name:'【UI/UX 設計】讓點子落地的介面設計與交互魔法', format:'線上', done:false },
       ]},
       { month: '5月', color: '#34c759', items: [
         { date:'5/7(四)',  name:'AI Coding 從點子到 App 的最短路徑（上）', format:'線上', done:false },
