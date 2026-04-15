@@ -1202,31 +1202,25 @@ function exportPDF() {
         });
 
         // ── Step 3: 報名數據區塊排版 ──
-        // KPI 行：5欄→3欄、3欄→2欄（維持多欄但字體可讀，不被瀏覽器縮小）
+        // KPI 行：k5→3欄、k3→2欄（維持多欄可讀）
         var opKpi1 = document.getElementById('op-kpi-row1');
         var opKpi2 = document.getElementById('op-kpi-row2');
         if (opKpi1) setInline(opKpi1, { gridTemplateColumns:'repeat(3,1fr)' });
         if (opKpi2) setInline(opKpi2, { gridTemplateColumns:'repeat(2,1fr)' });
 
-        // 圖表行：科系＋學校 → 2欄；活動類型 → 第三格 gridColumn:1/-1 全寬獨立一行
+        // 圖表行：改成 2欄，3張圖排列如下：
+        //   行1: [科系分佈][學校分佈]
+        //   行2: [活動類型分佈]（50% 寬，自然落在左側）
         var regG3 = opPage ? opPage.querySelector('.g3') : null;
         if (regG3 && inReg(regG3)) {
-          setInline(regG3, { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px' });
-          var kids = regG3.children;
-          if (kids[2]) setInline(kids[2], { gridColumn:'1 / -1' }); // 活動類型 → 全寬
-          // 圖表容器高度：前兩張 180px，第三張（全寬）160px
-          if (kids[0]) kids[0].querySelectorAll('.ch200,.ch240,.ch260').forEach(function(el) {
-            setInline(el, { height:'180px', overflow:'visible' });
+          setInline(regG3, { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'14px' });
+          // 圖表容器高度統一 200px
+          regG3.querySelectorAll('.ch200,.ch240,.ch260').forEach(function(el) {
+            setInline(el, { height:'200px', overflow:'visible', position:'relative' });
           });
-          if (kids[1]) kids[1].querySelectorAll('.ch200,.ch240,.ch260').forEach(function(el) {
-            setInline(el, { height:'180px', overflow:'visible' });
-          });
-          if (kids[2]) kids[2].querySelectorAll('.ch200,.ch240,.ch260').forEach(function(el) {
-            setInline(el, { height:'160px', overflow:'visible' });
-          });
-          // 讓 captured img 填滿容器
+          // captured img 自適應寬度
           regG3.querySelectorAll('img[data-print-img]').forEach(function(img) {
-            setInline(img, { width:'100%', height:'100%', objectFit:'contain' });
+            setInline(img, { width:'100%', height:'200px', objectFit:'contain', display:'block' });
           });
         }
         // 其他圖表容器解鎖
