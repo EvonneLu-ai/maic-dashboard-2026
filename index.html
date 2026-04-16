@@ -752,7 +752,7 @@ function _toCode(t) {
 //  👉 將 YOUR_SHEET_ID_HERE 換成你的 Google Sheets ID
 // ════════════════════════════════════════════════════════
 const SHEETS_CONFIG = {
-  sheetId: '1bB21tu-2JyIDBejqpNcMTH9-zGr3-8XHwZagbnnJwxU',
+  sheetId: 'DISABLED',
   tabs: {
     meta:          '1943565570',
     operation_kpi: '1454677851',
@@ -1024,7 +1024,7 @@ function _reRender() {
 // ── 自動從 Google Sheets 載入（頁面啟動後執行）──
 (function _gsLoad() {
   var sid = SHEETS_CONFIG.sheetId;
-  if (!sid || sid === 'YOUR_SHEET_ID_HERE') return; // 👈 尚未設定，跳過
+  if (!sid || sid === 'YOUR_SHEET_ID_HERE' || sid === 'DISABLED') return; // 👈 尚未設定，跳過
   var banner = document.createElement('div');
   banner.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#1d1d1f;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.3)';
   banner.textContent = '🔄 從 Google Sheets 載入最新數據…';
