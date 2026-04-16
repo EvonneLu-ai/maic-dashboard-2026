@@ -1471,7 +1471,7 @@ function exportPDF() {
   // ── Step 1: 展開所有分頁 ──
   _printShowPages();
 
-  // Stage A: 500ms 後 resize
+  // Stage A: 800ms 後 resize（增加等待，確保 Sheets 資料渲染完成）
   setTimeout(function() {
     if (window.Chart && Chart.instances) {
       Object.values(Chart.instances).forEach(function(c) { try { c.resize(); } catch(e) {} });
@@ -1492,13 +1492,13 @@ function exportPDF() {
     if (deptEl)   deptEl.style.height   = '320px';
     if (schoolEl) schoolEl.style.height = '380px';
 
-    // Stage B: 300ms 後 update（強制重繪，套用新高度）
+    // Stage B: 500ms 後 update（強制重繪，套用新高度）
     setTimeout(function() {
       if (window.Chart && Chart.instances) {
         Object.values(Chart.instances).forEach(function(c) { try { c.update('none'); } catch(e) {} });
       }
 
-      // Stage C: 300ms 後 capture + 套版
+      // Stage C: 500ms 後 capture + 套版
       setTimeout(function() {
         _printCanvasToImg();
 
@@ -1644,9 +1644,9 @@ function exportPDF() {
 
         window.print();
 
-      }, 300);
-    }, 300);
-  }, 500);
+      }, 500);
+    }, 500);
+  }, 800);
 }
 
 // ════ DECISION TRACKER ════
