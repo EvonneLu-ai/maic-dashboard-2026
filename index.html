@@ -752,7 +752,7 @@ function _toCode(t) {
 //  👉 將 YOUR_SHEET_ID_HERE 換成你的 Google Sheets ID
 // ════════════════════════════════════════════════════════
 const SHEETS_CONFIG = {
-  sheetId: 'DISABLED',
+  sheetId: '1bB21tu-2JyIDBejqpNcMTH9-zGr3-8XHwZagbnnJwxU',
   tabs: {
     meta:          '1943565570',
     operation_kpi: '1454677851',
@@ -992,7 +992,7 @@ function _reRender() {
       +'<div class="rmeta">'+c.date+' · 14:00–17:00 · 臺灣大學 · 講師：'+c.lecturer+'</div></div>'
       +'<span class="bdg '+(c.done?'bg':'bo')+'" style="flex-shrink:0">'+(c.done?'✅ 已完成':'⏳ 待舉辦')+'</span></div>';
   }).join('');
-  var s2=DATA.training.workshopSummary;
+  var s2 = DATA.training.workshopSummary || { total:0, inPerson:1, online:1, general:0, summerCamp:0, summerCampDates:'' };
   document.getElementById('workshopSummary').innerHTML = '<div class="card-title">📊 多元能力強化講座 — 總覽</div>'
     +'<div style="display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center">'
     +'<div style="text-align:center;padding:0 16px 0 4px;border-right:1px solid var(--border)"><div style="font-size:48px;font-weight:700;color:var(--green);line-height:1">'+s2.total+'</div><div style="font-size:12px;color:var(--text2);margin-top:4px">總場次</div></div>'
