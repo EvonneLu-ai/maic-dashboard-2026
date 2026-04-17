@@ -753,20 +753,12 @@ function _toCode(t) {
 //  👉 將 YOUR_SHEET_ID_HERE 換成你的 Google Sheets ID
 // ════════════════════════════════════════════════════════
 const SHEETS_CONFIG = {
-  sheetId: '1bB21tu-2JyIDBejqpNcMTH9-zGr3-8XHwZagbnnJwxU',
-  tabs: {
-    meta:          '1943565570',
-    operation_kpi: '1454677851',
-    departments:   '1400673060',
-    schools:       '1722125358',
-    timeline:      '944980180',
-    sessions:      '1273914335',
-    emails:        '1698391079',
-    rtc:           '114385883',
-    workshops:     '528152256',
-    decisions:     '748740044',
-  }
+  sheetId: 'DISABLED',  // 改由 GitHub CSV 自動同步，不直接讀 Sheets（避免 CORS 問題）
 };
+
+// ── 從 GitHub 載入 CSV 資料 ──────────────────────────
+const GITHUB_RAW = 'https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/data/';
+const CSV_FILES = ['meta','operation_kpi','departments','schools','timeline','sessions','emails','rtc','workshops','decisions'];
 
 // ── CSV 解析工具 ──
 function _csvRow(line) {
@@ -1948,6 +1940,30 @@ function switchTab(tab) {
 </script>
 
 <script>
+
+// ── 從 GitHub CSV 載入資料（取代 Sheets 直接讀取）────
+function _loadFromGitHub() {
+  var banner = document.createElement('div');
+  banner.id = 'gh-banner';
+  banner.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#1d1d1f;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.3)';
+  banner.textContent = '🔄 載入最新數據…';
+  document.body.appendChild(banner);
+
+  var loaded = {};
+  var promises = CSV_FILES.map(function(name) {
+    return fetch(GITHUB_RAW + name + '.csv?t=' + Date.now())
+      .then(function(r) { return r.text(); })
+      .then(function(text) { loaded[name] = _parseCSV(text); })
+      .catch(function() {});
+  });
+
+  Promise.all(promises).then(function() {
+    _applySheets(loaded);
+    var b = document.getElementById('gh-banner');
+    if (b) { b.textContent = '✅ 數據已更新'; setTimeout(function(){ b.remove(); }, 2000); }
+  });
+}
+
 function downloadPDF() {
   var btn = document.querySelector('[onclick="downloadPDF()"]');
   var orig = btn ? btn.innerHTML : '';
