@@ -1363,7 +1363,7 @@ function buildProgressRing() {
   const pctStr  = pct.toFixed(1);
   const circ    = 99.9;
   const dash    = (pct / 100 * circ).toFixed(2);
-  document.getElementById('progress-ring').innerHTML = `
+  var _pr = document.getElementById('progress-ring'); if(_pr) _pr.innerHTML = `
     <div title="整體報名進度 ${pctStr}%" style="position:relative;width:50px;height:50px">
       <svg viewBox="0 0 36 36" width="50" height="50">
         <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e5e5ea" stroke-width="3"/>
