@@ -5,21 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>MAIC Dashboard 2026 <!-- v20260415c --></title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js">
-function downloadPDF() {
-  var btn = document.querySelector('[onclick="downloadPDF()"]');
-  var orig = btn ? btn.innerHTML : '';
-  if (btn) { btn.innerHTML = '⏳ 載入中…'; btn.disabled = true; }
-  var link = document.createElement('a');
-  link.href = './MAIC2026_Dashboard.pdf';
-  link.download = 'MAIC2026_Dashboard.pdf';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  setTimeout(function() {
-    if (btn) { btn.innerHTML = orig; btn.disabled = false; }
-  }, 2000);
-}
-
 </script>
 <style>
 :root{
@@ -1959,6 +1944,23 @@ function switchTab(tab) {
   document.getElementById('page-' + tab).classList.add('active');
   const cls = { operation:'op', marketing:'mk', training:'tr', decision:'dc' }[tab] || 'op';
   document.querySelector('.tab.' + cls).classList.add('active');
+}
+</script>
+
+<script>
+function downloadPDF() {
+  var btn = document.querySelector('[onclick="downloadPDF()"]');
+  var orig = btn ? btn.innerHTML : '';
+  if (btn) { btn.innerHTML = '⏳ 載入中…'; btn.disabled = true; }
+  var link = document.createElement('a');
+  link.href = './MAIC2026_Dashboard.pdf';
+  link.download = 'MAIC2026_Dashboard.pdf';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(function() {
+    if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+  }, 2000);
 }
 </script>
 </body>
