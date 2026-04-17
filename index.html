@@ -4,7 +4,23 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>MAIC Dashboard 2026 <!-- v20260415c --></title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js">
+function downloadPDF() {
+  var btn = document.querySelector('[onclick="downloadPDF()"]');
+  var orig = btn ? btn.innerHTML : '';
+  if (btn) { btn.innerHTML = '⏳ 載入中…'; btn.disabled = true; }
+  var link = document.createElement('a');
+  link.href = './MAIC2026_Dashboard.pdf';
+  link.download = 'MAIC2026_Dashboard.pdf';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(function() {
+    if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+  }, 2000);
+}
+
+</script>
 <style>
 :root{
   --bg:#f2f2f7;--card:#fff;--text:#1d1d1f;--text2:#6e6e73;
@@ -234,7 +250,7 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
     <div class="sec" style="margin:0">📅 全年活動排程 <span class="pill pill-op">Operation</span></div>
     <div style="display:flex;gap:8px">
       <button class="exp-btn" onclick="exportCSV()">📥 匯出 CSV</button>
-      <button class="exp-btn" onclick="exportPDF()">🖨️ 列印 PDF</button>
+      <button class="exp-btn" onclick="downloadPDF()">📥 下載 PDF</button>
     </div>
   </div>
 
