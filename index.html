@@ -1944,9 +1944,6 @@ function switchTab(tab) {
 <script>
 
 // ── 從 GitHub CSV 載入資料（取代 Sheets 直接讀取）────
-// 頁面載入後自動呼叫
-document.addEventListener("DOMContentLoaded", function() { _loadFromGitHub(); });
-
 function _loadFromGitHub() {
   var banner = document.createElement('div');
   banner.id = 'gh-banner';
@@ -1984,6 +1981,10 @@ function downloadPDF() {
     if (btn) { btn.innerHTML = orig; btn.disabled = false; }
   }, 2000);
 }
+</script>
+<script>
+// 頁面載入後 500ms 自動抓 GitHub 最新資料
+setTimeout(function() { if(typeof _loadFromGitHub === 'function') _loadFromGitHub(); }, 500);
 </script>
 </body>
 </html>
