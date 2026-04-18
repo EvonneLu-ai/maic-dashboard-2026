@@ -1961,6 +1961,7 @@ function _loadFromGitHub() {
 
   Promise.all(promises).then(function() {
     _applySheets(loaded);
+    if (typeof _reRender === 'function') _reRender();
     var b = document.getElementById('gh-banner');
     if (b) { b.textContent = '✅ 數據已更新'; setTimeout(function(){ b.remove(); }, 2000); }
   });
