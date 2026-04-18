@@ -1018,7 +1018,8 @@ function _reRender() {
 // ── 自動從 Google Sheets 載入（頁面啟動後執行）──
 (function _gsLoad() {
   var sid = SHEETS_CONFIG.sheetId;
-  if (!sid || sid === 'YOUR_SHEET_ID_HERE' || sid === 'DISABLED') return; // 👈 尚未設定，跳過
+  if (!sid || sid === 'YOUR_SHEET_ID_HERE') return; // 👈 尚未設定，跳過
+  // DISABLED = 由 _loadFromGitHub 接手，直接繼續執行
   var banner = document.createElement('div');
   banner.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#1d1d1f;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.3)';
   banner.textContent = '🔄 從 Google Sheets 載入最新數據…';
