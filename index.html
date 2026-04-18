@@ -1026,7 +1026,7 @@ function _reRender() {
   document.body.appendChild(banner);
   var base = 'https://docs.google.com/spreadsheets/d/' + sid + '/export?format=csv&gid=';
   Promise.all(
-    Object.entries(SHEETS_CONFIG.tabs).map(function(e){
+    Object.entries(SHEETS_CONFIG.tabs || {}).map(function(e){
       return fetch(base + encodeURIComponent(e[1]))
         .then(function(r){ return r.ok ? r.text() : Promise.reject(r.status); })
         .then(function(t){ return [e[0], _parseCSV(t)]; })
