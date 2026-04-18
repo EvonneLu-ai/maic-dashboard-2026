@@ -1,5 +1,5 @@
 key,value,note
 dataAsOf,📅 資料截至 2026/04/17,顯示在頁面右上角
-currentDate,Fri Apr 17 2026 00:00:00 GMT+0800 (台北標準時間),用於自動標記已完成課程（格式：YYYY-MM-DD）
+currentDate,4/17,用於自動標記已完成課程（格式：YYYY-MM-DD）
 registrationDateLabel,截至 2026/04/17,報名截止日期標籤
 registrationTarget,800,報名目標隊伍數
