@@ -250,7 +250,7 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
   </div>
 
   <div class="krow k5" id="op-kpi-row1"></div>
-  <div class="krow k3" style="margin-bottom:20px" id="op-kpi-row2"></div>
+  <div class="krow k2" style="margin-bottom:20px" id="op-kpi-row2"></div>
 
   <div class="g3">
     <div class="card">
@@ -264,7 +264,6 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
     <div class="card">
       <div class="card-title">📊 活動類型分佈</div>
       <div class="ch200"><canvas id="actTypeChart"></canvas></div>
-      <div style="margin-top:14px" id="actTypeProgs"></div>
     </div>
   </div>
 
@@ -806,17 +805,9 @@ document.getElementById('op-kpi-row1').innerHTML = buildKPI(DATA.operation.kpi1)
 
 // 第二排：組別 + 網站
 function buildOpKpi2() {
-  const g = DATA.operation.groupBreakdown;
   const ws = DATA.operation.websites;
-  document.getElementById('op-kpi-row2').innerHTML = `
-  <div class="kpi" style="display:flex;align-items:center;gap:16px">
-    <div style="text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">創意組</div><div style="font-size:26px;font-weight:700;color:var(--blue)">${g.creative}</div></div>
-    <div style="text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">創新組</div><div style="font-size:26px;font-weight:700;color:var(--purple)">${g.innovative}</div></div>
-    <div style="text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">創業組</div><div style="font-size:26px;font-weight:700;color:var(--green)">${g.startup}</div></div>
-    <div style="flex:1;padding-left:10px;border-left:1px solid var(--border)"><div style="font-size:11px;color:var(--text2)">企劃書繳交</div><div style="font-size:13px;font-weight:600;margin-top:4px">已繳 <span style="color:var(--green)">${g.submitted}</span> 組・未繳 <span style="color:var(--orange)">${g.notSubmitted}</span> 組</div></div>
-  </div>
-  ${ws.map(w => `<div class="kpi"><div class="kpi-lbl">${w.label}</div><div class="kpi-val" style="color:${w.color}">${w.value}</div><div class="kpi-sub">${w.sub}</div><span class="bdg bb">${w.badge}</span></div>`).join('')}
-  `;
+  document.getElementById('op-kpi-row2').innerHTML =
+    ws.map(w => `<div class="kpi"><div class="kpi-lbl">${w.label}</div><div class="kpi-val" style="color:${w.color}">${w.value}</div><div class="kpi-sub">${w.sub}</div><span class="bdg bb">${w.badge}</span></div>`).join('');
 }
 buildOpKpi2();
 
@@ -1365,12 +1356,12 @@ async function syncSheets() {
     if (cfg.innovative)    gb.innovative    = parseInt(cfg.innovative)    || gb.innovative;
     if (cfg.startup)       gb.startup       = parseInt(cfg.startup)       || gb.startup;
     if (cfg.submitted)     gb.submitted     = parseInt(cfg.submitted)     || gb.submitted;
-    if (cfg.notSubmitted)  gb.notSubmitted  = parseInt(cfg.notSubmitted)  || gb.notSubmitted;
+    if (cfg.not_submitted) gb.notSubmitted  = parseInt(cfg.not_submitted) || gb.notSubmitted;  // Sheet 用底線命名
 
     // websites
     const ws = DATA.operation.websites;
-    if (cfg.website1Value) { ws[0].value = cfg.website1Value; if (cfg.website1Sub) ws[0].sub = cfg.website1Sub; }
-    if (cfg.website2Value) { ws[1].value = cfg.website2Value; if (cfg.website2Sub) ws[1].sub = cfg.website2Sub; }
+    if (cfg.website1_views) { ws[0].value = cfg.website1_views; if (cfg.website1_today) ws[0].sub = '今日 +' + cfg.website1_today; }  // Sheet 用 website1_views
+    if (cfg.website2_views) { ws[1].value = cfg.website2_views; if (cfg.website2_today) ws[1].sub = '今日 +' + cfg.website2_today; }  // Sheet 用 website2_views
 
     // Marketing KPI1
     const mk = DATA.marketing.kpi1;
