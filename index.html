@@ -813,11 +813,6 @@ buildOpKpi2();
 
 // 活動時間軸 → 由下方 buildTimeline() IIFE 負責渲染（支援篩選 + 7天截止）
 
-// 活動進度條
-document.getElementById('actTypeProgs').innerHTML = DATA.operation.actTypeProgs.map(p =>
-  `<div class="prog"><div class="prog-lbl"><span>${p.label}</span><span style="font-weight:600">${p.count} 場</span></div><div class="prog-bar"><div class="prog-fill" style="width:${p.width}%;background:${p.color}"></div></div></div>`
-).join('');
-
 // 科系 Donut
 new Chart(document.getElementById('deptChart'), {
   type: 'doughnut',
