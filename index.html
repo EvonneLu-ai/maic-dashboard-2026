@@ -727,8 +727,19 @@ function _toCode(t) {
     DATA.operation.timeline = Object.entries(g).map(function(e){ return {month:e[0],items:e[1]}; });
   }
 
+  // 設定 tab 的欄位名稱 — 若 localStorage 第一格是這些，代表是垃圾資料，自動清除
+  var BAD_KEYS = ['field','teams','accounts','students','schools','creative','innovative','startup','submitted','not_submitted','website1_views','website2_views'];
+
   var sess = load('maic_import_sessions');
-  if (sess && Array.isArray(sess)) DATA.marketing.sessions = sess.map(function(r){ return {school:r[0],date:r[1],lecturer:r[2],type:r[3],time:r[4],people:parseInt(r[5])||0,venue:r[6],note:r[7],color:r[8]||'#0071e3'}; });
+  if (sess && Array.isArray(sess)) {
+    var sessFirst = (sess[0] && sess[0][0] || '').trim().toLowerCase();
+    if (BAD_KEYS.includes(sessFirst)) {
+      localStorage.removeItem('maic_import_sessions');
+      console.warn('[loadImported] 自動清除損壞的 maic_import_sessions（設定 tab 誤存）');
+    } else {
+      DATA.marketing.sessions = sess.map(function(r){ return {school:r[0],date:r[1],lecturer:r[2],type:r[3],time:r[4],people:parseInt(r[5])||0,venue:r[6],note:r[7],color:r[8]||'#0071e3'}; });
+    }
+  }
 
   var em = load('maic_import_emails');
   if (em && Array.isArray(em)) DATA.marketing.emails = em.map(function(r){ return {name:r[0],icon:r[1]||'📧',sent:parseInt(r[2])||0,opened:parseInt(r[3])||0,openRate:parseFloat(r[4])||0,clicks:parseInt(r[5])||0,ctr:parseFloat(r[6])||0}; });
@@ -738,12 +749,18 @@ function _toCode(t) {
 
   var dec = load('maic_import_decisions');
   if (dec && Array.isArray(dec)) {
-    var dg = {};
-    dec.forEach(function(r,idx){
-      if ((r[0]||'').trim() === 'currentDate') return; // meta 行跳過
-      var m=r[0]||'會議'; if(!dg[m])dg[m]=[]; dg[m].push({id:'imp'+idx,owner:r[1],item:r[2],deadline:r[3],priority:r[4]||'mid',status:r[5]||'open'});
-    });
-    DATA.decisions = Object.entries(dg).map(function(e){ return {meeting:e[0],items:e[1]}; });
+    var decFirst = (dec[0] && dec[0][0] || '').trim().toLowerCase();
+    if (BAD_KEYS.includes(decFirst)) {
+      localStorage.removeItem('maic_import_decisions');
+      console.warn('[loadImported] 自動清除損壞的 maic_import_decisions（設定 tab 誤存）');
+    } else {
+      var dg = {};
+      dec.forEach(function(r,idx){
+        if ((r[0]||'').trim() === 'currentDate') return; // meta 行跳過
+        var m=r[0]||'會議'; if(!dg[m])dg[m]=[]; dg[m].push({id:'imp'+idx,owner:r[1],item:r[2],deadline:r[3],priority:r[4]||'mid',status:r[5]||'open'});
+      });
+      DATA.decisions = Object.entries(dg).map(function(e){ return {meeting:e[0],items:e[1]}; });
+    }
   }
 
   var meta = load('maic_import_meta');
