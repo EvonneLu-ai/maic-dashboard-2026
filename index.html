@@ -790,7 +790,10 @@ function _toCode(t) {
   var dec = load('maic_import_decisions');
   if (dec && Array.isArray(dec)) {
     var dg = {};
-    dec.forEach(function(r,idx){ var m=r[0]||'會議'; if(!dg[m])dg[m]=[]; dg[m].push({id:'imp'+idx,owner:r[1],item:r[2],deadline:r[3],priority:r[4]||'mid',status:r[5]||'open'}); });
+    dec.forEach(function(r,idx){
+      if ((r[0]||'').trim() === 'currentDate') return; // meta 行跳過
+      var m=r[0]||'會議'; if(!dg[m])dg[m]=[]; dg[m].push({id:'imp'+idx,owner:r[1],item:r[2],deadline:r[3],priority:r[4]||'mid',status:r[5]||'open'});
+    });
     DATA.decisions = Object.entries(dg).map(function(e){ return {meeting:e[0],items:e[1]}; });
   }
 
@@ -1379,8 +1382,8 @@ const IMP_SCHEMAS = {
   decisions: {
     label: '📋 決議追蹤',
     headers: ['會議','負責人','事項','截止日','優先度','狀態'],
-    hint: `欄位說明：<br>・<code>優先度</code>：<code>high</code>（緊急）/ <code>mid</code>（一般）/ <code>low</code>（低）<br>・<code>狀態</code>：<code>open</code>（進行中）/ <code>done</code>（已完成）/ <code>delay</code>（延誤）`,
-    sample: [['週會 W15｜2026/04/09','Brandi','清華大學宣講時間確認，回覆給 Max','4/15','high','open'],['週會 W14｜2026/04/02','Lynn','慈濟大學宣講投影片更新','4/05','mid','done']],
+    hint: `欄位說明：<br>・<code>優先度</code>：<code>high</code>（緊急）/ <code>mid</code>（一般）/ <code>low</code>（低）<br>・<code>狀態</code>：<code>open</code>（進行中）/ <code>done</code>（已完成）/ <code>delay</code>（延誤）<br>・可在第一行加 <code>currentDate,YYYY-MM-DD</code> 同步更新資料截至日期`,
+    sample: [['currentDate','2026-04-17'],['週會 W15｜2026/04/09','Brandi','清華大學宣講時間確認，回覆給 Max','4/15','high','open'],['週會 W14｜2026/04/02','Lynn','慈濟大學宣講投影片更新','4/05','mid','done']],
   },
   meta: {
     label: '⚙️ 基本設定（資料日期）',
@@ -1485,7 +1488,21 @@ function applyToData(section, rows) {
     location.reload(); return;
   } else if (section === 'decisions') {
     const groups = {};
-    rows.forEach((r,idx)=>{ const m=r[0]||'會議'; if(!groups[m])groups[m]=[]; groups[m].push({id:'imp'+idx,owner:r[1],item:r[2],deadline:r[3],priority:r[4]||'mid',status:r[5]||'open'}); });
+    rows.forEach((r,idx)=>{
+      // 特殊 meta 行：第一欄為 currentDate → 更新資料日期
+      if ((r[0]||'').trim() === 'currentDate') {
+        const val = (r[1]||'').trim();
+        if (val) {
+          DATA.meta.currentDate = val;
+          DATA.meta.dataAsOf = '📅 資料截至 ' + val.replace(/-/g,'/');
+          document.getElementById('hdr-date').textContent = DATA.meta.dataAsOf;
+          localStorage.setItem('maic_import_meta', JSON.stringify([['currentDate', val]]));
+          autoMarkTrainingDone();
+        }
+        return; // 不當成決議項目
+      }
+      const m=r[0]||'會議'; if(!groups[m])groups[m]=[]; groups[m].push({id:'imp'+idx,owner:r[1],item:r[2],deadline:r[3],priority:r[4]||'mid',status:r[5]||'open'});
+    });
     DATA.decisions = Object.entries(groups).map(([meeting,items])=>({meeting,items}));
     buildDecisions();
   } else if (section === 'meta') {
