@@ -804,6 +804,9 @@ function _toCode(t) {
         DATA.meta.currentDate = val;
         DATA.meta.dataAsOf = '📅 資料截至 ' + val.replace(/-/g,'/');
       }
+      if (key === 'registrationTarget' && val) {
+        DATA.operation.registrationTarget = parseInt(val) || DATA.operation.registrationTarget;
+      }
     });
   }
 
@@ -1381,8 +1384,8 @@ const IMP_SCHEMAS = {
   decisions: {
     label: '📋 決議追蹤',
     headers: ['會議','負責人','事項','截止日','優先度','狀態'],
-    hint: `欄位說明：<br>・<code>優先度</code>：<code>high</code>（緊急）/ <code>mid</code>（一般）/ <code>low</code>（低）<br>・<code>狀態</code>：<code>open</code>（進行中）/ <code>done</code>（已完成）/ <code>delay</code>（延誤）<br>・可在第一行加 <code>currentDate,YYYY-MM-DD</code> 同步更新資料截至日期`,
-    sample: [['currentDate','2026-04-17'],['週會 W15｜2026/04/09','Brandi','清華大學宣講時間確認，回覆給 Max','4/15','high','open'],['週會 W14｜2026/04/02','Lynn','慈濟大學宣講投影片更新','4/05','mid','done']],
+    hint: `欄位說明：<br>・<code>優先度</code>：<code>high</code>（緊急）/ <code>mid</code>（一般）/ <code>low</code>（低）<br>・<code>狀態</code>：<code>open</code>（進行中）/ <code>done</code>（已完成）/ <code>delay</code>（延誤）<br>・可在前幾行加設定列：<code>currentDate,YYYY-MM-DD</code> 或 <code>registrationTarget,800</code>`,
+    sample: [['currentDate','2026-04-17'],['registrationTarget','800'],['週會 W15｜2026/04/09','Brandi','清華大學宣講時間確認，回覆給 Max','4/15','high','open'],['週會 W14｜2026/04/02','Lynn','慈濟大學宣講投影片更新','4/05','mid','done']],
   },
 };
 
@@ -1490,6 +1493,19 @@ function applyToData(section, rows) {
           document.getElementById('hdr-date').textContent = DATA.meta.dataAsOf;
           localStorage.setItem('maic_import_meta', JSON.stringify([['currentDate', val]]));
           autoMarkTrainingDone();
+        }
+        return;
+      }
+      if ((r[0]||'').trim() === 'registrationTarget') {
+        const val = parseInt(r[1]);
+        if (val) {
+          DATA.operation.registrationTarget = val;
+          localStorage.setItem('maic_import_meta', JSON.stringify(
+            JSON.parse(localStorage.getItem('maic_import_meta')||'[]')
+              .filter(x=>x[0]!=='registrationTarget')
+              .concat([['registrationTarget', String(val)]])
+          ));
+          buildProgressRing();
         }
         return;
       }
