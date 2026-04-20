@@ -807,9 +807,10 @@ document.getElementById('op-date-label').textContent = DATA.operation.registrati
 document.getElementById('op-kpi-row1').innerHTML = buildKPI(DATA.operation.kpi1);
 
 // 第二排：組別 + 網站
-const g = DATA.operation.groupBreakdown;
-const ws = DATA.operation.websites;
-document.getElementById('op-kpi-row2').innerHTML = `
+function buildOpKpi2() {
+  const g = DATA.operation.groupBreakdown;
+  const ws = DATA.operation.websites;
+  document.getElementById('op-kpi-row2').innerHTML = `
   <div class="kpi" style="display:flex;align-items:center;gap:16px">
     <div style="text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">創意組</div><div style="font-size:26px;font-weight:700;color:var(--blue)">${g.creative}</div></div>
     <div style="text-align:center"><div style="font-size:10px;color:var(--text2);margin-bottom:3px">創新組</div><div style="font-size:26px;font-weight:700;color:var(--purple)">${g.innovative}</div></div>
@@ -817,7 +818,9 @@ document.getElementById('op-kpi-row2').innerHTML = `
     <div style="flex:1;padding-left:10px;border-left:1px solid var(--border)"><div style="font-size:11px;color:var(--text2)">企劃書繳交</div><div style="font-size:13px;font-weight:600;margin-top:4px">已繳 <span style="color:var(--green)">${g.submitted}</span> 組・未繳 <span style="color:var(--orange)">${g.notSubmitted}</span> 組</div></div>
   </div>
   ${ws.map(w => `<div class="kpi"><div class="kpi-lbl">${w.label}</div><div class="kpi-val" style="color:${w.color}">${w.value}</div><div class="kpi-sub">${w.sub}</div><span class="bdg bb">${w.badge}</span></div>`).join('')}
-`;
+  `;
+}
+buildOpKpi2();
 
 // 活動時間軸 → 由下方 buildTimeline() IIFE 負責渲染（支援篩選 + 7天截止）
 
@@ -852,7 +855,7 @@ new Chart(document.getElementById('actTypeChart'), {
 document.getElementById('mk-kpi-row1').innerHTML = buildKPI(DATA.marketing.kpi1);
 
 // 宣講會清單
-(function buildSessions(){
+function buildSessions(){
   document.getElementById('sessionList').innerHTML = DATA.marketing.sessions.map((s,i) =>
     `<div class="session">
       <div class="snum" style="background:${s.color}">${i+1}</div>
@@ -864,9 +867,8 @@ document.getElementById('mk-kpi-row1').innerHTML = buildKPI(DATA.marketing.kpi1)
       <div class="sright"><div class="sppl" style="color:${s.color}">${s.people}</div><div class="sppl-lbl">人</div><div class="tag" style="margin-top:5px">${s.type}</div></div>
     </div>`
   ).join('');
-})();
-
-// 宣講會 Bar Chart
+}
+buildSessions();
 new Chart(document.getElementById('sessionChart'), {
   type: 'bar',
   data: {
@@ -940,7 +942,7 @@ new Chart(document.getElementById('channelChart'), {
 // ════ TRAINING RENDER ════
 
 // ── 自動標記已過期課程為「已完成」────────────────────────
-(function autoMarkTrainingDone() {
+function autoMarkTrainingDone() {
   const today = new Date(DATA.meta.currentDate);
   today.setHours(23, 59, 59, 999); // 包含當天
 
@@ -973,7 +975,8 @@ new Chart(document.getElementById('channelChart'), {
   kpi.unit  = `/ ${total}`;
   kpi.sub   = `截至 ${DATA.meta.currentDate.replace(/-/g,'/')} 自動計算`;
   kpi.badge = `${pct}% 完成`;
-})();
+}
+autoMarkTrainingDone();
 
 document.getElementById('tr-kpi-row1').innerHTML = buildKPI(DATA.training.kpi1);
 
@@ -1308,6 +1311,140 @@ function buildDecisions() {
   document.getElementById('dc-groups').innerHTML = html;
 }
 buildDecisions();
+
+// ════ GOOGLE SHEETS 自動同步 ════
+// ▶ 使用說明：
+//   1. 將你的 Google API Key 填入下方 SHEETS_API_KEY
+//   2. Google Sheet 需設為「任何人可以查看」
+//   3. Sheet 需包含以下 Tab：設定、宣講會、決議
+// ─────────────────────────────────────────────
+const SHEETS_SPREADSHEET_ID = '1bB21tu-2JyIDBejqpNcMTH9-zGr3-8XHwZagbnnJwxU';
+const SHEETS_API_KEY = '';   // ← 填入你的 Google API Key
+
+async function _sheetGet(tab, range) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEETS_SPREADSHEET_ID}/values/${encodeURIComponent(tab + '!' + range)}?key=${SHEETS_API_KEY}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('HTTP ' + res.status + ' (' + tab + ')');
+  return (await res.json()).values || [];
+}
+
+async function syncSheets() {
+  if (!SHEETS_API_KEY) return;   // API Key 未設定，略過
+
+  // ── Loading badge ──
+  const badge = document.createElement('span');
+  badge.id = 'sheets-sync-badge';
+  badge.style.cssText = 'font-size:10px;color:var(--text2);margin-left:8px;transition:opacity .3s';
+  badge.textContent = '🔄 同步中...';
+  const hdrDate = document.getElementById('hdr-date');
+  if (hdrDate) hdrDate.insertAdjacentElement('afterend', badge);
+
+  try {
+    // ══ 1. 設定 Tab（key-value 格式）══════════════════
+    const cfgRows = await _sheetGet('設定', 'A:B');
+    const cfg = {};
+    cfgRows.slice(1).forEach(r => { if (r[0]) cfg[r[0].trim()] = (r[1] || '').trim(); });
+
+    // meta
+    if (cfg.currentDate)           DATA.meta.currentDate = cfg.currentDate;
+    if (cfg.dataAsOf)              DATA.meta.dataAsOf = '📅 資料截至 ' + cfg.dataAsOf;
+    if (cfg.registrationDateLabel) DATA.operation.registrationDateLabel = cfg.registrationDateLabel;
+    if (cfg.registrationTarget)    DATA.operation.registrationTarget = parseInt(cfg.registrationTarget) || DATA.operation.registrationTarget;
+
+    // KPI1（Operation）
+    const k = DATA.operation.kpi1;
+    if (cfg.teams)       { k[0].value = cfg.teams;       if (cfg.teamsSub)       k[0].sub = cfg.teamsSub; }
+    if (cfg.targetRate)  { k[1].value = cfg.targetRate;  if (cfg.targetRateSub)  k[1].sub = cfg.targetRateSub; }
+    if (cfg.accounts)    { k[2].value = cfg.accounts;    if (cfg.accountsSub)    k[2].sub = cfg.accountsSub; }
+    if (cfg.students)    { k[3].value = cfg.students;    if (cfg.studentsSub)    k[3].sub = cfg.studentsSub; }
+    if (cfg.schools)     { k[4].value = cfg.schools;     if (cfg.schoolsSub)     k[4].sub = cfg.schoolsSub; }
+
+    // groupBreakdown
+    const gb = DATA.operation.groupBreakdown;
+    if (cfg.creative)      gb.creative      = parseInt(cfg.creative)      || gb.creative;
+    if (cfg.innovative)    gb.innovative    = parseInt(cfg.innovative)    || gb.innovative;
+    if (cfg.startup)       gb.startup       = parseInt(cfg.startup)       || gb.startup;
+    if (cfg.submitted)     gb.submitted     = parseInt(cfg.submitted)     || gb.submitted;
+    if (cfg.notSubmitted)  gb.notSubmitted  = parseInt(cfg.notSubmitted)  || gb.notSubmitted;
+
+    // websites
+    const ws = DATA.operation.websites;
+    if (cfg.website1Value) { ws[0].value = cfg.website1Value; if (cfg.website1Sub) ws[0].sub = cfg.website1Sub; }
+    if (cfg.website2Value) { ws[1].value = cfg.website2Value; if (cfg.website2Sub) ws[1].sub = cfg.website2Sub; }
+
+    // Marketing KPI1
+    const mk = DATA.marketing.kpi1;
+    if (cfg.mk_sessions)    { mk[0].value = cfg.mk_sessions;    if (cfg.mk_sessionsSub)  mk[0].sub = cfg.mk_sessionsSub; }
+    if (cfg.mk_maxPeople)   { mk[1].value = cfg.mk_maxPeople;   if (cfg.mk_maxPeopleSub) mk[1].sub = cfg.mk_maxPeopleSub; }
+    if (cfg.mk_totalAttend) { mk[2].value = cfg.mk_totalAttend; if (cfg.mk_totalSub)     mk[2].sub = cfg.mk_totalSub; }
+    if (cfg.mk_nextSchool)  { mk[3].value = cfg.mk_nextSchool;  if (cfg.mk_nextDate)     mk[3].sub = cfg.mk_nextDate; }
+
+    // Training KPI1
+    const tr = DATA.training.kpi1;
+    if (cfg.tr_total) { tr[0].value = cfg.tr_total; if (cfg.tr_totalSub) tr[0].sub = cfg.tr_totalSub; }
+    if (cfg.tr_done)  { tr[1].value = cfg.tr_done;  if (cfg.tr_doneSub)  tr[1].sub = cfg.tr_doneSub; }
+
+    // ══ 2. 宣講會 Tab ══════════════════════════════════
+    try {
+      const sesRows = await _sheetGet('宣講會', 'A:I');
+      if (sesRows.length > 1) {
+        const parsed = sesRows.slice(1).filter(r => r[0]).map(r => ({
+          school:   r[0] || '', date:     r[1] || '', lecturer: r[2] || '',
+          type:     r[3] || '線下', time: r[4] || '',
+          people:   parseInt(r[5]) || 0,
+          venue:    r[6] || '', note: r[7] || '', color: r[8] || '#0071e3'
+        }));
+        if (parsed.length) DATA.marketing.sessions = parsed;
+      }
+    } catch(e) { console.warn('[Sheets] 宣講會 skip:', e.message); }
+
+    // ══ 3. 決議 Tab ════════════════════════════════════
+    // 格式：A=會議名稱 B=負責人 C=事項 D=截止日 E=優先度 F=狀態
+    try {
+      const decRows = await _sheetGet('決議', 'A:F');
+      if (decRows.length > 1) {
+        const grouped = {}, order = [];
+        decRows.slice(1).forEach((r, i) => {
+          const [meeting, owner, item, deadline, priority, status] = r;
+          if (!meeting || !item) return;
+          if (!grouped[meeting]) { grouped[meeting] = { meeting, items: [] }; order.push(meeting); }
+          grouped[meeting].items.push({
+            id: 'gs' + i, owner: owner || '', item: item || '',
+            deadline: deadline || '', priority: priority || 'mid', status: status || 'open'
+          });
+        });
+        const parsed = order.map(m => grouped[m]);
+        if (parsed.length) DATA.decisions = parsed;
+      }
+    } catch(e) { console.warn('[Sheets] 決議 skip:', e.message); }
+
+    // ══ 重新渲染所有受影響元素 ════════════════════════════
+    document.getElementById('hdr-date').textContent        = DATA.meta.dataAsOf;
+    document.getElementById('op-date-label').textContent   = DATA.operation.registrationDateLabel;
+    document.getElementById('op-kpi-row1').innerHTML       = buildKPI(DATA.operation.kpi1);
+    buildOpKpi2();
+    document.getElementById('mk-kpi-row1').innerHTML       = buildKPI(DATA.marketing.kpi1);
+    buildSessions();
+    autoMarkTrainingDone();
+    document.getElementById('tr-kpi-row1').innerHTML       = buildKPI(DATA.training.kpi1);
+    buildProgressRing();
+    buildDecisions();
+
+    badge.textContent = '✅ 已同步';
+    badge.style.color = 'var(--green)';
+    setTimeout(() => { badge.style.opacity = '0'; setTimeout(() => badge.remove(), 300); }, 3000);
+    console.log('[Sheets] ✅ 同步成功');
+
+  } catch(e) {
+    badge.textContent = '⚠️ 離線模式';
+    badge.style.color = 'var(--orange)';
+    setTimeout(() => { badge.style.opacity = '0'; setTimeout(() => badge.remove(), 300); }, 5000);
+    console.warn('[Sheets] ⚠️ 同步失敗，使用預設資料', e.message);
+  }
+}
+
+// 頁面載入後自動執行一次同步
+syncSheets();
 
 // ════ CSV IMPORT SYSTEM ════
 
