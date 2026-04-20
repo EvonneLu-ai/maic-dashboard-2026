@@ -1319,17 +1319,19 @@ buildDecisions();
 //   3. Sheet 需包含以下 Tab：設定、宣講會、決議
 // ─────────────────────────────────────────────
 const SHEETS_SPREADSHEET_ID = '1bB21tu-2JyIDBejqpNcMTH9-zGr3-8XHwZagbnnJwxU';
-const SHEETS_API_KEY = '';   // ← 填入你的 Google API Key
+// ↑ 不需要 API Key！Google Sheet 設為「知道連結的人可以查看」即可
 
-async function _sheetGet(tab, range) {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEETS_SPREADSHEET_ID}/values/${encodeURIComponent(tab + '!' + range)}?key=${SHEETS_API_KEY}`;
+async function _sheetGet(tab) {
+  // 使用 Google gviz/tq 端點直接讀取 CSV，不需要 API Key
+  const url = `https://docs.google.com/spreadsheets/d/${SHEETS_SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error('HTTP ' + res.status + ' (' + tab + ')');
-  return (await res.json()).values || [];
+  const text = await res.text();
+  // 解析 CSV（重用頁面已有的 parseCSV 函式）
+  return parseCSV(text);
 }
 
 async function syncSheets() {
-  if (!SHEETS_API_KEY) return;   // API Key 未設定，略過
 
   // ── Loading badge ──
   const badge = document.createElement('span');
@@ -1341,7 +1343,7 @@ async function syncSheets() {
 
   try {
     // ══ 1. 設定 Tab（key-value 格式）══════════════════
-    const cfgRows = await _sheetGet('設定', 'A:B');
+    const cfgRows = await _sheetGet('設定');
     const cfg = {};
     cfgRows.slice(1).forEach(r => { if (r[0]) cfg[r[0].trim()] = (r[1] || '').trim(); });
 
@@ -1386,7 +1388,7 @@ async function syncSheets() {
 
     // ══ 2. 宣講會 Tab ══════════════════════════════════
     try {
-      const sesRows = await _sheetGet('宣講會', 'A:I');
+      const sesRows = await _sheetGet('宣講會');
       if (sesRows.length > 1) {
         const parsed = sesRows.slice(1).filter(r => r[0]).map(r => ({
           school:   r[0] || '', date:     r[1] || '', lecturer: r[2] || '',
@@ -1401,7 +1403,7 @@ async function syncSheets() {
     // ══ 3. 決議 Tab ════════════════════════════════════
     // 格式：A=會議名稱 B=負責人 C=事項 D=截止日 E=優先度 F=狀態
     try {
-      const decRows = await _sheetGet('決議', 'A:F');
+      const decRows = await _sheetGet('決議');
       if (decRows.length > 1) {
         const grouped = {}, order = [];
         decRows.slice(1).forEach((r, i) => {
