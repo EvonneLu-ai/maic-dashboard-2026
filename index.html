@@ -801,8 +801,10 @@ function _toCode(t) {
     meta.forEach(function(r) {
       var key = (r[0]||'').trim(), val = (r[1]||'').trim();
       if (key === 'currentDate' && val) {
-        DATA.meta.currentDate = val;
-        DATA.meta.dataAsOf = '📅 資料截至 ' + val.replace(/-/g,'/');
+        var dm = val.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+        var norm = dm ? dm[1]+'-'+('0'+dm[2]).slice(-2)+'-'+('0'+dm[3]).slice(-2) : val;
+        DATA.meta.currentDate = norm;
+        DATA.meta.dataAsOf = '📅 資料截至 ' + norm.replace(/-/g,'/');
       }
       if (key === 'registrationTarget' && val) {
         DATA.operation.registrationTarget = parseInt(val) || DATA.operation.registrationTarget;
@@ -1486,7 +1488,9 @@ function applyToData(section, rows) {
     const groups = {};
     rows.forEach((r,idx)=>{
       if ((r[0]||'').trim() === 'currentDate') {
-        const val = (r[1]||'').trim();
+        const raw = (r[1]||'').trim();
+        const dm = raw.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+        const val = dm ? dm[1]+'-'+('0'+dm[2]).slice(-2)+'-'+('0'+dm[3]).slice(-2) : raw;
         if (val) {
           DATA.meta.currentDate = val;
           DATA.meta.dataAsOf = '📅 資料截至 ' + val.replace(/-/g,'/');
