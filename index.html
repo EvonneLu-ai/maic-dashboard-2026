@@ -1373,7 +1373,11 @@ async function syncSheets() {
     // ══ 2. 宣講會 Tab ══════════════════════════════════
     try {
       const sesRows = await _sheetGet('宣講會');
-      if (sesRows.length > 1) {
+      // 防護：tab 不存在時 gviz 靜默回傳第一個 sheet（設定），偵測到就跳過
+      const sesFirstCell = (sesRows[0] && sesRows[0][0] || '').trim().toLowerCase();
+      if (sesFirstCell === 'field') {
+        console.warn('[Sheets] 宣講會 tab 不存在，已略過同步。');
+      } else if (sesRows.length > 1) {
         const parsed = sesRows.slice(1).filter(r => r[0]).map(r => ({
           school:   r[0] || '', date:     r[1] || '', lecturer: r[2] || '',
           type:     r[3] || '線下', time: r[4] || '',
