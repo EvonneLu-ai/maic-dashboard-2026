@@ -1388,7 +1388,12 @@ async function syncSheets() {
     // 格式：A=會議名稱 B=負責人 C=事項 D=截止日 E=優先度 F=狀態
     try {
       const decRows = await _sheetGet('決議');
-      if (decRows.length > 1) {
+      // 防護：若 gviz 找不到「決議」tab 會靜默回傳第一個 sheet（設定），
+      // 偵測到設定 tab 的 header（第一格為 "field"）就跳過，避免覆蓋真實決議。
+      const firstCell = (decRows[0] && decRows[0][0] || '').trim().toLowerCase();
+      if (firstCell === 'field') {
+        console.warn('[Sheets] 決議 tab 不存在，請在 Google Sheets 新增「決議」tab。已略過同步。');
+      } else if (decRows.length > 1) {
         const grouped = {}, order = [];
         decRows.slice(1).forEach((r, i) => {
           const [meeting, owner, item, deadline, priority, status] = r;
