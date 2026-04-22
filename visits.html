@@ -111,6 +111,28 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
 .vtab-new{background:none;border:1.5px dashed var(--border);color:var(--blue)}
 .vtab-new:hover{background:rgba(0,113,227,.08)}
 
+/* ─── NEW VISIT FORM ─── */
+.new-visit-form{margin:8px 16px 0;background:var(--card);border-radius:12px;
+  padding:12px 14px;box-shadow:0 2px 8px rgba(0,0,0,.06);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.new-visit-form label{font-size:12px;font-weight:700;color:var(--sub);white-space:nowrap}
+.date-input{flex:1;min-width:140px;padding:8px 11px;
+  border:1.5px solid var(--border);border-radius:9px;
+  font-family:inherit;font-size:13px;color:var(--text);outline:none;
+  background:var(--fill);-webkit-appearance:none;transition:border-color .2s}
+.date-input:focus{border-color:var(--blue);background:#fff}
+.btn-confirm-visit{padding:8px 14px;background:var(--blue);color:#fff;
+  border:none;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.btn-cancel-visit{padding:8px 12px;background:var(--fill);color:var(--sub);
+  border:1.5px solid var(--border);border-radius:9px;font-size:12px;font-weight:600;cursor:pointer}
+
+/* ─── EMPTY STATE (no visit selected) ─── */
+.cl-empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.cl-empty .e{font-size:36px;margin-bottom:10px}
+.cl-empty p{font-size:13px;margin-bottom:16px}
+.btn-add-first{padding:11px 24px;background:var(--blue);color:#fff;
+  border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer}
+
 /* ─── CHECKLIST ─── */
 .phase-wrap{margin:14px 16px 0}
 .phase-label{display:flex;align-items:center;gap:8px;margin-bottom:8px}
@@ -321,6 +343,14 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
     <div class="visit-tabs" id="visit-tabs"></div>
   </div>
 
+  <!-- 新增拜訪：日期輸入表單 -->
+  <div id="new-visit-form" class="new-visit-form hidden">
+    <label>📅 拜訪日期</label>
+    <input type="date" class="date-input" id="new-visit-date">
+    <button class="btn-confirm-visit" onclick="confirmNewVisit()">確認建立</button>
+    <button class="btn-cancel-visit" onclick="cancelNewVisit()">取消</button>
+  </div>
+
   <div id="checklist-container"></div>
 
   <div class="history-wrap">
@@ -511,11 +541,9 @@ function getSchoolVisits(sid) {
   return (idx[sid] && idx[sid].visits) ? idx[sid].visits : [];
 }
 
-function createVisit(sid) {
+function createVisit(sid, dateStr) {
   const idx = getIdx();
   if (!idx[sid]) idx[sid] = { visits: [] };
-  const now = new Date();
-  const dateStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
   const vid = `v_${Date.now()}`;
   const num = idx[sid].visits.length + 1;
   idx[sid].visits.push({ id: vid, date: dateStr, label: `第 ${num} 次拜訪` });
@@ -656,13 +684,9 @@ function goDetail(schoolId) {
   const tagsEl = document.getElementById('detail-tags');
   tagsEl.innerHTML = `<div class="detail-tag region-${school.region}" style="background:${school.region==='北部'?'rgba(88,86,214,.15)':school.region==='中部'?'rgba(255,149,0,.15)':'rgba(255,59,48,.15)'}">${school.region}</div>`;
 
-  // Get or create visit
+  // 不自動建立 — 只載入最後一筆（若有）
   const visits = getSchoolVisits(schoolId);
-  if (!visits.length) {
-    curVisitId = createVisit(schoolId);
-  } else {
-    curVisitId = visits[visits.length - 1].id;
-  }
+  curVisitId = visits.length ? visits[visits.length - 1].id : null;
 
   renderVisitTabs();
   renderChecklist();
@@ -695,9 +719,13 @@ function renderVisitTabs() {
   newBtn.className = 'vtab vtab-new';
   newBtn.textContent = '＋ 新增拜訪';
   newBtn.onclick = () => {
-    curVisitId = createVisit(curSchoolId);
-    renderVisitTabs(); renderChecklist(); renderHistory();
-    showToast('已建立新拜訪記錄');
+    const form = document.getElementById('new-visit-form');
+    form.classList.remove('hidden');
+    // 預設今天日期
+    const now = new Date();
+    document.getElementById('new-visit-date').value =
+      `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    document.getElementById('new-visit-date').focus();
   };
   tabs.appendChild(newBtn);
 }
@@ -706,9 +734,20 @@ function renderVisitTabs() {
 // CHECKLIST RENDER
 // ═══════════════════════════════════════
 function renderChecklist() {
-  const d = getVisitData(curVisitId);
   const container = document.getElementById('checklist-container');
   container.innerHTML = '';
+
+  // 尚無拜訪記錄：顯示空狀態
+  if (!curVisitId) {
+    container.innerHTML = `
+      <div class="cl-empty">
+        <div class="e">📋</div>
+        <p>尚無拜訪記錄<br>點擊上方「＋ 新增拜訪」並填入日期，開始記錄</p>
+      </div>`;
+    return;
+  }
+
+  const d = getVisitData(curVisitId);
 
   // Group items by phase and section
   let currentPhase = null, currentSec = null;
@@ -914,7 +953,24 @@ function rateStar(starEl, key, score) {
 // ═══════════════════════════════════════
 // PROGRESS
 // ═══════════════════════════════════════
+// ── 確認新增拜訪 ──
+function confirmNewVisit() {
+  const raw = document.getElementById('new-visit-date').value;
+  if (!raw) { showToast('⚠️ 請先填入拜訪日期'); return; }
+  const dateStr = raw.replace(/-/g, '/'); // YYYY/MM/DD
+  curVisitId = createVisit(curSchoolId, dateStr);
+  document.getElementById('new-visit-form').classList.add('hidden');
+  renderVisitTabs(); renderChecklist(); renderHistory();
+  showToast(`✅ 已建立 ${dateStr} 拜訪記錄`);
+}
+
+// ── 取消新增拜訪 ──
+function cancelNewVisit() {
+  document.getElementById('new-visit-form').classList.add('hidden');
+}
+
 function updateProgress() {
+  if (!curVisitId) return;
   const d = getVisitData(curVisitId);
   // Per-section counts
   const secCounts = {};
