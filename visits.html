@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Straight A · 校園拜訪管理</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f5f5f7;--card:#fff;--text:#1d1d1f;--sub:#6e6e73;
+  --border:#e5e5ea;--muted:#aeaeb2;--fill:#f2f2f7;
+  --blue:#0071e3;--green:#34c759;--orange:#ff9500;
+  --red:#ff3b30;--purple:#af52de;--teal:#5ac8fa;--indigo:#5856d6;
+  --north:#5856d6;--central:#ff9500;--south:#ff3b30;
+}
+html{font-size:16px}
+body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:40px}
+
+/* ─── GLOBAL ─── */
+.hidden{display:none!important}
+.page{animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ─── HEADER ─── */
+.hdr{background:linear-gradient(145deg,#1c1c1e,#3a3a3c);color:#fff;
+  padding:52px 20px 20px;position:relative;overflow:hidden}
+.hdr::after{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;
+  border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.07),transparent 70%)}
+.hdr-badge{display:inline-flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+  border-radius:20px;padding:3px 10px;font-size:11px;margin-bottom:10px;color:rgba(255,255,255,.9)}
+.hdr h1{font-size:22px;font-weight:700;line-height:1.25;margin-bottom:4px}
+.hdr .sub{font-size:12px;color:rgba(255,255,255,.5)}
+.hdr-back{display:flex;align-items:center;gap:6px;color:var(--teal);
+  font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;
+  background:none;border:none;padding:0;-webkit-appearance:none}
+
+/* ─── STATS BAR ─── */
+.stats-bar{display:flex;gap:0;margin:16px 16px 0;background:var(--card);
+  border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.stat-item{flex:1;padding:14px 8px;text-align:center;position:relative}
+.stat-item:not(:last-child)::after{content:'';position:absolute;right:0;top:20%;
+  height:60%;width:1px;background:var(--border)}
+.stat-num{font-size:22px;font-weight:800;line-height:1}
+.stat-lbl{font-size:10px;color:var(--sub);margin-top:3px;font-weight:600}
+.stat-done .stat-num{color:var(--green)}
+.stat-wip  .stat-num{color:var(--orange)}
+.stat-new  .stat-num{color:var(--muted)}
+
+/* ─── FILTER BAR ─── */
+.filter-wrap{padding:12px 16px 0;display:flex;gap:6px;flex-wrap:wrap}
+.filter-btn{padding:6px 14px;border-radius:99px;font-size:12px;font-weight:600;
+  border:1.5px solid var(--border);background:var(--card);color:var(--sub);cursor:pointer;
+  transition:all .18s}
+.filter-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.filter-region.active-north{background:var(--north);border-color:var(--north);color:#fff}
+.filter-region.active-central{background:var(--central);border-color:var(--central);color:#fff}
+.filter-region.active-south{background:var(--south);border-color:var(--south);color:#fff}
+
+/* ─── SCHOOL CARDS ─── */
+.school-list{padding:12px 16px 0;display:flex;flex-direction:column;gap:8px}
+.school-card{background:var(--card);border-radius:14px;border:1.5px solid transparent;
+  box-shadow:0 1px 6px rgba(0,0,0,.06);overflow:hidden;
+  display:flex;align-items:stretch;cursor:pointer;transition:all .18s}
+.school-card:active{transform:scale(.98);opacity:.85}
+.card-stripe{width:5px;flex-shrink:0}
+.stripe-done{background:var(--green)}
+.stripe-wip{background:var(--orange)}
+.stripe-new{background:var(--muted)}
+.card-body{flex:1;padding:13px 12px;min-width:0}
+.card-top{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.card-name{font-size:14px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-region{font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px}
+.region-北部{background:#edf2ff;color:var(--north)}
+.region-中部{background:#fff8e6;color:var(--central)}
+.region-南部{background:#fff0f0;color:var(--south)}
+.card-meta{font-size:11px;color:var(--sub);margin-bottom:7px}
+.card-prog-bg{height:5px;border-radius:99px;background:var(--fill);overflow:hidden;margin-bottom:5px}
+.card-prog-fill{height:100%;border-radius:99px;transition:width .4s ease}
+.fill-done{background:var(--green)}
+.fill-wip{background:var(--orange)}
+.fill-new{background:var(--muted)}
+.card-bottom{display:flex;align-items:center;justify-content:space-between}
+.card-visits{font-size:10px;color:var(--muted)}
+.card-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px}
+.status-done{background:#eafaf0;color:var(--green)}
+.status-wip{background:#fff8e6;color:var(--orange)}
+.status-new{background:var(--fill);color:var(--muted)}
+.card-arrow{padding:0 12px;display:flex;align-items:center;color:var(--muted);font-size:14px}
+
+/* ─── DETAIL HEADER ─── */
+.detail-school-name{font-size:20px;font-weight:700;margin-bottom:4px}
+.detail-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.detail-tag{font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px}
+
+/* ─── VISIT TABS ─── */
+.visit-tabs-wrap{margin:14px 16px 0;background:var(--card);border-radius:14px;
+  padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.visit-tabs-label{font-size:11px;font-weight:700;color:var(--sub);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.visit-tabs{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;
+  scrollbar-width:none}
+.visit-tabs::-webkit-scrollbar{display:none}
+.vtab{flex-shrink:0;padding:6px 12px;border-radius:99px;font-size:12px;font-weight:600;
+  background:var(--fill);color:var(--sub);border:none;cursor:pointer;transition:all .18s;
+  white-space:nowrap}
+.vtab.active{background:var(--blue);color:#fff}
+.vtab-new{background:none;border:1.5px dashed var(--border);color:var(--blue)}
+.vtab-new:hover{background:rgba(0,113,227,.08)}
+
+/* ─── CHECKLIST ─── */
+.phase-wrap{margin:14px 16px 0}
+.phase-label{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.phase-line{flex:1;height:1px;background:var(--border)}
+.phase-text{font-size:11px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.8px;white-space:nowrap}
+.cl-section{margin-bottom:10px}
+.sec-head{display:flex;align-items:center;gap:8px;padding:2px 0 8px}
+.sec-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:15px;flex-shrink:0}
+.si-data{background:#edf2ff}.si-comm{background:#e8f4ff}
+.si-vm{background:#fff0e8}.si-ops{background:#fff8e6}
+.si-maic{background:#f0e8ff}.si-report{background:#eafaf0}
+.sec-title{font-size:14px;font-weight:700;flex:1}
+.sec-count{font-size:11px;font-weight:600;color:var(--sub);
+  background:var(--fill);border-radius:99px;padding:2px 8px}
+.cl-items{display:flex;flex-direction:column;gap:3px}
+
+/* ─── ITEM ─── */
+.item-main{background:var(--card);border-radius:13px;border:1.5px solid transparent;
+  box-shadow:0 1px 4px rgba(0,0,0,.05);overflow:hidden;transition:border-color .2s}
+.item-main.open{border-radius:13px 13px 0 0;border-color:var(--blue)}
+.item-row{display:flex;align-items:flex-start;gap:11px;padding:13px;cursor:pointer;user-select:none}
+.cb{width:23px;height:23px;border-radius:50%;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  margin-top:1px;transition:all .18s;background:#fff}
+.item-main.done .cb{border-color:transparent;background:var(--green)}
+.cb-tick{display:none;color:#fff;font-size:12px;font-weight:800}
+.item-main.done .cb-tick{display:block}
+.item-body{flex:1;min-width:0}
+.item-title{font-size:13px;font-weight:600;line-height:1.35;color:var(--text);transition:color .2s}
+.item-main.done .item-title{text-decoration:line-through;color:var(--muted)}
+.item-hint{font-size:11px;color:var(--sub);margin-top:2px;line-height:1.4}
+.item-main.done .item-hint{color:#c7c7cc}
+.expand-btn{width:26px;height:26px;border-radius:7px;background:var(--fill);
+  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:var(--sub);transition:all .2s;flex-shrink:0;margin-top:1px}
+.item-main.open .expand-btn{background:rgba(0,113,227,.1);color:var(--blue)}
+.expand-btn .arrow{display:inline-block;transition:transform .2s}
+.item-main.open .expand-btn .arrow{transform:rotate(90deg)}
+.tag{flex-shrink:0;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;
+  margin-top:2px;align-self:flex-start;letter-spacing:.2px}
+.tag-must{background:#fff0f0;color:var(--red)}
+.tag-tip{background:#e8f4ff;color:var(--blue)}
+.tag-maic{background:#f0e8ff;color:var(--purple)}
+.tag-data{background:#edf2ff;color:var(--indigo)}
+.tag-vm{background:#fff3e0;color:#e65100}
+.tag-report{background:#e0f7fa;color:#00838f}
+
+/* ─── DETAIL PANEL ─── */
+.detail{display:none;background:var(--card);
+  border:1.5px solid var(--blue);border-top:none;
+  border-radius:0 0 13px 13px;padding:0 13px 14px}
+.item-main.open + .detail{display:block}
+.detail-div{height:1px;background:var(--fill);margin:0 0 12px}
+.sub-lbl{font-size:11px;font-weight:700;color:var(--sub);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.sub-list{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.sub-item{display:flex;align-items:center;gap:8px;cursor:pointer;padding:2px 0}
+.sub-cb{width:17px;height:17px;border-radius:4px;border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .18s;background:#fff}
+.sub-item.sc .sub-cb{background:var(--blue);border-color:var(--blue)}
+.sub-cb-tick{display:none;color:#fff;font-size:9px;font-weight:900}
+.sub-item.sc .sub-cb-tick{display:block}
+.sub-text{font-size:12px;color:var(--text);line-height:1.35;transition:color .2s}
+.sub-item.sc .sub-text{text-decoration:line-through;color:var(--muted)}
+.note-lbl{font-size:11px;font-weight:700;color:var(--sub);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.note-area{width:100%;min-height:66px;padding:9px 11px;
+  background:var(--fill);border:1.5px solid transparent;border-radius:9px;
+  font-family:inherit;font-size:12px;color:var(--text);resize:none;outline:none;
+  transition:border-color .2s;-webkit-appearance:none}
+.note-area::placeholder{color:var(--muted)}
+.note-area:focus{border-color:var(--blue);background:#fff}
+.stars{display:flex;gap:3px;margin-bottom:12px}
+.star-group{margin-bottom:10px}
+.star-group-lbl{font-size:11px;font-weight:600;color:var(--sub);margin-bottom:5px}
+.star-row{display:flex;align-items:center;gap:3px}
+.star{font-size:22px;cursor:pointer;filter:grayscale(1) opacity(.3);
+  transition:transform .12s;line-height:1}
+.star.lit{filter:none}
+.star:hover{transform:scale(1.15)}
+.star-score{font-size:12px;font-weight:700;color:var(--text);margin-left:6px}
+.add-sub-row{display:flex;gap:7px;margin-top:9px}
+.add-sub-input{flex:1;padding:7px 10px;background:var(--fill);border:1.5px solid transparent;
+  border-radius:9px;font-family:inherit;font-size:12px;color:var(--text);outline:none;
+  transition:border-color .2s;-webkit-appearance:none}
+.add-sub-input::placeholder{color:var(--muted)}
+.add-sub-input:focus{border-color:var(--blue);background:#fff}
+.add-sub-btn{padding:7px 12px;background:var(--blue);color:#fff;border:none;
+  border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+
+/* ─── VISIT HISTORY ─── */
+.history-wrap{margin:16px 16px 0;background:var(--card);border-radius:14px;
+  padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.history-title{font-size:13px;font-weight:700;margin-bottom:10px}
+.history-empty{font-size:12px;color:var(--muted);text-align:center;padding:8px 0}
+.hist-row{display:flex;align-items:center;gap:10px;padding:9px 0;
+  border-bottom:1px solid var(--fill);cursor:pointer}
+.hist-row:last-child{border-bottom:none}
+.hist-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.hist-info{flex:1;min-width:0}
+.hist-date{font-size:12px;font-weight:600;color:var(--text)}
+.hist-meta{font-size:11px;color:var(--sub);margin-top:1px}
+.hist-prog{font-size:11px;font-weight:700}
+.hist-del{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;
+  padding:4px;-webkit-appearance:none}
+.hist-del:active{color:var(--red)}
+
+/* ─── BACKUP BAR ─── */
+.backup-bar{margin:16px 16px 0;background:var(--card);border-radius:14px;
+  padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.backup-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px}
+.backup-sub{font-size:11px;color:var(--sub);margin-bottom:10px;line-height:1.4}
+.backup-btns{display:flex;gap:7px;flex-wrap:wrap}
+.btn-exp{flex:1;min-width:100px;padding:9px 12px;background:var(--blue);color:#fff;
+  border:none;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;text-align:center}
+.btn-imp{flex:1;min-width:100px;padding:9px 12px;background:var(--fill);color:var(--text);
+  border:1.5px solid var(--border);border-radius:9px;font-size:12px;font-weight:600;
+  cursor:pointer;text-align:center}
+.btn-clr{padding:9px 12px;background:#fff0f0;color:var(--red);
+  border:1.5px solid #ffd0cc;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer}
+.backup-status{font-size:11px;color:var(--sub);margin-top:7px;min-height:14px}
+
+/* ─── TOAST ─── */
+.save-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:#1d1d1f;color:#fff;padding:9px 18px;border-radius:99px;
+  font-size:12px;font-weight:600;z-index:999;
+  transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;opacity:0;pointer-events:none}
+.save-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ─── EMPTY ─── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state .e{font-size:32px;margin-bottom:8px}
+.empty-state p{font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════ -->
+<!-- PAGE: OVERVIEW              -->
+<!-- ════════════════════════════ -->
+<div id="pg-overview" class="page">
+  <div class="hdr">
+    <div class="hdr-badge">🍎 Straight A</div>
+    <h1>校園門市拜訪管理</h1>
+    <p class="sub">16 間校園體驗中心 · 拜訪紀錄</p>
+  </div>
+
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-item stat-done">
+      <div class="stat-num" id="cnt-done">0</div>
+      <div class="stat-lbl">已完成</div>
+    </div>
+    <div class="stat-item stat-wip">
+      <div class="stat-num" id="cnt-wip">0</div>
+      <div class="stat-lbl">進行中</div>
+    </div>
+    <div class="stat-item stat-new">
+      <div class="stat-num" id="cnt-new">16</div>
+      <div class="stat-lbl">未拜訪</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="cnt-total" style="color:var(--blue)">16</div>
+      <div class="stat-lbl">總計</div>
+    </div>
+  </div>
+
+  <div class="filter-wrap">
+    <button class="filter-btn active" data-filter-type="region" data-filter-val="all" onclick="setFilter('region','all',this)">全部</button>
+    <button class="filter-btn filter-region" data-filter-type="region" data-filter-val="北部" onclick="setFilter('region','北部',this)">🔵 北部</button>
+    <button class="filter-btn filter-region" data-filter-type="region" data-filter-val="中部" onclick="setFilter('region','中部',this)">🟠 中部</button>
+    <button class="filter-btn filter-region" data-filter-type="region" data-filter-val="南部" onclick="setFilter('region','南部',this)">🔴 南部</button>
+    <button class="filter-btn" data-filter-type="status" data-filter-val="done" onclick="setFilter('status','done',this)">✅ 已完成</button>
+    <button class="filter-btn" data-filter-type="status" data-filter-val="wip" onclick="setFilter('status','wip',this)">⏳ 進行中</button>
+    <button class="filter-btn" data-filter-type="status" data-filter-val="new" onclick="setFilter('status','new',this)">⭕ 未拜訪</button>
+  </div>
+
+  <div class="school-list" id="school-list"></div>
+
+  <div class="backup-bar" style="margin-top:20px">
+    <div class="backup-title">🔒 全部資料備份</div>
+    <div class="backup-sub">匯出所有 16 間學校的拜訪紀錄，更新前先備份</div>
+    <div class="backup-btns">
+      <button class="btn-exp" onclick="exportAll()">⬇️ 匯出全部 JSON</button>
+      <button class="btn-imp" onclick="document.getElementById('import-file').click()">⬆️ 匯入還原</button>
+      <button class="btn-clr" onclick="clearAll()">🗑️ 清除</button>
+    </div>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importAll(event)">
+    <div class="backup-status" id="ov-backup-status"></div>
+  </div>
+  <div style="height:30px"></div>
+</div>
+
+<!-- ════════════════════════════ -->
+<!-- PAGE: DETAIL                -->
+<!-- ════════════════════════════ -->
+<div id="pg-detail" class="page hidden">
+  <div class="hdr" id="detail-hdr">
+    <button class="hdr-back" onclick="goOverview()">‹ 全部學校</button>
+    <div class="detail-school-name" id="detail-school-name"></div>
+    <p class="sub" id="detail-school-sub"></p>
+    <div class="detail-tags" id="detail-tags"></div>
+  </div>
+
+  <div class="visit-tabs-wrap">
+    <div class="visit-tabs-label">拜訪記錄</div>
+    <div class="visit-tabs" id="visit-tabs"></div>
+  </div>
+
+  <div id="checklist-container"></div>
+
+  <div class="history-wrap">
+    <div class="history-title">📅 歷史拜訪紀錄</div>
+    <div id="history-list"></div>
+  </div>
+
+  <div class="backup-bar">
+    <div class="backup-title">🔒 此校資料備份</div>
+    <div class="backup-sub">匯出 / 還原本校所有拜訪紀錄</div>
+    <div class="backup-btns">
+      <button class="btn-exp" onclick="exportSchool()">⬇️ 匯出此校</button>
+      <button class="btn-imp" onclick="document.getElementById('import-school-file').click()">⬆️ 匯入還原</button>
+    </div>
+    <input type="file" id="import-school-file" accept=".json" style="display:none" onchange="importSchool(event)">
+    <div class="backup-status" id="det-backup-status"></div>
+  </div>
+  <div style="height:30px"></div>
+</div>
+
+<div class="save-toast" id="toast">已自動儲存 ✓</div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA DEFINITIONS
+// ═══════════════════════════════════════
+
+const SCHOOLS = [
+  {id:'nkust', name:'高雄科技大學', short:'高科大', region:'南部'},
+  {id:'ntou',  name:'海洋大學',     short:'海大',   region:'北部'},
+  {id:'fcu',   name:'逢甲大學',     short:'逢甲',   region:'中部'},
+  {id:'ncku',  name:'成功大學',     short:'成大',   region:'南部'},
+  {id:'tku',   name:'淡江大學',     short:'淡江',   region:'北部'},
+  {id:'nthu',  name:'清華大學',     short:'清大',   region:'北部'},
+  {id:'asia',  name:'亞洲大學',     short:'亞大',   region:'中部'},
+  {id:'nknu',  name:'高雄師範大學', short:'高師大', region:'南部'},
+  {id:'thu',   name:'東海大學',     short:'東海',   region:'中部'},
+  {id:'ntpu',  name:'台北大學',     short:'北大',   region:'北部'},
+  {id:'fju',   name:'輔仁大學',     short:'輔大',   region:'北部'},
+  {id:'ntcu',  name:'台中教育大學', short:'台教大', region:'中部'},
+  {id:'nccu',  name:'政治大學',     short:'政大',   region:'北部'},
+  {id:'ncu',   name:'國立中央大學', short:'中央',   region:'北部'},
+  {id:'ntu',   name:'國立台灣大學', short:'台大',   region:'北部'},
+  {id:'nchu',  name:'國立中興大學', short:'中興',   region:'中部'},
+];
+
+const ITEMS_DEF = [
+  // ── Phase 1: 出發前準備 ──
+  {id:'i1', phase:'Phase 1 · 出發前準備', sec:'data', secIcon:'📊', secTitle:'數據與文件準備',
+   title:'調閱近期銷售數據', hint:'MacBook Pro M3/M4、iPad 佔比，掌握店況底氣',
+   tag:{t:'數據',c:'tag-data'},
+   subs:['MacBook Pro M3/M4 近期銷量排名','iPad 系列佔整體銷售比例','MacBook Air 或教育配件熱銷機型','與上期銷售趨勢（成長/下滑）','退換修率（如有）'],
+   noteLbl:'✏️ 數據摘要', notePH:'e.g. MBP M4 佔比 42%；iPad 佔 28%…'},
+  {id:'i2', sec:'data',
+   title:'確認校園促銷方案與授權細節', hint:'Back to School、教育價授權範圍',
+   tag:{t:'文件',c:'tag-data'},
+   subs:['是否有該校專屬促銷活動？','BTS 方案最新版本','校園授權適用條件','AppleCare+ 搭售政策','促銷是否即將到期'],
+   noteLbl:'✏️ 方案摘要', notePH:'e.g. BTS 方案至 6/30；需出示學生證…'},
+  {id:'i4', phase:'', sec:'comm', secIcon:'🎒', secTitle:'溝通聯繫 & 設備準備',
+   title:'與門市負責人確認抵達時間', hint:'避開午休（12–14h）及傍晚（17–19h）人潮高峰',
+   tag:{t:'必做',c:'tag-must'},
+   subs:['⚠️ 避開：午休 12:00–14:00','⚠️ 避開：傍晚 17:00–19:00','✅ 建議：上午 10:00–11:30 或午後 14:30–16:30','已確認到達時間','確認負責人姓名 & 聯絡方式'],
+   noteLbl:'✏️ 聯絡記錄', notePH:'e.g. 預約 10:30，店長：王小明…'},
+  {id:'i5', sec:'comm',
+   title:'設備電量 & 裝備檢查', hint:'確保記錄工具滿血出發',
+   tag:{t:'準備',c:'tag-tip'},
+   subs:['手機電量（建議 80% 以上）','行動電源已充飽','筆電 / 平板（現場記錄用）','已開啟拜訪頁面','紙本筆記備用'],
+   noteLbl:'✏️ 備註', notePH:'e.g. 帶了 MacBook Air + iPhone 15…'},
+  // ── Phase 2: 店內執行 ──
+  {id:'i7', phase:'Phase 2 · 店內執行', sec:'vm', secIcon:'🖼️', secTitle:'視覺陳列 Visual Merchandising',
+   title:'店門口 & 入口 POP 宣傳品檢查', hint:'第一眼看到什麼？是否過期？',
+   tag:{t:'VM',c:'tag-vm'},
+   subs:['入口 POP 內容為何（記錄）','確認 POP 是否過期','宣傳品有無破損、褪色','是否有 MAIC 宣傳物料','拍照存證（入口全貌）'],
+   noteLbl:'✏️ POP 狀況記錄', notePH:'e.g. 入口 POP 為 BTS 方案，有效至 6/30…'},
+  {id:'i8', sec:'vm',
+   title:'產品陳列 & 展售機檢查', hint:'清潔度、螢幕是否顯示最新促銷',
+   tag:{t:'VM',c:'tag-vm'},
+   subs:['展售機清潔無指紋、無損傷','螢幕顯示最新促銷 / 官網','電源 / 充電線正常','標價牌正確且最新','拍攝展售區全貌'],
+   noteLbl:'✏️ 展售機狀況', notePH:'e.g. MBP M4 螢幕停留在舊款頁面，需更新…'},
+  {id:'i9', sec:'vm',
+   title:'熱銷機型庫存確認', hint:'MBA / 教育配件庫存是否充足',
+   tag:{t:'庫存',c:'tag-vm'},
+   subs:['MacBook Air（最新款）庫存數量','MacBook Pro M4 庫存','教育配件（AirPods、Apple Pencil）','是否有補貨需求'],
+   noteLbl:'✏️ 庫存記錄', notePH:'e.g. MBA M3 剩 2 台；AirPods Pro 缺貨…'},
+  {id:'i10', sec:'vm',
+   title:'整體陳列品質評分', hint:'1–5 分：陳列整齊、整潔、人流量',
+   tag:{t:'評分',c:'tag-report'},
+   stars:[{key:'star-display',label:'陳列整齊度'},{key:'star-clean',label:'整潔度'},{key:'star-traffic',label:'人流量'}],
+   noteLbl:'✏️ 評分備註', notePH:'e.g. 陳列 4/5；整潔 5/5；人流 3/5…'},
+  {id:'i11', phase:'', sec:'ops', secIcon:'🔍', secTitle:'營運觀察 & 現場溝通',
+   title:'客群詢問熱點分析', hint:'購買新機？維修？MAIC？',
+   tag:{t:'觀察',c:'tag-tip'},
+   subs:['購買新機（哪個機型詢問最多？）','維修 / 服務詢問','詢問教育優惠 / BTS','MAIC 競賽相關詢問','學生價格敏感度反應'],
+   noteLbl:'✏️ 客群洞察', notePH:'e.g. 大多詢問 MBA；2 位學生問 MAIC…'},
+  {id:'i12', sec:'ops',
+   title:'店員專業度觀察', hint:'BTS 說明、專業軟體解說能力',
+   tag:{t:'觀察',c:'tag-tip'},
+   subs:['BTS 說明清楚、主動提起','專業軟體介紹能力','對各科系需求理解度','能否主動介紹 MAIC'],
+   noteLbl:'✏️ 觀察記錄', notePH:'e.g. 店員甲對 BTS 說明清楚；農學院需求了解有限…'},
+  {id:'i13', sec:'ops',
+   title:'店長訪談', hint:'業務阻礙、學生價格敏感帶',
+   tag:{t:'核心',c:'tag-must'},
+   subs:['目前業務最大的阻礙？','學生對哪個價格帶最敏感？','該校學生特殊需求？','競品威脅明顯嗎？','對 MAIC 合作的意見'],
+   noteLbl:'✏️ 訪談記錄', notePH:'阻礙：\n價格敏感帶：\n特殊需求：'},
+  {id:'i14', phase:'', sec:'maic', secIcon:'🎯', secTitle:'MAIC 活動宣傳任務',
+   title:'確認店內是否已有 MAIC 宣傳品', hint:'諮詢手冊或海報，是否需要更新',
+   tag:{t:'MAIC',c:'tag-maic'},
+   subs:['是否已有舊版 MAIC 海報（需更換）','是否有 MAIC DM 架','擺放位置是否顯眼'],
+   noteLbl:'✏️ 現況記錄', notePH:'e.g. 門市無任何 MAIC 宣傳品，需從零布置…'},
+  {id:'i15', sec:'maic',
+   title:'張貼海報 & 擺放 QR Code 立牌', hint:'取得店長同意，放置顯眼位置',
+   tag:{t:'MAIC',c:'tag-maic'},
+   subs:['取得店長口頭同意','海報貼於顯眼位置','QR Code 自行掃描確認正常','拍陳列完成照存證'],
+   noteLbl:'✏️ 放置位置記錄', notePH:'e.g. 海報貼收銀台背板；立牌放門口…'},
+  {id:'i16', sec:'maic',
+   title:'介紹 MAIC 三大組別 & 收集名單', hint:'創意組 / 創新組 / 創業組',
+   tag:{t:'MAIC',c:'tag-maic'},
+   subs:['🎨 創意組：有想法即可，不需寫程式','⚙️ 創新組：有技術能力，做 Prototype','🚀 創業組：已有商業模式、準備落地','強調「跨科系組隊」，歡迎各科系','收集有興趣同學 Email / LINE'],
+   noteLbl:'✏️ 名單記錄', notePH:'e.g. 收集 5 位 Email；3 位加 LINE OA…'},
+  {id:'i17', sec:'maic',
+   title:'洽談宣講會 & 合作方案', hint:'場地、日期、聯名優惠',
+   tag:{t:'MAIC',c:'tag-maic'},
+   subs:['確認門市 / 校方是否有場地','詢問可行日期','預估可參與人數','確認線下或線上模式','取得聯絡人 Email / LINE'],
+   noteLbl:'✏️ 洽談結果', notePH:'e.g. 初步同意；擬定 5/15 14:00；預計 30 人…'},
+  {id:'i18', sec:'maic',
+   title:'即時回報宣傳成果', hint:'傳訊息至 MAIC Marketing 群組',
+   tag:{t:'MAIC',c:'tag-maic'},
+   subs:['傳送門市陳列照片至群組','簡述洽談結果','回報潛在報名名單人數'],
+   noteLbl:'✏️ 回報摘要', notePH:'e.g. 已回報群組；宣講會初步定 5/15…'},
+  // ── Phase 3: 拜訪後報告 ──
+  {id:'i19', phase:'Phase 3 · 拜訪後報告', sec:'report', secIcon:'📝', secTitle:'拜訪報告撰寫',
+   title:'店況總結評分', hint:'整體店況 / 陳列品質 / 人流量各 1-5 分',
+   tag:{t:'報告',c:'tag-report'},
+   stars:[{key:'rstar-overall',label:'整體店況'},{key:'rstar-display',label:'陳列品質'},{key:'rstar-traffic',label:'人流量'}],
+   noteLbl:'✏️ 總結備註', notePH:'e.g. 整體 4/5；陳列整齊但入口 POP 需更新…'},
+  {id:'i20', sec:'report',
+   title:'亮點 3 個 & 缺失 2 個', hint:'附照片對比，具體描述',
+   tag:{t:'報告',c:'tag-report'},
+   subs:['亮點 1：','亮點 2：','亮點 3：'],
+   noteLbl:'⚠️ 需改進缺失（2 個）', notePH:'缺失 1：e.g. 入口 POP 過期（附照片）\n缺失 2：e.g. 展示機螢幕未更新'},
+  {id:'i21', sec:'report',
+   title:'數據對比分析', hint:'現場客流 × 後台銷售數據質性分析',
+   tag:{t:'數據',c:'tag-data'},
+   subs:['現場客流 vs 後台銷售是否吻合','熱詢機型 vs 實際成交是否有落差','教育優惠轉換率觀察','MAIC 宣傳帶來的詢問數'],
+   noteLbl:'✏️ 分析記錄', notePH:'e.g. 現場詢問以 MBA 為主，但後台 MBP 銷量更高…'},
+  {id:'i22', sec:'report',
+   title:'後續追蹤 Action Items', hint:'標記負責人：Max / Brandi / 自己 / 團隊',
+   tag:{t:'必做',c:'tag-must'},
+   subs:['補貨申請（庫存不足機型）','更換過期 POP 宣傳品','確認宣講會場地 & 發送邀請','更新 MAIC Dashboard','將名單交接行銷組做 Email 追蹤'],
+   noteLbl:'✏️ Action Items 詳細', notePH:'Action 1：更換 POP → Max，截止 5/3\nAction 2：宣講確認 → Brandi，截止 5/10'},
+  {id:'i23', sec:'report',
+   title:'差異化營銷建議', hint:'針對各校科系特性提出策略',
+   tag:{t:'建議',c:'tag-report'},
+   subs:['農資系 → iPad + Apple Pencil 數位筆記方案','理工科系 → Mac 對程式開發的優勢','商管系 → MacBook + Keynote 商業簡報','全體 → BTS 教育優惠時效性','MAIC → 以「做出自己的 App」切入'],
+   noteLbl:'✏️ 差異化建議', notePH:'e.g. 建議針對農資系推「iPad 精準農業應用」主題…'},
+  {id:'i24', sec:'report',
+   title:'更新 MAIC Dashboard & 新增決議', hint:'宣講會場次、決議追蹤',
+   tag:{t:'MAIC',c:'tag-maic'},
+   subs:['新增宣講會場次（學校、日期、地點、人數）','更新已舉辦場次 KPI','決議追蹤頁新增本次 Action Items','push 到 GitHub Pages'],
+   noteLbl:'✏️ 更新記錄', notePH:'e.g. 宣講會+1，決議新增 2 項，push 完成…'},
+  {id:'i25', sec:'report',
+   title:'寄送感謝訊息', hint:'拜訪後一個工作天內',
+   tag:{t:'禮儀',c:'tag-tip'},
+   subs:['感謝對方撥冗接待','複述下一步行動','附上 MAIC 活動官方連結','確認訊息已送達'],
+   noteLbl:'✏️ 感謝訊息草稿', notePH:'在這裡草擬感謝訊息…'},
+];
+
+const TOTAL_ITEMS = ITEMS_DEF.length; // 23
+
+// ═══════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════
+const IDX_KEY  = 'sa_idx_v1';   // master index
+const VKEY = id => `sa_v_${id}`; // per-visit data
+
+function getIdx() {
+  try { return JSON.parse(localStorage.getItem(IDX_KEY) || '{}'); } catch(e) { return {}; }
+}
+function setIdx(d) { try { localStorage.setItem(IDX_KEY, JSON.stringify(d)); } catch(e){} }
+
+function getVisitData(vid) {
+  try { return JSON.parse(localStorage.getItem(VKEY(vid)) || '{}'); } catch(e) { return {}; }
+}
+function setVisitData(vid, d) { try { localStorage.setItem(VKEY(vid), JSON.stringify(d)); } catch(e){} }
+
+function getSchoolVisits(sid) {
+  const idx = getIdx();
+  return (idx[sid] && idx[sid].visits) ? idx[sid].visits : [];
+}
+
+function createVisit(sid) {
+  const idx = getIdx();
+  if (!idx[sid]) idx[sid] = { visits: [] };
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
+  const vid = `v_${Date.now()}`;
+  const num = idx[sid].visits.length + 1;
+  idx[sid].visits.push({ id: vid, date: dateStr, label: `第 ${num} 次拜訪` });
+  setIdx(idx);
+  return vid;
+}
+
+function deleteVisit(sid, vid) {
+  const idx = getIdx();
+  if (!idx[sid]) return;
+  idx[sid].visits = idx[sid].visits.filter(v => v.id !== vid);
+  setIdx(idx);
+  localStorage.removeItem(VKEY(vid));
+}
+
+function getVisitProgress(vid) {
+  const d = getVisitData(vid);
+  let done = 0;
+  ITEMS_DEF.forEach(item => { if (d[item.id + '_c']) done++; });
+  return { done, total: TOTAL_ITEMS };
+}
+
+function getSchoolStatus(sid) {
+  const visits = getSchoolVisits(sid);
+  if (!visits.length) return 'new';
+  const lastVid = visits[visits.length - 1].id;
+  const { done, total } = getVisitProgress(lastVid);
+  if (done === 0) return 'new';
+  if (done === total) return 'done';
+  return 'wip';
+}
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let curSchoolId = null;
+let curVisitId  = null;
+let filterRegion = 'all';
+let filterStatus = 'all';
+
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (msg) t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ═══════════════════════════════════════
+// OVERVIEW
+// ═══════════════════════════════════════
+function renderOverview() {
+  const list = document.getElementById('school-list');
+  let schools = SCHOOLS;
+  if (filterRegion !== 'all') schools = schools.filter(s => s.region === filterRegion);
+  if (filterStatus !== 'all') schools = schools.filter(s => getSchoolStatus(s.id) === filterStatus);
+
+  list.innerHTML = '';
+  if (!schools.length) {
+    list.innerHTML = `<div class="empty-state"><div class="e">🔍</div><p>沒有符合條件的學校</p></div>`;
+  } else {
+    schools.forEach(s => {
+      const status = getSchoolStatus(s.id);
+      const visits = getSchoolVisits(s.id);
+      const lastVisit = visits.length ? visits[visits.length - 1] : null;
+      let pct = 0, prog = {done:0, total:TOTAL_ITEMS};
+      if (lastVisit) {
+        prog = getVisitProgress(lastVisit.id);
+        pct = prog.total ? Math.round(prog.done / prog.total * 100) : 0;
+      }
+      const stripeCls = status === 'done' ? 'stripe-done' : status === 'wip' ? 'stripe-wip' : 'stripe-new';
+      const fillCls   = status === 'done' ? 'fill-done'   : status === 'wip' ? 'fill-wip'   : 'fill-new';
+      const statusLbl = status === 'done' ? '已完成' : status === 'wip' ? '進行中' : '未拜訪';
+      const statusCls = `status-${status}`;
+      const metaTxt   = lastVisit ? `最後拜訪：${lastVisit.date}` : '尚未拜訪';
+      const visitsCnt = visits.length ? `${visits.length} 次拜訪記錄` : '';
+      list.innerHTML += `
+        <div class="school-card" onclick="goDetail('${s.id}')">
+          <div class="card-stripe ${stripeCls}"></div>
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-name">${s.name}</div>
+              <div class="card-region region-${s.region}">${s.region}</div>
+            </div>
+            <div class="card-meta">${metaTxt}</div>
+            <div class="card-prog-bg"><div class="card-prog-fill ${fillCls}" style="width:${pct}%"></div></div>
+            <div class="card-bottom">
+              <div class="card-visits">${visitsCnt || '點擊開始拜訪記錄'}</div>
+              <div class="card-status ${statusCls}">${statusLbl}${pct > 0 ? ' · '+pct+'%' : ''}</div>
+            </div>
+          </div>
+          <div class="card-arrow">›</div>
+        </div>`;
+    });
+  }
+
+  // Update stats
+  let done=0, wip=0, newCnt=0;
+  SCHOOLS.forEach(s => {
+    const st = getSchoolStatus(s.id);
+    if (st === 'done') done++;
+    else if (st === 'wip') wip++;
+    else newCnt++;
+  });
+  document.getElementById('cnt-done').textContent = done;
+  document.getElementById('cnt-wip').textContent  = wip;
+  document.getElementById('cnt-new').textContent  = newCnt;
+  document.getElementById('cnt-total').textContent = SCHOOLS.length;
+}
+
+function setFilter(type, val, btn) {
+  if (type === 'region') { filterRegion = val; filterStatus = 'all'; }
+  else { filterStatus = val; filterRegion = 'all'; }
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active','active-north','active-central','active-south'));
+  btn.classList.add('active');
+  if (type === 'region' && val !== 'all') {
+    const regionMap = {'北部':'north','中部':'central','南部':'south'};
+    btn.classList.add('active-'+regionMap[val]);
+  }
+  renderOverview();
+}
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function goDetail(schoolId) {
+  curSchoolId = schoolId;
+  const school = SCHOOLS.find(s => s.id === schoolId);
+  document.getElementById('pg-overview').classList.add('hidden');
+  document.getElementById('pg-detail').classList.remove('hidden');
+
+  document.getElementById('detail-school-name').textContent = school.name;
+  document.getElementById('detail-school-sub').textContent  = `${school.region}・Straight A 校園體驗中心`;
+
+  const tagsEl = document.getElementById('detail-tags');
+  tagsEl.innerHTML = `<div class="detail-tag region-${school.region}" style="background:${school.region==='北部'?'rgba(88,86,214,.15)':school.region==='中部'?'rgba(255,149,0,.15)':'rgba(255,59,48,.15)'}">${school.region}</div>`;
+
+  // Get or create visit
+  const visits = getSchoolVisits(schoolId);
+  if (!visits.length) {
+    curVisitId = createVisit(schoolId);
+  } else {
+    curVisitId = visits[visits.length - 1].id;
+  }
+
+  renderVisitTabs();
+  renderChecklist();
+  renderHistory();
+  window.scrollTo(0,0);
+}
+
+function goOverview() {
+  document.getElementById('pg-detail').classList.add('hidden');
+  document.getElementById('pg-overview').classList.remove('hidden');
+  renderOverview();
+  window.scrollTo(0,0);
+}
+
+// ═══════════════════════════════════════
+// VISIT TABS
+// ═══════════════════════════════════════
+function renderVisitTabs() {
+  const visits = getSchoolVisits(curSchoolId);
+  const tabs = document.getElementById('visit-tabs');
+  tabs.innerHTML = '';
+  visits.forEach(v => {
+    const btn = document.createElement('button');
+    btn.className = 'vtab' + (v.id === curVisitId ? ' active' : '');
+    btn.textContent = v.date;
+    btn.onclick = () => { curVisitId = v.id; renderVisitTabs(); renderChecklist(); renderHistory(); };
+    tabs.appendChild(btn);
+  });
+  const newBtn = document.createElement('button');
+  newBtn.className = 'vtab vtab-new';
+  newBtn.textContent = '＋ 新增拜訪';
+  newBtn.onclick = () => {
+    curVisitId = createVisit(curSchoolId);
+    renderVisitTabs(); renderChecklist(); renderHistory();
+    showToast('已建立新拜訪記錄');
+  };
+  tabs.appendChild(newBtn);
+}
+
+// ═══════════════════════════════════════
+// CHECKLIST RENDER
+// ═══════════════════════════════════════
+function renderChecklist() {
+  const d = getVisitData(curVisitId);
+  const container = document.getElementById('checklist-container');
+  container.innerHTML = '';
+
+  // Group items by phase and section
+  let currentPhase = null, currentSec = null;
+  let phaseDiv = null, secDiv = null, secItems = null, secId = null, secCount = [0,0];
+
+  ITEMS_DEF.forEach((item, idx) => {
+    // Phase header
+    if (item.phase && item.phase !== currentPhase) {
+      currentPhase = item.phase;
+      phaseDiv = document.createElement('div');
+      phaseDiv.className = 'phase-wrap';
+      phaseDiv.innerHTML = `<div class="phase-label"><div class="phase-line"></div><span class="phase-text">${item.phase}</span><div class="phase-line"></div></div>`;
+      container.appendChild(phaseDiv);
+    }
+    // Section header
+    if (item.sec !== currentSec || item.secTitle) {
+      if (item.secTitle) {
+        currentSec = item.sec;
+        secId = item.sec;
+        secDiv = document.createElement('div');
+        secDiv.className = 'cl-section';
+        if (!phaseDiv) { phaseDiv = document.createElement('div'); phaseDiv.className = 'phase-wrap'; container.appendChild(phaseDiv); }
+        phaseDiv.appendChild(secDiv);
+        secDiv.innerHTML = `<div class="sec-head">
+          <div class="sec-icon si-${item.sec}">${item.secIcon||''}</div>
+          <span class="sec-title">${item.secTitle}</span>
+          <span class="sec-count" id="scnt-${curVisitId}-${item.sec}">0/0</span>
+        </div>`;
+        secItems = document.createElement('div');
+        secItems.className = 'cl-items';
+        secDiv.appendChild(secItems);
+      }
+    }
+
+    const isDone = !!d[item.id + '_c'];
+    // Render item
+    const wrap = document.createElement('div');
+    const mainId = `im-${curVisitId}-${item.id}`;
+
+    let detailHtml = `<div class="detail-div"></div>`;
+
+    // Sub-items
+    if (item.subs && item.subs.length) {
+      detailHtml += `<div class="sub-lbl">📌 細項</div><div class="sub-list" id="sl-${curVisitId}-${item.id}">`;
+      item.subs.forEach((s, si) => {
+        const checked = !!d[`${item.id}_s${si}`];
+        detailHtml += `<div class="sub-item${checked?' sc':''}" onclick="toggleSub(this,'${item.id}',${si})"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">${s}</span></div>`;
+      });
+      detailHtml += `</div>`;
+    }
+
+    // Stars
+    if (item.stars) {
+      detailHtml += `<div class="sub-lbl">⭐ 評分</div>`;
+      item.stars.forEach(sg => {
+        const score = d[sg.key] || 0;
+        let starsHtml = '';
+        for (let i=1;i<=5;i++) starsHtml += `<span class="star${i<=score?' lit':''}" onclick="rateStar(this,'${sg.key}',${i})">⭐</span>`;
+        detailHtml += `<div class="star-group"><div class="star-group-lbl">${sg.label}</div><div class="star-row">${starsHtml}<span class="star-score" id="ss-${curVisitId}-${sg.key}">${score>0?score+' / 5':'-'}</span></div></div>`;
+      });
+    }
+
+    // Note
+    const noteVal = d[`n-${item.id}`] || '';
+    detailHtml += `<div class="note-lbl">${item.noteLbl||'✏️ 備註'}</div>
+      <textarea class="note-area" data-key="n-${item.id}" placeholder="${item.notePH||''}" oninput="saveNote(this)">${noteVal}</textarea>`;
+
+    // Custom subs
+    const customSubs = d[`csub-${item.id}`] || [];
+    if (customSubs.length) {
+      detailHtml += `<div class="sub-lbl" style="margin-top:10px">📝 自訂細項</div><div class="sub-list" id="csl-${curVisitId}-${item.id}">`;
+      customSubs.forEach((cs, ci) => {
+        detailHtml += `<div class="sub-item${cs.c?' sc':''}" onclick="toggleCustomSub(this,'${item.id}',${ci})"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">${cs.t}</span></div>`;
+      });
+      detailHtml += `</div>`;
+    }
+
+    // Add custom
+    detailHtml += `<div class="add-sub-row">
+      <input class="add-sub-input" type="text" placeholder="新增自訂細項…" onkeydown="if(event.key==='Enter')addCustomSub(this,'${item.id}')">
+      <button class="add-sub-btn" onclick="addCustomSub(this.previousElementSibling,'${item.id}')">＋ 新增</button>
+    </div>`;
+
+    wrap.innerHTML = `
+      <div class="item-main${isDone?' done':''}" id="${mainId}">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'${mainId}','${item.id}')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('${mainId}')">
+            <div class="item-title">${item.title}</div>
+            <div class="item-hint">${item.hint||''}</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('${mainId}')"><span class="arrow">▶</span></button>
+          <span class="tag ${item.tag.c}">${item.tag.t}</span>
+        </div>
+      </div>
+      <div class="detail" id="det-${mainId}">${detailHtml}</div>`;
+
+    if (secItems) secItems.appendChild(wrap);
+  });
+
+  updateProgress();
+}
+
+// ═══════════════════════════════════════
+// ITEM INTERACTIONS
+// ═══════════════════════════════════════
+function toggleMain(e, mainId, itemId) {
+  e.stopPropagation();
+  const el = document.getElementById(mainId);
+  el.classList.toggle('done');
+  const d = getVisitData(curVisitId);
+  d[itemId + '_c'] = el.classList.contains('done');
+  setVisitData(curVisitId, d);
+  updateProgress();
+  showToast();
+}
+
+function expandToggle(mainId) {
+  const el = document.getElementById(mainId);
+  const det = document.getElementById('det-' + mainId);
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.item-main.open').forEach(o => {
+    o.classList.remove('open');
+    const d = document.getElementById('det-' + o.id);
+    if (d) d.style.display = 'none';
+  });
+  if (!wasOpen) {
+    el.classList.add('open');
+    if (det) det.style.display = 'block';
+  }
+}
+
+function toggleSub(el, itemId, si) {
+  el.classList.toggle('sc');
+  const d = getVisitData(curVisitId);
+  d[`${itemId}_s${si}`] = el.classList.contains('sc');
+  setVisitData(curVisitId, d);
+  showToast();
+}
+
+function toggleCustomSub(el, itemId, ci) {
+  el.classList.toggle('sc');
+  const d = getVisitData(curVisitId);
+  if (!d[`csub-${itemId}`]) d[`csub-${itemId}`] = [];
+  if (d[`csub-${itemId}`][ci]) d[`csub-${itemId}`][ci].c = el.classList.contains('sc');
+  setVisitData(curVisitId, d);
+  showToast();
+}
+
+function addCustomSub(input, itemId) {
+  const text = input.value.trim();
+  if (!text) return;
+  const d = getVisitData(curVisitId);
+  if (!d[`csub-${itemId}`]) d[`csub-${itemId}`] = [];
+  const ci = d[`csub-${itemId}`].length;
+  d[`csub-${itemId}`].push({ t: text, c: false });
+  setVisitData(curVisitId, d);
+  input.value = '';
+  // Add to DOM
+  const listId = `csl-${curVisitId}-${itemId}`;
+  let list = document.getElementById(listId);
+  if (!list) {
+    const det = document.querySelector(`[data-key="n-${itemId}"]`)?.closest('.detail');
+    if (det) {
+      const lbl = document.createElement('div');
+      lbl.className = 'sub-lbl'; lbl.style.marginTop = '10px'; lbl.textContent = '📝 自訂細項';
+      const nl = document.createElement('div');
+      nl.className = 'sub-list'; nl.id = listId;
+      const addRow = det.querySelector('.add-sub-row');
+      det.insertBefore(lbl, addRow); det.insertBefore(nl, addRow);
+      list = nl;
+    }
+  }
+  if (list) {
+    const item = document.createElement('div');
+    item.className = 'sub-item';
+    item.innerHTML = `<div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">${text}</span>`;
+    item.onclick = function() { toggleCustomSub(this, itemId, ci); };
+    list.appendChild(item);
+  }
+  showToast('已新增細項');
+}
+
+function saveNote(el) {
+  const d = getVisitData(curVisitId);
+  d[el.dataset.key] = el.value;
+  setVisitData(curVisitId, d);
+  showToast();
+}
+
+function rateStar(starEl, key, score) {
+  const d = getVisitData(curVisitId);
+  d[key] = score;
+  setVisitData(curVisitId, d);
+  // Update UI
+  const row = starEl.closest('.star-row');
+  if (row) row.querySelectorAll('.star').forEach((s,i) => s.classList.toggle('lit', i < score));
+  const scoreEl = document.getElementById(`ss-${curVisitId}-${key}`);
+  if (scoreEl) scoreEl.textContent = score + ' / 5';
+  showToast();
+}
+
+// ═══════════════════════════════════════
+// PROGRESS
+// ═══════════════════════════════════════
+function updateProgress() {
+  const d = getVisitData(curVisitId);
+  // Per-section counts
+  const secCounts = {};
+  ITEMS_DEF.forEach(item => {
+    if (!secCounts[item.sec]) secCounts[item.sec] = {done:0, total:0};
+    secCounts[item.sec].total++;
+    if (d[item.id + '_c']) secCounts[item.sec].done++;
+  });
+  Object.entries(secCounts).forEach(([sec, {done, total}]) => {
+    const el = document.getElementById(`scnt-${curVisitId}-${sec}`);
+    if (el) el.textContent = `${done}/${total}`;
+  });
+}
+
+// ═══════════════════════════════════════
+// HISTORY
+// ═══════════════════════════════════════
+function renderHistory() {
+  const visits = getSchoolVisits(curSchoolId);
+  const el = document.getElementById('history-list');
+  if (!visits.length) {
+    el.innerHTML = '<div class="history-empty">尚無拜訪記錄</div>';
+    return;
+  }
+  el.innerHTML = '';
+  [...visits].reverse().forEach(v => {
+    const { done, total } = getVisitProgress(v.id);
+    const pct = total ? Math.round(done/total*100) : 0;
+    const isCurrent = v.id === curVisitId;
+    const color = pct === 100 ? 'var(--green)' : pct > 0 ? 'var(--orange)' : 'var(--muted)';
+    const row = document.createElement('div');
+    row.className = 'hist-row';
+    row.innerHTML = `
+      <div class="hist-dot" style="background:${color}"></div>
+      <div class="hist-info">
+        <div class="hist-date">${v.date}${isCurrent ? ' <span style="font-size:10px;color:var(--blue)">（目前）</span>' : ''}</div>
+        <div class="hist-meta">${v.label}</div>
+      </div>
+      <div class="hist-prog" style="color:${color}">${done}/${total} · ${pct}%</div>
+      <button class="hist-del" onclick="handleDelVisit('${v.id}')">🗑</button>`;
+    row.querySelector('.hist-dot').onclick = row.querySelector('.hist-info').onclick = () => {
+      curVisitId = v.id;
+      renderVisitTabs(); renderChecklist(); renderHistory();
+    };
+    el.appendChild(row);
+  });
+}
+
+function handleDelVisit(vid) {
+  const visits = getSchoolVisits(curSchoolId);
+  const v = visits.find(v => v.id === vid);
+  if (!confirm(`確定要刪除「${v ? v.date : ''}」的拜訪記錄嗎？`)) return;
+  deleteVisit(curSchoolId, vid);
+  const remaining = getSchoolVisits(curSchoolId);
+  if (!remaining.length) {
+    curVisitId = createVisit(curSchoolId);
+  } else if (curVisitId === vid) {
+    curVisitId = remaining[remaining.length - 1].id;
+  }
+  renderVisitTabs(); renderChecklist(); renderHistory();
+  showToast('已刪除拜訪記錄');
+}
+
+// ═══════════════════════════════════════
+// BACKUP
+// ═══════════════════════════════════════
+function exportAll() {
+  const idx = getIdx();
+  const out = { _type: 'sa_all', _exported_at: new Date().toLocaleString('zh-TW'), idx };
+  const allVids = [];
+  Object.values(idx).forEach(s => (s.visits||[]).forEach(v => allVids.push(v.id)));
+  out.visits = {};
+  allVids.forEach(vid => { out.visits[vid] = getVisitData(vid); });
+  const d = new Date();
+  const tag = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  downloadJSON(out, `sa-all-backup-${tag}.json`);
+  setStatus('ov-backup-status', '✅ 已匯出全部資料！', 'var(--green)');
+}
+
+function importAll(event) {
+  const file = event.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.idx) { setStatus('ov-backup-status', '❌ 格式錯誤', 'var(--red)'); return; }
+      if (!confirm(`確定要匯入備份（${data._exported_at || '未知時間'}）？這將覆蓋目前所有資料。`)) return;
+      localStorage.setItem(IDX_KEY, JSON.stringify(data.idx));
+      Object.entries(data.visits || {}).forEach(([vid, vd]) => { localStorage.setItem(VKEY(vid), JSON.stringify(vd)); });
+      setStatus('ov-backup-status', `✅ 匯入成功（${data._exported_at}）`, 'var(--green)');
+      setTimeout(() => renderOverview(), 500);
+    } catch(err) { setStatus('ov-backup-status', '❌ 檔案格式錯誤', 'var(--red)'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function clearAll() {
+  if (!confirm('確定要清除所有學校的拜訪記錄嗎？此動作無法復原。')) return;
+  const idx = getIdx();
+  Object.values(idx).forEach(s => (s.visits||[]).forEach(v => localStorage.removeItem(VKEY(v.id))));
+  localStorage.removeItem(IDX_KEY);
+  renderOverview();
+  setStatus('ov-backup-status', '✅ 已清除所有資料', 'var(--green)');
+}
+
+function exportSchool() {
+  const school = SCHOOLS.find(s => s.id === curSchoolId);
+  const visits = getSchoolVisits(curSchoolId);
+  const out = { _type: 'sa_school', _school: school, _exported_at: new Date().toLocaleString('zh-TW'), visits: {} };
+  visits.forEach(v => { out.visits[v.id] = getVisitData(v.id); });
+  out.visitMeta = visits;
+  const d = new Date();
+  const tag = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  downloadJSON(out, `sa-${curSchoolId}-${tag}.json`);
+  setStatus('det-backup-status', '✅ 已匯出此校資料！', 'var(--green)');
+}
+
+function importSchool(event) {
+  const file = event.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.visitMeta) { setStatus('det-backup-status', '❌ 格式錯誤', 'var(--red)'); return; }
+      if (!confirm(`匯入「${data._school?.name || ''}」的備份（${data._exported_at}）？`)) return;
+      const idx = getIdx();
+      idx[curSchoolId] = { visits: data.visitMeta };
+      setIdx(idx);
+      Object.entries(data.visits || {}).forEach(([vid, vd]) => { localStorage.setItem(VKEY(vid), JSON.stringify(vd)); });
+      const visits = getSchoolVisits(curSchoolId);
+      curVisitId = visits.length ? visits[visits.length-1].id : createVisit(curSchoolId);
+      renderVisitTabs(); renderChecklist(); renderHistory();
+      setStatus('det-backup-status', `✅ 匯入成功`, 'var(--green)');
+    } catch(err) { setStatus('det-backup-status', '❌ 格式錯誤', 'var(--red)'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function downloadJSON(data, filename) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function setStatus(id, msg, color) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg; el.style.color = color;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.textContent = ''; }, 5000);
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+window.onload = () => { renderOverview(); };
+</script>
+</body>
+</html>
