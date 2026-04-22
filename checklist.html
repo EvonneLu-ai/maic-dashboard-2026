@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Straight A 中興 · 拜訪清單</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f5f5f7;--card:#fff;--text:#1d1d1f;--sub:#6e6e73;
+  --border:#e5e5ea;--muted:#aeaeb2;--fill:#f2f2f7;
+  --blue:#0071e3;--green:#34c759;--orange:#ff9500;
+  --red:#ff3b30;--purple:#af52de;--teal:#5ac8fa;
+}
+html{font-size:16px}
+body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
+  background:var(--bg);color:var(--text);padding:0 0 80px;min-height:100vh}
+
+.header{background:linear-gradient(145deg,#1c1c1e 0%,#3a3a3c 100%);
+  padding:52px 20px 24px;color:#fff;position:relative;overflow:hidden}
+.header::after{content:'';position:absolute;top:-60px;right:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.07),transparent 70%)}
+.header-badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+  border-radius:20px;padding:4px 12px;font-size:12px;
+  letter-spacing:.4px;margin-bottom:12px;color:rgba(255,255,255,.9)}
+.header h1{font-size:24px;font-weight:700;line-height:1.25;margin-bottom:5px}
+.header .sub{font-size:13px;color:rgba(255,255,255,.55)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.1);
+  border-radius:12px;padding:5px 10px;font-size:12px;color:rgba(255,255,255,.8)}
+
+.prog-wrap{margin:16px 16px 0;background:var(--card);border-radius:16px;
+  padding:16px 18px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.prog-label{font-size:13px;font-weight:600;color:var(--sub)}
+.prog-num{font-size:14px;font-weight:700}
+.prog-bg{height:8px;border-radius:99px;background:var(--fill);overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--blue),var(--teal));
+  width:0%;transition:width .5s cubic-bezier(.4,0,.2,1)}
+
+.done-banner{display:none;margin:12px 16px 0;
+  background:linear-gradient(135deg,#34c759,#30d158);
+  border-radius:16px;padding:18px 20px;color:#fff;text-align:center;
+  box-shadow:0 4px 20px rgba(52,199,89,.3)}
+.done-banner.show{display:block}
+.done-banner .e{font-size:30px;margin-bottom:4px}
+.done-banner b{font-size:16px;font-weight:700;display:block}
+.done-banner span{font-size:13px;opacity:.85}
+
+.section{margin:20px 16px 0}
+.sec-head{display:flex;align-items:center;gap:8px;padding:4px 2px 10px}
+.sec-icon{width:32px;height:32px;border-radius:9px;display:flex;
+  align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.si-prep{background:#e8f4ff}.si-merch{background:#fff0e8}
+.si-maic{background:#f0e8ff}.si-follow{background:#eafaf0}
+.sec-title{font-size:15px;font-weight:700}
+.sec-count{margin-left:auto;font-size:11px;font-weight:600;color:var(--sub);
+  background:var(--fill);border-radius:99px;padding:2px 8px;flex-shrink:0}
+
+.checklist{display:flex;flex-direction:column;gap:3px}
+.item-wrap{}
+.item-main{background:var(--card);border-radius:14px;border:1.5px solid transparent;
+  box-shadow:0 1px 4px rgba(0,0,0,.05);overflow:hidden;
+  transition:border-color .2s,box-shadow .2s}
+.item-main.open{border-radius:14px 14px 0 0;border-color:var(--blue);
+  box-shadow:0 2px 12px rgba(0,113,227,.1)}
+.item-row{display:flex;align-items:flex-start;gap:12px;padding:14px;cursor:pointer;user-select:none}
+.cb{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;transition:all .2s;background:#fff}
+.item-main.checked .cb{border-color:transparent;background:var(--green)}
+.cb-tick{display:none;color:#fff;font-size:13px;font-weight:800}
+.item-main.checked .cb-tick{display:block}
+.item-body{flex:1;min-width:0}
+.item-title{font-size:14px;font-weight:600;color:var(--text);transition:color .2s;line-height:1.35}
+.item-main.checked .item-title{text-decoration:line-through;color:var(--muted)}
+.item-hint{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.4}
+.item-main.checked .item-hint{color:#c7c7cc}
+.expand-btn{flex-shrink:0;width:28px;height:28px;border-radius:8px;
+  background:var(--fill);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:var(--sub);transition:all .2s;margin-top:1px}
+.item-main.open .expand-btn{background:rgba(0,113,227,.1);color:var(--blue)}
+.expand-btn .arrow{display:inline-block;transition:transform .25s}
+.item-main.open .expand-btn .arrow{transform:rotate(90deg)}
+.tag{flex-shrink:0;font-size:10px;font-weight:700;letter-spacing:.3px;
+  padding:3px 8px;border-radius:99px;margin-top:2px;align-self:flex-start}
+.tag-must{background:#fff0f0;color:var(--red)}
+.tag-promo{background:#fff8e6;color:var(--orange)}
+.tag-maic{background:#f0e8ff;color:var(--purple)}
+.tag-tip{background:#e8f4ff;color:var(--blue)}
+.tag-rec{background:#eafaf0;color:var(--green)}
+
+.detail{display:none;background:var(--card);
+  border:1.5px solid var(--blue);border-top:none;
+  border-radius:0 0 14px 14px;padding:0 14px 16px;
+  box-shadow:0 4px 12px rgba(0,113,227,.08)}
+.item-main.open + .detail{display:block}
+.detail-divider{height:1px;background:var(--fill);margin:0 0 14px}
+.sub-label{font-size:11px;font-weight:700;color:var(--sub);
+  letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+.sub-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.sub-item{display:flex;align-items:center;gap:9px;cursor:pointer;padding:2px 0}
+.sub-cb{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .2s;background:#fff}
+.sub-item.sub-checked .sub-cb{background:var(--blue);border-color:var(--blue)}
+.sub-cb-tick{display:none;color:#fff;font-size:10px;font-weight:900}
+.sub-item.sub-checked .sub-cb-tick{display:block}
+.sub-text{font-size:13px;color:var(--text);line-height:1.35;transition:color .2s}
+.sub-item.sub-checked .sub-text{text-decoration:line-through;color:var(--muted)}
+
+.note-label{font-size:11px;font-weight:700;color:var(--sub);
+  letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
+.note-area{width:100%;min-height:72px;padding:10px 12px;
+  background:var(--fill);border:1.5px solid transparent;border-radius:10px;
+  font-family:inherit;font-size:13px;color:var(--text);
+  resize:none;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.note-area::placeholder{color:var(--muted)}
+.note-area:focus{border-color:var(--blue);background:#fff}
+
+.add-sub-row{display:flex;gap:8px;margin-top:10px}
+.add-sub-input{flex:1;padding:8px 12px;background:var(--fill);
+  border:1.5px solid transparent;border-radius:10px;
+  font-family:inherit;font-size:13px;color:var(--text);outline:none;
+  transition:border-color .2s;-webkit-appearance:none}
+.add-sub-input::placeholder{color:var(--muted)}
+.add-sub-input:focus{border-color:var(--blue);background:#fff}
+.add-sub-btn{padding:8px 14px;background:var(--blue);color:#fff;
+  border:none;border-radius:10px;font-size:13px;font-weight:600;
+  cursor:pointer;white-space:nowrap}
+.add-sub-btn:active{opacity:.8}
+
+.save-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:#1d1d1f;color:#fff;padding:10px 20px;border-radius:99px;
+  font-size:13px;font-weight:600;z-index:999;
+  transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;opacity:0;pointer-events:none}
+.save-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+.share-bar{margin:20px 16px 0;background:linear-gradient(135deg,#0071e3,#34aadc);
+  border-radius:16px;padding:16px 18px;color:#fff;display:flex;align-items:center;gap:12px}
+.share-icon{font-size:24px;flex-shrink:0}
+.share-text b{font-size:14px;font-weight:700;display:block}
+.share-text span{font-size:12px;opacity:.8}
+.share-copy{margin-left:auto;background:rgba(255,255,255,.2);
+  border:1px solid rgba(255,255,255,.3);border-radius:10px;
+  padding:7px 14px;font-size:12px;font-weight:600;color:#fff;
+  cursor:pointer;white-space:nowrap;flex-shrink:0}
+.share-copy:active{opacity:.7}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">📋 拜訪清單</div>
+  <h1>Straight A<br>中興大學校園店</h1>
+  <p class="sub">校園拜訪 × MAIC 2026 宣傳任務</p>
+  <div class="chips">
+    <div class="chip">📍 國立中興大學・台中南區</div>
+    <div class="chip">🎯 MAIC 2026</div>
+  </div>
+</div>
+
+<div class="prog-wrap">
+  <div class="prog-row">
+    <span class="prog-label">完成進度</span>
+    <span class="prog-num" id="prog-text">0 / 19</span>
+  </div>
+  <div class="prog-bg"><div class="prog-fill" id="prog-bar"></div></div>
+</div>
+
+<div class="done-banner" id="done-banner">
+  <div class="e">🎉</div>
+  <b>全部完成！出發吧！</b>
+  <span>中興大學・MAIC 宣傳任務待命中</span>
+</div>
+
+<!-- ══ Section 1: 出發前準備 ══ -->
+<div class="section">
+  <div class="sec-head">
+    <div class="sec-icon si-prep">🎒</div>
+    <span class="sec-title">出發前準備</span>
+    <span class="sec-count" id="cnt-prep">0/4</span>
+  </div>
+  <div class="checklist" data-sec="prep">
+
+    <div class="item-wrap">
+      <div class="item-main" id="i1">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i1')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i1')">
+            <div class="item-title">確認門市開放時間</div>
+            <div class="item-hint">避免白跑，事先確認或電話詢問</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i1')"><span class="arrow">▶</span></button>
+          <span class="tag tag-must">必做</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i1">
+        <div class="detail-divider"></div>
+        <div class="sub-label">📌 確認細項</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">平日 vs 假日營業時間是否不同</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">今日是否有特殊公休或活動</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">透過 IG / 官網 / 電話確認</span></div>
+        </div>
+        <div class="note-label">✏️ 備註</div>
+        <textarea class="note-area" data-key="n-i1" placeholder="e.g. 週一至五 10:00–21:00，電話 04-XXXX-XXXX…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增自訂細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="item-main" id="i2">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i2')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i2')">
+            <div class="item-title">備齊 MAIC 宣傳物料</div>
+            <div class="item-hint">出門前逐一核對，缺一不可</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i2')"><span class="arrow">▶</span></button>
+          <span class="tag tag-must">必做</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i2">
+        <div class="detail-divider"></div>
+        <div class="sub-label">📦 物料清點</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">MAIC 2026 活動海報（A4 / A3）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">DM / 傳單（建議 20 份以上）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">報名 QR Code 卡片 / 貼紙</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">膠帶 / 立牌（用於擺設展示）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">名片（個人或 MAIC 活動名片）</span></div>
+        </div>
+        <div class="note-label">✏️ 數量記錄</div>
+        <textarea class="note-area" data-key="n-i2" placeholder="e.g. 海報帶了 5 張、DM 30 份…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增自訂物料…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="item-main" id="i3">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i3')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i3')">
+            <div class="item-title">確認門市聯絡人資訊</div>
+            <div class="item-hint">事先預約或確認店長姓名，拜訪更順暢</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i3')"><span class="arrow">▶</span></button>
+          <span class="tag tag-must">必做</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i3">
+        <div class="detail-divider"></div>
+        <div class="sub-label">👤 聯絡資訊</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">確認店長 / 負責人姓名</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">是否已事先預約拜訪時間</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">備妥過往合作記錄（如有）</span></div>
+        </div>
+        <div class="note-label">✏️ 聯絡人記錄</div>
+        <textarea class="note-area" data-key="n-i3" placeholder="e.g. 店長：王小明，電話：0912-XXX-XXX，已預約 14:00…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增自訂細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="item-main" id="i4">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i4')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i4')">
+            <div class="item-title">規劃交通與停車</div>
+            <div class="item-hint">國立中興大學・台中市南區興大路 145 號</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i4')"><span class="arrow">▶</span></button>
+          <span class="tag tag-tip">提示</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i4">
+        <div class="detail-divider"></div>
+        <div class="sub-label">🚗 交通準備</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">確認停車場位置（校內 / 周邊路邊）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">預估抵達時間，預留 buffer</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">確認 Straight A 在校內確切位置</span></div>
+        </div>
+        <div class="note-label">✏️ 備註</div>
+        <textarea class="note-area" data-key="n-i4" placeholder="e.g. 預計 13:30 出發，停校內第二停車場…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增自訂細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ Section 2: 門市現場觀察 ══ -->
+<div class="section">
+  <div class="sec-head">
+    <div class="sec-icon si-merch">🏪</div>
+    <span class="sec-title">門市現場觀察</span>
+    <span class="sec-count" id="cnt-merch">0/5</span>
+  </div>
+  <div class="checklist" data-sec="merch">
+
+    <div class="item-wrap">
+      <div class="item-main" id="i5">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i5')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i5')">
+            <div class="item-title">觀察門市陳列與動線</div>
+            <div class="item-hint">找出最佳宣傳品放置點</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i5')"><span class="arrow">▶</span></button>
+          <span class="tag tag-tip">觀察</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i5">
+        <div class="detail-divider"></div>
+        <div class="sub-label">👁 觀察重點</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">入口 / 收銀台附近是否有空白展示空間</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">顧客停留時間最長的區域在哪裡</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">是否有公告欄 / 海報牆 / 立牌區</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">確認已放置的其他宣傳品（競品觀察）</span></div>
+        </div>
+        <div class="note-label">✏️ 現場記錄</div>
+        <textarea class="note-area" data-key="n-i5" placeholder="e.g. 收銀台左側有公告牆，可貼 A4 海報；入口有立牌架…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增觀察細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="item-main" id="i6">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i6')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i6')">
+            <div class="item-title">記錄客流量與高峰時段</div>
+            <div class="item-hint">作為宣講會 / 擺攤時程規劃依據</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i6')"><span class="arrow">▶</span></button>
+          <span class="tag tag-tip">觀察</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i6">
+        <div class="detail-divider"></div>
+        <div class="sub-label">⏰ 時段觀察</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">詢問店員哪個時段最多同學來</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">觀察目前現場人數和年級分佈</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">確認考試週 / 特殊週是否客流更多</span></div>
+        </div>
+        <div class="note-label">✏️ 時段記錄</div>
+        <textarea class="note-area" data-key="n-i6" placeholder="e.g. 中午 12–14 點為高峰，下午 3–5 點次之…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增觀察細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="item-main" id="i7">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i7')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i7')">
+            <div class="item-title">確認宣傳品展示空間</div>
+            <div class="item-hint">取得店長同意後確認可用位置</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i7')"><span class="arrow">▶</span></button>
+          <span class="tag tag-promo">宣傳</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i7">
+        <div class="detail-divider"></div>
+        <div class="sub-label">📌 空間確認</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">詢問是否可張貼海報（哪面牆 / 最大尺寸）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">確認是否可放置立牌或 DM 架</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">確認展示物料的保留時間（幾天？）</span></div>
+        </div>
+        <div class="note-label">✏️ 展示位置記錄</div>
+        <textarea class="note-area" data-key="n-i7" placeholder="e.g. 可貼 A4 海報於收銀台背板，立牌放門口左側…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="item-main" id="i8">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i8')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i8')">
+            <div class="item-title">拍攝門市環境照片</div>
+            <div class="item-hint">留存紀錄，供團隊 Dashboard 參考</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i8')"><span class="arrow">▶</span></button>
+          <span class="tag tag-rec">記錄</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i8">
+        <div class="detail-divider"></div>
+        <div class="sub-label">📸 拍攝清單</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">門市外觀（招牌 + 入口）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">宣傳品放置後的陳列照</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">店內環境全景</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">海報 / QR Code 張貼完成確認照</span></div>
+        </div>
+        <div class="note-label">✏️ 備註</div>
+        <textarea class="note-area" data-key="n-i8" placeholder="e.g. 已傳照片至 MAIC Marketing 群組…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="item-main" id="i9">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i9')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i9')">
+            <div class="item-title">了解中興大學學生族群</div>
+            <div class="item-hint">精準掌握受眾，強化 MAIC 宣傳效果</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i9')"><span class="arrow">▶</span></button>
+          <span class="tag tag-tip">洞察</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i9">
+        <div class="detail-divider"></div>
+        <div class="sub-label">🎓 族群洞察</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">詢問常客主要科系（理工 / 商管 / 農業）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">了解學生對科技 / 創業競賽的興趣程度</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">確認是否有創新創業中心 / 相關社團</span></div>
+        </div>
+        <div class="note-label">✏️ 族群洞察記錄</div>
+        <textarea class="note-area" data-key="n-i9" placeholder="e.g. 以資管、電機系為主；學校有創新育成中心…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ Section 3: MAIC 宣傳任務 ══ -->
+<div class="section">
+  <div class="sec-head">
+    <div class="sec-icon si-maic">🎯</div>
+    <span class="sec-title">MAIC 活動宣傳任務</span>
+    <span class="sec-count" id="cnt-maic">0/6</span>
+  </div>
+  <div class="checklist" data-sec="maic">
+
+    <div class="item-wrap">
+      <div class="item-main" id="i10">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i10')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i10')">
+            <div class="item-title">張貼海報 & 擺放 QR Code 立牌</div>
+            <div class="item-hint">取得同意後放置於顯眼位置</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i10')"><span class="arrow">▶</span></button>
+          <span class="tag tag-maic">MAIC</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i10">
+        <div class="detail-divider"></div>
+        <div class="sub-label">📌 放置確認</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">取得店長口頭同意</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">海報貼於顯眼位置（記錄於備註）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">QR Code 立牌放於收銀台 / 入口處</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">自行掃描確認 QR Code 正常導向</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">拍陳列完成照存證</span></div>
+        </div>
+        <div class="note-label">✏️ 放置位置記錄</div>
+        <textarea class="note-area" data-key="n-i10" placeholder="e.g. 海報貼收銀台背板右上角；立牌放門口左側…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="item-main" id="i11">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i11')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i11')">
+            <div class="item-title">介紹 MAIC 三大競賽組別</div>
+            <div class="item-hint">創意組 × 創新組 × 創業組，強調跨科系</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i11')"><span class="arrow">▶</span></button>
+          <span class="tag tag-maic">MAIC</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i11">
+        <div class="detail-divider"></div>
+        <div class="sub-label">💬 重點話術</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">🎨 創意組：有想法即可，不需寫程式</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">⚙️ 創新組：有技術能力，做出 Prototype</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">🚀 創業組：已有商業模式、準備落地</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">強調「跨科系組隊」，歡迎非資工系</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">提及獎金、業師輔導、實習機會等誘因</span></div>
+        </div>
+        <div class="note-label">✏️ 現場反應記錄</div>
+        <textarea class="note-area" data-key="n-i11" placeholder="e.g. 同學對創業組最感興趣；有人詢問能否一人報名…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增話術 / Q&A…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="item-main" id="i12">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i12')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i12')">
+            <div class="item-title">洽談舉辦中興大學宣講會</div>
+            <div class="item-hint">探詢場地、日期與合作意願</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i12')"><span class="arrow">▶</span></button>
+          <span class="tag tag-maic">MAIC</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i12">
+        <div class="detail-divider"></div>
+        <div class="sub-label">🗓 洽談重點</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">確認門市 / 校方是否有場地可用</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">詢問可行日期（記錄於備註）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">預估可參與人數</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">確認線下或線上模式</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">取得聯絡人 Email / LINE</span></div>
+        </div>
+        <div class="note-label">✏️ 洽談結果</div>
+        <textarea class="note-area" data-key="n-i12" placeholder="e.g. 初步同意，擬定 5/15（四）14:00，場地：管院 101，預計 30 人…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增洽談細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="item-main" id="i13">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i13')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i13')">
+            <div class="item-title">收集潛在參賽者聯絡資訊</div>
+            <div class="item-hint">對 MAIC 有興趣的同學，後續補寄活動詳情</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i13')"><span class="arrow">▶</span></button>
+          <span class="tag tag-maic">MAIC</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i13">
+        <div class="detail-divider"></div>
+        <div class="sub-label">📋 收集方式</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">請有興趣同學填寫 Google Form / 留 Email</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">邀請加入 MAIC LINE 官方帳號</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">記錄收集到的名單人數</span></div>
+        </div>
+        <div class="note-label">✏️ 名單記錄</div>
+        <textarea class="note-area" data-key="n-i13" placeholder="e.g. 收集 5 位 Email；3 位加了 LINE OA；2 位直接掃碼報名…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="item-main" id="i14">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i14')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i14')">
+            <div class="item-title">說明 Straight A × MAIC 合作方案</div>
+            <div class="item-hint">聯名優惠說明 & 深化合作意願探詢</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i14')"><span class="arrow">▶</span></button>
+          <span class="tag tag-promo">宣傳</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i14">
+        <div class="detail-divider"></div>
+        <div class="sub-label">🤝 合作方案</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">說明 MAIC 參賽者可享的門市優惠（如有）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">確認門市是否可作為 MAIC 實體宣傳據點</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">了解門市深化合作的意願</span></div>
+        </div>
+        <div class="note-label">✏️ 合作內容記錄</div>
+        <textarea class="note-area" data-key="n-i14" placeholder="e.g. 店長表示可提供報名同學 9 折優惠，需確認細節…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="item-main" id="i15">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i15')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i15')">
+            <div class="item-title">現場即時回報宣傳成果</div>
+            <div class="item-hint">傳訊息至 MAIC Marketing 群組</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i15')"><span class="arrow">▶</span></button>
+          <span class="tag tag-maic">MAIC</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i15">
+        <div class="detail-divider"></div>
+        <div class="sub-label">📲 即時回報</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">傳送門市陳列照片至群組</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">簡述洽談結果（宣講會 / 合作進度）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">回報收集到的潛在報名人數</span></div>
+        </div>
+        <div class="note-label">✏️ 回報摘要</div>
+        <textarea class="note-area" data-key="n-i15" placeholder="e.g. 已回報群組；宣講會初步定 5/15，等校方確認場地…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ Section 4: 拜訪後跟進 ══ -->
+<div class="section">
+  <div class="sec-head">
+    <div class="sec-icon si-follow">📝</div>
+    <span class="sec-title">拜訪後跟進</span>
+    <span class="sec-count" id="cnt-follow">0/4</span>
+  </div>
+  <div class="checklist" data-sec="follow">
+
+    <div class="item-wrap">
+      <div class="item-main" id="i16">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i16')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i16')">
+            <div class="item-title">更新 MAIC Dashboard 宣講會資料</div>
+            <div class="item-hint">Marketing 頁面新增中興大學場次</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i16')"><span class="arrow">▶</span></button>
+          <span class="tag tag-maic">MAIC</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i16">
+        <div class="detail-divider"></div>
+        <div class="sub-label">💻 Dashboard 更新項目</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">新增宣講會場次（學校、日期、地點、人數）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">更新已舉辦場次 KPI 數字</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">push 到 GitHub Pages（約 1–2 分鐘生效）</span></div>
+        </div>
+        <div class="note-label">✏️ 更新記錄</div>
+        <textarea class="note-area" data-key="n-i16" placeholder="e.g. 已更新 index.html，宣講會+1，push 完成…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="item-main" id="i17">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i17')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i17')">
+            <div class="item-title">撰寫拜訪紀錄並回報團隊</div>
+            <div class="item-hint">週會前整理，包含觀察、結果與後續行動</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i17')"><span class="arrow">▶</span></button>
+          <span class="tag tag-must">必做</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i17">
+        <div class="detail-divider"></div>
+        <div class="sub-label">📄 紀錄架構</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">拜訪時間 / 地點 / 出席人員</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">MAIC 宣傳成果（海報張數、名單人數）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">宣講會洽談結果</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">後續待辦事項與負責人</span></div>
+        </div>
+        <div class="note-label">✏️ 拜訪紀錄草稿</div>
+        <textarea class="note-area" style="min-height:100px" data-key="n-i17" placeholder="在這裡快速草擬拜訪紀錄…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="item-main" id="i18">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i18')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i18')">
+            <div class="item-title">新增決議事項至 MAIC Dashboard</div>
+            <div class="item-hint">設定負責人、截止日期與優先度</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i18')"><span class="arrow">▶</span></button>
+          <span class="tag tag-maic">MAIC</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i18">
+        <div class="detail-divider"></div>
+        <div class="sub-label">✅ 決議格式提醒</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">決議內容描述清楚（做什麼 / 達成什麼）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">指定 owner（負責人姓名）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">設定 deadline（截止日期）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">priority 設定（high / mid / low）</span></div>
+        </div>
+        <div class="note-label">✏️ 待新增決議草稿</div>
+        <textarea class="note-area" data-key="n-i18" placeholder="e.g. 確認中興宣講會場地；負責人：Evonne；截止：5/5；high…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="item-wrap">
+      <div class="item-main" id="i19">
+        <div class="item-row">
+          <div class="cb" onclick="toggleMain(event,'i19')"><span class="cb-tick">✓</span></div>
+          <div class="item-body" onclick="expandToggle('i19')">
+            <div class="item-title">寄送感謝訊息給店長 / 聯絡人</div>
+            <div class="item-hint">拜訪後一個工作天內完成，維繫關係</div>
+          </div>
+          <button class="expand-btn" onclick="expandToggle('i19')"><span class="arrow">▶</span></button>
+          <span class="tag tag-tip">禮儀</span>
+        </div>
+      </div>
+      <div class="detail" id="detail-i19">
+        <div class="detail-divider"></div>
+        <div class="sub-label">💌 感謝訊息重點</div>
+        <div class="sub-list">
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">感謝對方撥冗接待</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">複述下一步行動（宣講會日期 / 後續聯繫）</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">附上 MAIC 活動官方連結 / 報名頁面</span></div>
+          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">確認訊息已送達（LINE 已讀 / Email 未退信）</span></div>
+        </div>
+        <div class="note-label">✏️ 感謝訊息草稿</div>
+        <textarea class="note-area" data-key="n-i19" placeholder="在這裡草擬感謝訊息內容…" oninput="saveNote(this)"></textarea>
+        <div class="add-sub-row">
+          <input class="add-sub-input" type="text" placeholder="新增細項…" onkeydown="if(event.key==='Enter')addSub(this)">
+          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Share Bar -->
+<div class="share-bar">
+  <span class="share-icon">📱</span>
+  <div class="share-text">
+    <b>手機隨時存取</b>
+    <span>書籤加入主畫面，離線也能用</span>
+  </div>
+  <button class="share-copy" onclick="copyURL()">複製連結</button>
+</div>
+
+<div style="height:40px"></div>
+<div class="save-toast" id="toast">已自動儲存 ✓</div>
+
+<script>
+const STORE = 'maic_nchu_v2';
+
+function saveAll() {
+  const d = {};
+  document.querySelectorAll('.item-main').forEach(el => {
+    d[el.id + '_c'] = el.classList.contains('checked');
+  });
+  document.querySelectorAll('.sub-item[data-idx]').forEach(el => {
+    d['s_' + el.dataset.idx] = el.classList.contains('sub-checked');
+  });
+  document.querySelectorAll('.note-area[data-key]').forEach(el => {
+    d[el.dataset.key] = el.value;
+  });
+  // custom items
+  document.querySelectorAll('.custom-sub').forEach(el => {
+    const pid = el.dataset.parent;
+    if (!d['custom_' + pid]) d['custom_' + pid] = [];
+    d['custom_' + pid].push({ t: el.querySelector('.sub-text').textContent, c: el.classList.contains('sub-checked') });
+  });
+  try { localStorage.setItem(STORE, JSON.stringify(d)); } catch(e){}
+}
+
+function loadAll() {
+  let d = {};
+  try { d = JSON.parse(localStorage.getItem(STORE) || '{}'); } catch(e){ return; }
+  document.querySelectorAll('.item-main').forEach(el => {
+    if (d[el.id + '_c']) el.classList.add('checked');
+  });
+  document.querySelectorAll('.sub-item[data-idx]').forEach(el => {
+    if (d['s_' + el.dataset.idx]) el.classList.add('sub-checked');
+  });
+  document.querySelectorAll('.note-area[data-key]').forEach(el => {
+    if (d[el.dataset.key] !== undefined) el.value = d[el.dataset.key];
+  });
+  // custom items
+  Object.keys(d).forEach(k => {
+    if (!k.startsWith('custom_')) return;
+    const pid = k.replace('custom_', '');
+    const detail = document.getElementById('detail-' + pid);
+    if (!detail) return;
+    (d[k] || []).forEach(item => {
+      insertCustomSub(detail, item.t, item.c);
+    });
+  });
+}
+
+let subIdx = 0;
+document.querySelectorAll('.sub-item').forEach(el => { el.dataset.idx = subIdx++; });
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function saveNote(el) { saveAll(); showToast(); }
+
+function toggleMain(e, id) {
+  e.stopPropagation();
+  document.getElementById(id).classList.toggle('checked');
+  updateProgress(); saveAll();
+}
+
+function expandToggle(id) {
+  const el = document.getElementById(id);
+  const detail = document.getElementById('detail-' + id);
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.item-main.open').forEach(o => {
+    o.classList.remove('open');
+    const d = document.getElementById('detail-' + o.id);
+    if (d) d.style.display = 'none';
+  });
+  if (!wasOpen) {
+    el.classList.add('open');
+    if (detail) detail.style.display = 'block';
+  }
+}
+
+function toggleSub(el) {
+  el.classList.toggle('sub-checked');
+  saveAll(); showToast();
+}
+
+function insertCustomSub(detail, text, checked) {
+  const itemMain = detail.previousElementSibling;
+  const pid = itemMain ? itemMain.id : '';
+  let list = detail.querySelector('.custom-list');
+  if (!list) {
+    if (!detail.querySelector('.custom-label')) {
+      const lbl = document.createElement('div');
+      lbl.className = 'sub-label custom-label';
+      lbl.style.marginTop = '10px';
+      lbl.textContent = '📝 自訂細項';
+      const row = detail.querySelector('.add-sub-row');
+      detail.insertBefore(lbl, row);
+    }
+    list = document.createElement('div');
+    list.className = 'sub-list custom-list';
+    list.dataset.parent = pid;
+    const row = detail.querySelector('.add-sub-row');
+    detail.insertBefore(list, row);
+  }
+  const item = document.createElement('div');
+  item.className = 'sub-item custom-sub' + (checked ? ' sub-checked' : '');
+  item.dataset.parent = pid;
+  item.innerHTML = `<div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">${text}</span>`;
+  item.onclick = function(){ this.classList.toggle('sub-checked'); saveAll(); showToast(); };
+  list.appendChild(item);
+}
+
+function addSub(input) {
+  const text = input.value.trim();
+  if (!text) return;
+  const detail = input.closest('.detail');
+  insertCustomSub(detail, text, false);
+  input.value = '';
+  saveAll(); showToast();
+}
+
+function updateProgress() {
+  const all = document.querySelectorAll('.item-main');
+  const done = document.querySelectorAll('.item-main.checked');
+  const t = all.length, c = done.length;
+  document.getElementById('prog-text').textContent = `${c} / ${t}`;
+  document.getElementById('prog-bar').style.width = `${t ? c/t*100 : 0}%`;
+  const secs = ['prep','merch','maic','follow'];
+  secs.forEach(sec => {
+    const list = document.querySelector(`[data-sec="${sec}"]`);
+    if (!list) return;
+    const items = list.querySelectorAll('.item-main');
+    const doneItems = list.querySelectorAll('.item-main.checked');
+    const el = document.getElementById('cnt-' + sec);
+    if (el) el.textContent = `${doneItems.length}/${items.length}`;
+  });
+  document.getElementById('done-banner').classList.toggle('show', c === t && t > 0);
+}
+
+function copyURL() {
+  const url = window.location.href;
+  const btn = document.querySelector('.share-copy');
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => {
+      btn.textContent = '已複製！✓';
+      setTimeout(() => btn.textContent = '複製連結', 2000);
+    });
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = url; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    btn.textContent = '已複製！✓';
+    setTimeout(() => btn.textContent = '複製連結', 2000);
+  }
+}
+
+window.onload = () => { loadAll(); updateProgress(); };
+</script>
+</body>
+</html>
