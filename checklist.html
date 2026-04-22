@@ -185,8 +185,27 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
   transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;opacity:0;pointer-events:none}
 .save-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
+/* BACKUP BAR */
+.backup-bar{margin:20px 16px 0;background:var(--card);border-radius:16px;
+  padding:16px 18px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.backup-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.backup-sub{font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.4}
+.backup-btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn-export{flex:1;min-width:120px;padding:10px 14px;background:var(--blue);color:#fff;
+  border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;text-align:center}
+.btn-export:active{opacity:.8}
+.btn-import{flex:1;min-width:120px;padding:10px 14px;background:var(--fill);color:var(--text);
+  border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;
+  cursor:pointer;text-align:center}
+.btn-import:active{opacity:.7}
+.btn-clear{padding:10px 14px;background:#fff0f0;color:var(--red);
+  border:1.5px solid #ffd0cc;border-radius:10px;font-size:13px;font-weight:600;
+  cursor:pointer;white-space:nowrap}
+.btn-clear:active{opacity:.7}
+.backup-status{font-size:11px;color:var(--sub);margin-top:8px;min-height:16px}
+
 /* SHARE BAR */
-.share-bar{margin:20px 16px 0;background:linear-gradient(135deg,#0071e3,#34aadc);
+.share-bar{margin:12px 16px 0;background:linear-gradient(135deg,#0071e3,#34aadc);
   border-radius:16px;padding:16px 18px;color:#fff;display:flex;align-items:center;gap:12px}
 .share-icon{font-size:24px;flex-shrink:0}
 .share-text b{font-size:14px;font-weight:700;display:block}
@@ -1091,6 +1110,19 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
   </div>
 </div>
 
+<!-- BACKUP BAR -->
+<div class="backup-bar">
+  <div class="backup-title">🔒 資料備份與還原</div>
+  <div class="backup-sub">更新前先匯出備份，更新後一鍵匯入還原所有勾選與備註</div>
+  <div class="backup-btns">
+    <button class="btn-export" onclick="exportData()">⬇️ 匯出備份 JSON</button>
+    <button class="btn-import" onclick="document.getElementById('import-file').click()">⬆️ 匯入還原</button>
+    <button class="btn-clear" onclick="clearData()">🗑️ 清除</button>
+  </div>
+  <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+  <div class="backup-status" id="backup-status"></div>
+</div>
+
 <!-- SHARE BAR -->
 <div class="share-bar" style="margin:20px 16px 0">
   <span class="share-icon">📱</span>
@@ -1306,6 +1338,72 @@ function copyURL() {
     ta.value = url; document.body.appendChild(ta); ta.select();
     document.execCommand('copy'); document.body.removeChild(ta); copy();
   }
+}
+
+// ── EXPORT DATA ──
+function exportData() {
+  try {
+    const raw = localStorage.getItem(STORE) || '{}';
+    const data = JSON.parse(raw);
+    const meta = {
+      _store_key: STORE,
+      _exported_at: new Date().toLocaleString('zh-TW'),
+      _version: 'v3'
+    };
+    const blob = new Blob([JSON.stringify({...meta, ...data}, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const d = new Date();
+    const tag = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+    a.download = `checklist-backup-${tag}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setBackupStatus('✅ 已匯出備份！請存在安全的地方', 'var(--green)');
+  } catch(e) {
+    setBackupStatus('❌ 匯出失敗：' + e.message, 'var(--red)');
+  }
+}
+
+// ── IMPORT DATA ──
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      // Validate it's our backup
+      if (data._store_key && data._store_key !== STORE) {
+        if (!confirm(`此備份的 key 為「${data._store_key}」，與目前「${STORE}」不同，仍要匯入嗎？`)) return;
+      }
+      // Remove meta keys
+      const clean = Object.fromEntries(Object.entries(data).filter(([k]) => !k.startsWith('_')));
+      localStorage.setItem(STORE, JSON.stringify(clean));
+      setBackupStatus(`✅ 匯入成功（備份時間：${data._exported_at || '未知'}），正在重新載入…`, 'var(--green)');
+      setTimeout(() => { loadAll(); updateProgress(); }, 800);
+    } catch(err) {
+      setBackupStatus('❌ 檔案格式錯誤，請確認是正確的備份 JSON', 'var(--red)');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = ''; // reset so same file can be re-imported
+}
+
+// ── CLEAR DATA ──
+function clearData() {
+  if (!confirm('確定要清除所有勾選與備註嗎？此動作無法復原（建議先匯出備份）')) return;
+  localStorage.removeItem(STORE);
+  location.reload();
+}
+
+function setBackupStatus(msg, color) {
+  const el = document.getElementById('backup-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = color || 'var(--sub)';
+  clearTimeout(el._tid);
+  el._tid = setTimeout(() => { el.textContent = ''; }, 5000);
 }
 
 // ── INIT ──
