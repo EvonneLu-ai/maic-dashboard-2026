@@ -216,7 +216,7 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
 <div class="prog-wrap">
   <div class="prog-row">
     <span class="prog-label">完成進度</span>
-    <span class="prog-num" id="prog-text">0 / 25</span>
+    <span class="prog-num" id="prog-text">0 / 23</span>
   </div>
   <div class="prog-bg"><div class="prog-fill" id="prog-bar"></div></div>
 </div>
@@ -240,7 +240,7 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
   <div class="sec-head">
     <div class="sec-icon si-data">📊</div>
     <span class="sec-title">數據與文件準備</span>
-    <span class="sec-count" id="cnt-data">0/3</span>
+    <span class="sec-count" id="cnt-data">0/2</span>
   </div>
   <div class="checklist" data-sec="data">
 
@@ -306,35 +306,6 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
       </div>
     </div>
 
-    <div class="item-wrap">
-      <div class="item-main" id="i3">
-        <div class="item-row">
-          <div class="cb" onclick="toggleMain(event,'i3')"><span class="cb-tick">✓</span></div>
-          <div class="item-body" onclick="expandToggle('i3')">
-            <div class="item-title">備妥合約、表單與待簽公文</div>
-            <div class="item-hint">避免現場漏帶，影響決策效率</div>
-          </div>
-          <button class="expand-btn" onclick="expandToggle('i3')"><span class="arrow">▶</span></button>
-          <span class="tag tag-must">必做</span>
-        </div>
-      </div>
-      <div class="detail" id="detail-i3">
-        <div class="detail-divider"></div>
-        <div class="sub-label">📂 文件清單</div>
-        <div class="sub-list">
-          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">需店長簽署的合約或公文（紙本 or 電子）</span></div>
-          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">MAIC 宣講會合作協議（如需）</span></div>
-          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">促銷品申請表 / 陳列授權表</span></div>
-          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">過往拜訪紀錄（上次遺留事項）</span></div>
-        </div>
-        <div class="note-label">✏️ 文件備忘</div>
-        <textarea class="note-area" data-key="n-i3" placeholder="e.g. 需帶宣講會合作確認書 2 份；上次遺留：海報更換申請未完成…" oninput="saveNote(this)"></textarea>
-        <div class="add-sub-row">
-          <input class="add-sub-input" type="text" placeholder="新增文件細項…" onkeydown="if(event.key==='Enter')addSub(this)">
-          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
-        </div>
-      </div>
-    </div>
 
   </div>
 </div>
@@ -344,7 +315,7 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
   <div class="sec-head">
     <div class="sec-icon si-comm">🎒</div>
     <span class="sec-title">溝通聯繫 & 設備準備</span>
-    <span class="sec-count" id="cnt-comm">0/3</span>
+    <span class="sec-count" id="cnt-comm">0/2</span>
   </div>
   <div class="checklist" data-sec="comm">
 
@@ -410,36 +381,6 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
       </div>
     </div>
 
-    <div class="item-wrap">
-      <div class="item-main" id="i6">
-        <div class="item-row">
-          <div class="cb" onclick="toggleMain(event,'i6')"><span class="cb-tick">✓</span></div>
-          <div class="item-body" onclick="expandToggle('i6')">
-            <div class="item-title">備齊 MAIC 宣傳物料</div>
-            <div class="item-hint">海報、DM、QR Code 立牌，出門前逐一核對</div>
-          </div>
-          <button class="expand-btn" onclick="expandToggle('i6')"><span class="arrow">▶</span></button>
-          <span class="tag tag-maic">MAIC</span>
-        </div>
-      </div>
-      <div class="detail" id="detail-i6">
-        <div class="detail-divider"></div>
-        <div class="sub-label">📦 物料清點</div>
-        <div class="sub-list">
-          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">MAIC 2026 活動海報（A4 / A3）</span></div>
-          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">DM / 傳單（建議 20 份以上）</span></div>
-          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">報名 QR Code 卡片 / 貼紙</span></div>
-          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">膠帶 / 立牌架</span></div>
-          <div class="sub-item" onclick="toggleSub(this)"><div class="sub-cb"><span class="sub-cb-tick">✓</span></div><span class="sub-text">個人名片 / MAIC 活動名片</span></div>
-        </div>
-        <div class="note-label">✏️ 數量記錄</div>
-        <textarea class="note-area" data-key="n-i6" placeholder="e.g. 海報 5 張、DM 30 份、QR Code 立牌 1 個…" oninput="saveNote(this)"></textarea>
-        <div class="add-sub-row">
-          <input class="add-sub-input" type="text" placeholder="新增物料細項…" onkeydown="if(event.key==='Enter')addSub(this)">
-          <button class="add-sub-btn" onclick="addSub(this.previousElementSibling)">＋ 新增</button>
-        </div>
-      </div>
-    </div>
 
   </div>
 </div>
