@@ -231,7 +231,7 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
     <span class="badge-hdr" id="hdr-date"></span>
     <div style="display:flex;align-items:center;gap:8px">
       <a class="exp-btn" href="https://docs.google.com/spreadsheets/d/1bB21tu-2JyIDBejqpNcMTH9-zGr3-8XHwZagbnnJwxU/edit" target="_blank" style="text-decoration:none">📊 Google Sheets</a>
-      <button class="exp-btn" onclick="downloadPDF()">📥 下載 PDF</button>
+      <button class="exp-btn" onclick="exportPDF()">🖨️ 列印 PDF</button>
       <div id="progress-ring" style="display:flex;flex-direction:column;align-items:center"></div>
     </div>
   </div>
@@ -336,6 +336,13 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
       <div class="ch200"><canvas id="channelChart"></canvas></div>
     </div>
   </div>
+
+  <hr>
+  <div class="sec">📲 社群媒體貼文成效 <span class="pill pill-mk">Marketing</span></div>
+  <div class="card">
+    <div class="card-title">Facebook / Instagram 貼文表現</div>
+    <div id="socialPostsList"></div>
+  </div>
 </div>
 
 <!-- ════════════ TRAINING ════════════ -->
@@ -413,47 +420,47 @@ const DATA = {
   meta: {
     title:       'MAIC Dashboard',
     subtitle:    '行動應用創新賽 · 2026 Season · Straight A × Apple',
-    dataAsOf:    '📅 資料截至 2026/04/17',
-    currentDate: '2026-04-17',  // ← 用於 7 天截止計算
+    dataAsOf:    '📅 資料截至 2026/04/20',
+    currentDate: '2026-04-22',  // ← 用於 7 天截止計算（今日 4/22）
   },
 
   // ── OPERATION：報名數據 KPI ───────────────────────────
   operation: {
     registrationTarget: 800,   // ← 報名目標隊伍數
-    registrationDateLabel: '截至 2026/04/15',
+    registrationDateLabel: '截至 2026/04/20',
 
     // 第一排 KPI（4格）
     kpi1: [
-      { label: '累計報名隊伍', value: '89', unit: '組', sub: '本週新增 +84 隊', badge: '⏫ 報名進行中', badgeClass: 'bo', color: 'var(--blue)' },
-      { label: '目標達成率',   value: '11.1%', unit: '', sub: 'TW Season 初期階段（89/800）', badge: '🎯 持續衝刺中', badgeClass: 'bo', color: 'var(--orange)' },
-      { label: '累計註冊帳號', value: '142',  unit: '位', sub: '已驗證帳號 142 位', badge: '持續成長中', badgeClass: 'bb', color: 'var(--teal)' },
-      { label: '報名學生人數', value: '142',  unit: '人', sub: '參加過 3 人（2.11%）', badge: '跨校跨系', badgeClass: 'bp', color: 'var(--purple)' },
-      { label: '涵蓋學校數',   value: '12',   unit: '所', sub: '全台各地學校', badge: '全台分佈', badgeClass: 'bb', color: 'var(--blue)' },
+      { label: '累計報名隊伍', value: '160', unit: '組', sub: '本週新增 +71 隊', badge: '⏫ 報名進行中', badgeClass: 'bo', color: 'var(--blue)' },
+      { label: '目標達成率',   value: '20.0%', unit: '', sub: 'TW Season 初期階段（160/800）', badge: '🎯 持續衝刺中', badgeClass: 'bo', color: 'var(--orange)' },
+      { label: '累計註冊帳號', value: '235',  unit: '位', sub: '已驗證帳號 235 位', badge: '持續成長中', badgeClass: 'bb', color: 'var(--teal)' },
+      { label: '報名學生人數', value: '235',  unit: '人', sub: '參加過 3 人（1.27%）', badge: '跨校跨系', badgeClass: 'bp', color: 'var(--purple)' },
+      { label: '涵蓋學校數',   value: '14',   unit: '所', sub: '全台各地學校', badge: '全台分佈', badgeClass: 'bb', color: 'var(--blue)' },
     ],
 
     // 第二排 KPI（3格）- 組別＋網站
     groupBreakdown: {
-      creative: 44, // 創意組
-      innovative: 40, // 創新組
-      startup: 50, // 創業組
-      submitted: 1, // 企劃書已繳
-      notSubmitted: 88, // 企劃書未繳
+      creative: 87,   // 創意組
+      innovative: 42, // 創新組
+      startup: 31,    // 創業組
+      submitted: 2,   // 企劃書已繳（創業組 2 筆）
+      notSubmitted: 226, // 企劃書未繳（107+66+53）
     },
     websites: [
-      { label: '🌐 maic.straighta.com.tw', value: '16,437', sub: '今日 +63 次瀏覽',   badge: '主要報名入口', color: 'var(--blue)' },
-      { label: '🌐 bts.straighta.com.tw',  value: '9,199',  sub: '今日 +42・附件下載 198/126/124', badge: '資源平台', color: 'var(--teal)' },
+      { label: '🌐 maic.straighta.com.tw', value: '18,470', sub: '今日 +60 次瀏覽',   badge: '主要報名入口', color: 'var(--blue)' },
+      { label: '🌐 bts.straighta.com.tw',  value: '9,940',  sub: '今日 +43・附件下載 232/142/149', badge: '資源平台', color: 'var(--teal)' },
     ],
 
-    // 科系分佈 Donut
+    // 科系分佈 Donut（截至 2026/04/20）
     deptChart: {
-      labels: ['教育(19%)', '資訊通訊科技(13%)', '藝術及人文(13%)', '工程、製造及營建(12%)', '社會科學、新聞及圖書資訊(12%)', '商業管理與法律(10%)', '其他(21%)'],
-      data:   [19, 13, 13, 12, 12, 10, 21],
+      labels: ['教育(34%)', '藝術及人文(15%)', '其他(17%)', '商業管理與法律(10%)', '科學、新聞學及圖書資訊(10%)', '資訊通訊科技(10%)', '製造及營建(4%)'],
+      data:   [34, 15, 17, 10, 10, 10, 4],
     },
 
-    // 學校分佈 Donut
+    // 學校分佈 Donut（截至 2026/04/20）
     schoolChart: {
-      labels: ['國立臺灣大學(57%)', '國立政治大學(13%)', '國立清華大學(8%)', '東海大學(7%)', '逢甲大學(6%)', '國立陽明交通大學(4%)', '臺北醫學大學(1%)', '慈濟科技大學(1%)', '國立臺中教育大學(1%)', '國立臺北科技大學(1%)', '其他(1%)'],
-      data:   [57, 13, 8, 7, 6, 4, 1, 1, 1, 1, 1],
+      labels: ['國立臺灣大學(35%)', '國立政治大學(26%)', '逢甲大學(12%)', '國立臺中教育大學(10%)', '國立清華大學(6%)', '東海大學(4%)', '國立陽明交通大學(3%)', '慈濟科技大學(1%)', '其他(3%)'],
+      data:   [35, 26, 12, 10, 6, 4, 3, 1, 3],
     },
 
     // 活動類型分佈 Donut + 進度條
@@ -536,10 +543,10 @@ const DATA = {
   // ── MARKETING：宣講會 KPI ─────────────────────────────
   marketing: {
     kpi1: [
-      { label: '已舉辦場次', value: '6', unit: '場', sub: '線下 5 + 線上 1', badge: '3月～4月', badgeClass: 'bo', color: 'var(--orange)' },
+      { label: '已舉辦場次', value: '7', unit: '場', sub: '線下 5 + 線上 1 + 課程公告 1', badge: '3月～4月', badgeClass: 'bo', color: 'var(--orange)' },
       { label: '最大單場人數', value: '150+', unit: '', sub: '高雄科技大學 3/18', badge: '燕巢校區', badgeClass: 'bb', color: 'var(--blue)' },
-      { label: '宣講累計出席', value: '265+', unit: '', sub: '6 場合計實際出席', badge: '線上+線下合計', badgeClass: 'bg', color: 'var(--green)' },
-      { label: '下一場（預計）', value: '清華大學', unit: '', sub: '4月下旬 TBC', badge: '協調中', badgeClass: 'bp', color: 'var(--purple)', smallVal: true },
+      { label: '宣講累計出席', value: '785+', unit: '', sub: '7 場合計（含資管系課程公告 520 人）', badge: '線上+線下合計', badgeClass: 'bg', color: 'var(--green)' },
+      { label: '下一場（預計）', value: '逢甲 4/24', unit: '', sub: '台大 4/30 工作坊', badge: '即將舉行', badgeClass: 'bp', color: 'var(--purple)', smallVal: true },
     ],
 
     // 宣講會清單
@@ -550,6 +557,7 @@ const DATA = {
       { school:'海洋大學',         date:'3/25', lecturer:'Brandi',         type:'線下', time:'12:20–12:40', people:15,  venue:'資訊工程學系',             note:'分享 Apple 創業基金後，學生興趣大增', color: '#34c759' },
       { school:'慈濟大學',         date:'4/1',  lecturer:'Lynn',           type:'線下', time:'16:10–16:30', people:45,  venue:'經管系 自媒體傳播課程',   note:'老師安排於課程中分享，學校及課程另外提供參賽及獲獎獎勵', color: '#ff3b30' },
       { school:'東華大學（線上）',  date:'4/2+4/9', lecturer:'Lynn',      type:'線上', time:'12:30–13:30', people:10,  venue:'線上',                   note:'學生敢於分享瞭解賽事的原因，積極了解比賽及參賽方式', color: '#5ac8fa' },
+      { school:'東華大學 資管系（課程公告）', date:'4/16', lecturer:'Lynn',  type:'課程公告', time:'',  people:520, venue:'必修 R 語言課程公告區（初中高級程式設計）', note:'資管系老師協助在必修 R 語言課程公告區發佈賽事資訊，受眾學生具程式語言背景，具備高關聯性', color: '#34c759' },
     ],
 
     // Email KPI（3格）
@@ -587,6 +595,23 @@ const DATA = {
       labels: ['東華全校公告', 'Email台大問卷', 'Email學生', 'Email教授', '東華社群LINE'],
       data:   [10000, 2637, 274, 82, 1259],
     },
+
+    // 社群媒體貼文成效
+    socialPosts: [
+      { date:'3/2', platform:'Facebook', account:'Straight A Apple授權校園店', event:'3月台大宣講會 (3/19)', views:1094, reach:624, interactions:3, linkClicks:5 },
+      { date:'3/2', platform:'Instagram', account:'straighta.apple', event:'3月台大宣講會 (3/19)', views:317, reach:154, interactions:1, linkClicks:0 },
+      { date:'4/7', platform:'Facebook', account:'Straight A Apple授權校園店', event:'4月台大宣講會 (4/30)', views:698, reach:386, interactions:1, linkClicks:5 },
+      { date:'4/7', platform:'Instagram', account:'straighta.apple', event:'4月台大宣講會 (4/30)', views:620, reach:354, interactions:8, linkClicks:0 },
+      { date:'4/21', platform:'Facebook', account:'Straight A Apple授權校園店', event:'新聞媒體分享（台灣隊勇奪雙一等獎）', views:253, reach:162, interactions:2, linkClicks:2 },
+      { date:'4/21', platform:'Facebook (STA)', account:'Straight A Apple授權校園店', event:'4/23線上宣講會推廣', views:188, reach:121, interactions:1, linkClicks:4 },
+      { date:'4/21', platform:'Facebook (SA)', account:'STUDIO A 晶實科技', event:'4/23線上宣講會推廣', views:463, reach:326, interactions:1, linkClicks:1 },
+      { date:'4/21', platform:'Instagram (STA)', account:'straighta.apple', event:'4/23線上宣講會推廣', views:98, reach:40, interactions:1, linkClicks:0 },
+      { date:'4/21', platform:'Instagram (SA)', account:'studioa.apple', event:'4/23線上宣講會推廣', views:177, reach:89, interactions:1, linkClicks:0 },
+      { date:'4/21', platform:'IG Story (STA)', account:'straighta.apple Story', event:'4/23線上宣講會推廣', views:33, reach:30, interactions:1, linkClicks:0 },
+      { date:'4/21', platform:'IG Story (SA)', account:'studioa.apple Story', event:'4/23線上宣講會推廣', views:99, reach:91, interactions:1, linkClicks:0 },
+      { date:'4/21', platform:'Facebook (STA)', account:'Straight A Apple授權校園店', event:'4/23 得獎感言訪談（生聲）', views:349, reach:235, interactions:1, linkClicks:0 },
+      { date:'4/21', platform:'Instagram (STA)', account:'straighta.apple', event:'4/23 得獎感言訪談（生聲）', views:646, reach:440, interactions:12, linkClicks:0 },
+    ],
   },
 
   // ── TRAINING：RTC 課程 ────────────────────────────────
@@ -940,7 +965,57 @@ new Chart(document.getElementById('channelChart'), {
   options: { responsive:true, maintainAspectRatio:false, cutout:'50%', plugins:{ legend:{ position:'bottom', labels:{ boxWidth:9, padding:6, font:{size:9.5} } } } }
 });
 
-// ════ TRAINING RENDER ════
+// 社群媒體貼文成效
+(function buildSocialPosts(){
+  const posts = DATA.marketing.socialPosts || [];
+  if (!posts.length) return;
+  const platIcons = { 'Facebook':'🔵', 'Instagram':'📸', 'Facebook (STA)':'🔵', 'Facebook (SA)':'🔵', 'Instagram (STA)':'📸', 'Instagram (SA)':'📸', 'IG Story (STA)':'📖', 'IG Story (SA)':'📖' };
+  const platColors = { 'Facebook':'#1877f2', 'Instagram':'#e1306c', 'Facebook (STA)':'#1877f2', 'Facebook (SA)':'#1877f2', 'Instagram (STA)':'#e1306c', 'Instagram (SA)':'#e1306c', 'IG Story (STA)':'#e1306c', 'IG Story (SA)':'#e1306c' };
+
+  // 分群：依 event 分組，方便閱讀
+  const groups = {};
+  posts.forEach(p => {
+    if (!groups[p.event]) groups[p.event] = [];
+    groups[p.event].push(p);
+  });
+
+  let html = '<table style="width:100%;font-size:11px;border-collapse:collapse">';
+  html += '<thead><tr>';
+  html += '<th style="padding:5px 8px;text-align:left;color:var(--text2);font-size:10px;font-weight:600;border-bottom:1.5px solid var(--border)">活動 / 貼文</th>';
+  html += '<th style="padding:5px 8px;text-align:left;color:var(--text2);font-size:10px;font-weight:600;border-bottom:1.5px solid var(--border)">平台</th>';
+  html += '<th style="padding:5px 8px;text-align:right;color:var(--text2);font-size:10px;font-weight:600;border-bottom:1.5px solid var(--border)">瀏覽</th>';
+  html += '<th style="padding:5px 8px;text-align:right;color:var(--text2);font-size:10px;font-weight:600;border-bottom:1.5px solid var(--border)">觸及</th>';
+  html += '<th style="padding:5px 8px;text-align:right;color:var(--text2);font-size:10px;font-weight:600;border-bottom:1.5px solid var(--border)">互動</th>';
+  html += '<th style="padding:5px 8px;text-align:right;color:var(--text2);font-size:10px;font-weight:600;border-bottom:1.5px solid var(--border)">連結點擊</th>';
+  html += '</tr></thead><tbody>';
+
+  let firstRow = true;
+  Object.entries(groups).forEach(([event, rows]) => {
+    rows.forEach((p, i) => {
+      const icon = platIcons[p.platform] || '📱';
+      const color = platColors[p.platform] || '#888';
+      if (i === 0 && !firstRow) {
+        html += `<tr><td colspan="6" style="padding:3px 0;border:none"></td></tr>`;
+      }
+      firstRow = false;
+      html += `<tr style="border-bottom:1px solid #f5f5f7">`;
+      if (i === 0) {
+        html += `<td rowspan="${rows.length}" style="padding:8px;vertical-align:top;font-weight:600;font-size:11px;border-right:1px solid var(--border)">
+          <span style="font-size:9px;color:var(--text2);display:block;margin-bottom:2px">${p.date}</span>${event}</td>`;
+      }
+      html += `<td style="padding:6px 8px"><span style="font-size:11px">${icon}</span> <span style="font-size:10px;font-weight:500;color:${color}">${p.platform}</span><div style="font-size:9px;color:var(--text2)">${p.account}</div></td>`;
+      html += `<td style="padding:6px 8px;text-align:right;font-weight:700;color:var(--blue)">${p.views.toLocaleString()}</td>`;
+      html += `<td style="padding:6px 8px;text-align:right;font-weight:600">${p.reach.toLocaleString()}</td>`;
+      html += `<td style="padding:6px 8px;text-align:right">${p.interactions}</td>`;
+      html += `<td style="padding:6px 8px;text-align:right">${p.linkClicks > 0 ? `<span style="font-weight:700;color:var(--orange)">${p.linkClicks}</span>` : '<span style="color:var(--text2)">–</span>'}</td>`;
+      html += `</tr>`;
+    });
+  });
+  html += '</tbody></table>';
+  document.getElementById('socialPostsList').innerHTML = html;
+})();
+
+
 
 // ── 自動標記已過期課程為「已完成」────────────────────────
 function autoMarkTrainingDone() {
@@ -1190,36 +1265,277 @@ function exportCSV() {
 // ════ EXPORT PDF ════
 function exportPDF() {
   var btn = document.querySelector('[onclick="exportPDF()"]');
-  if (btn) { btn.textContent = '⏳ 產生中…'; btn.disabled = true; }
+  if (btn) { btn.textContent = '⏳ 擷取圖表…'; btn.disabled = true; }
 
-  // 1. 展開所有分頁，確保 Chart.js 圖表正確渲染
+  // 展開所有分頁讓圖表渲染
   _printShowPages();
+  if (window.Chart && Chart.instances) {
+    Object.values(Chart.instances).forEach(function(c){ try{c.resize();}catch(e){} });
+  }
 
-  // 2. 等圖表重繪完成後，轉為靜態圖片再輸出
   setTimeout(function() {
-    _printCanvasToImg();
-
-    // 隱藏不需列印的 UI 元素
-    var hideEls = document.querySelectorAll('.tabs,.tl-btn,.exp-btn,button,.tl-filters,#tl-filter-bar,#tl-debug,.circ-wrap');
-    hideEls.forEach(function(el) { el.dataset.pdfHide = el.style.display; el.style.display = 'none'; });
+    // 截取 canvas 圖表為固定 PNG
+    var imgs = {};
+    ['deptChart','schoolChart','actTypeChart'].forEach(function(id){
+      var cv = document.getElementById(id);
+      if (cv) { try { imgs[id] = cv.toDataURL('image/png'); } catch(e){} }
+    });
+    _printRestore();
+    if (btn) { btn.textContent = '⏳ 產生 PDF…'; }
 
     var opt = {
-      margin:     [8, 8, 8, 8],
-      filename:   'MAIC-Dashboard-2026.pdf',
-      image:      { type: 'jpeg', quality: 0.97 },
-      html2canvas: { scale: 2, useCORS: true, logging: false, scrollY: 0 },
-      jsPDF:      { unit: 'mm', format: 'a4', orientation: 'landscape' },
-      pagebreak:  { mode: ['css', 'legacy'] }
+      margin: 0,
+      filename: 'MAIC2026_Dashboard_' + DATA.meta.currentDate + '.pdf',
+      image: { type: 'jpeg', quality: 0.97 },
+      html2canvas: {
+        scale: 2, useCORS: true, allowTaint: true,
+        logging: false, backgroundColor: '#ffffff',
+        scrollX: 0, scrollY: 0
+      },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: 'css', before: '.PDF_PB' }
     };
 
-    html2pdf().set(opt).from(document.body).save()
-      .then(function() {
-        // 還原
-        hideEls.forEach(function(el) { el.style.display = el.dataset.pdfHide || ''; delete el.dataset.pdfHide; });
-        _printRestore();
-        if (btn) { btn.textContent = '🖨️ 列印 PDF'; btn.disabled = false; }
+    html2pdf().set(opt).from(_buildPDFHTML(imgs)).save()
+      .then(function(){ if (btn) { btn.textContent = '🖨️ 列印 PDF'; btn.disabled = false; } })
+      .catch(function(e){ console.error(e); if (btn) { btn.textContent = '🖨️ 列印 PDF'; btn.disabled = false; } });
+  }, 600);
+}
+
+// ════ PDF HTML 產生器（100% inline styles，無 class 衝突）════
+function _buildPDFHTML(imgs) {
+  imgs = imgs || {};
+  var op = DATA.operation, mk = DATA.marketing, tr = DATA.training;
+  var gb = op.groupBreakdown, k1 = op.kpi1;
+  var dl = DATA.meta.dataAsOf.replace('\ud83d\udcc5 ', '').replace('📅 ', '');
+
+  // ── 顏色常數 ──
+  var C = {
+    blue:'#0071e3', orange:'#ff9500', green:'#34c759', purple:'#af52de',
+    teal:'#5ac8fa', red:'#ff3b30', gray:'#6e6e73', text:'#1d1d1f',
+    bg:'#f7f7f9', border:'#d8d8dc', white:'#ffffff'
+  };
+  var TC = { op:C.blue, mk:C.orange, tr:C.green, gc:C.purple };
+
+  // ── 元件函式（全 inline style）──
+  var W = '794px';
+  function HDR() {
+    return '<div style="background:'+C.blue+';color:#fff;padding:10px 40px 9px;">'
+         + '<div style="font-size:13pt;font-weight:700;">MAIC Dashboard 2026</div>'
+         + '<div style="font-size:7.5pt;opacity:.85;margin-top:2px;">行動應用創新賽 2026 Season | Straight A × Apple | '+dl+'</div>'
+         + '</div>';
+  }
+  function FTR(n, tot) {
+    return '<div style="text-align:center;font-size:7pt;color:'+C.gray+';background:#f5f5f7;padding:5px 40px;border-top:1px solid #e0e0e5;">'
+         + 'MAIC 2026 Dashboard · '+dl+' · '+n+' / '+tot+'</div>';
+  }
+  function SEC(title, color) {
+    color = color || C.blue;
+    return '<div style="font-size:11pt;font-weight:700;color:'+color+';padding-bottom:4px;border-bottom:1.5px solid '+color+';margin:14px 0 8px;">'+title+'</div>';
+  }
+  function KBOX(lbl, val, sub, color) {
+    color = color || C.blue;
+    return '<div style="flex:1;background:'+C.bg+';border:.5px solid '+C.border+';border-radius:5px;padding:8px 10px 7px;">'
+         + '<div style="font-size:7pt;color:'+C.gray+';margin-bottom:3px;font-weight:500;">'+lbl+'</div>'
+         + '<div style="font-size:18pt;font-weight:700;line-height:1.1;color:'+color+';">'+val+'</div>'
+         + (sub ? '<div style="font-size:6.5pt;color:'+C.gray+';margin-top:3px;">'+sub+'</div>' : '')
+         + '</div>';
+  }
+  function KROW(boxes) {
+    return '<div style="display:flex;gap:8px;margin-bottom:8px;">'+boxes.join('')+'</div>';
+  }
+  function PAGE(content, n, tot) {
+    return '<div style="width:'+W+';background:#fff;padding:28px 40px 0;">'
+         + content + FTR(n, tot) + '</div>';
+  }
+  function PB() {
+    return '<div class="PDF_PB" style="page-break-before:always;"></div>';
+  }
+  function TH(txt, align) {
+    return '<th style="background:#f0f0f5;padding:5px 7px;text-align:'+(align||'left')+';font-size:7.5pt;font-weight:600;color:#5e5e63;border-bottom:1px solid #d2d2d7;">'+txt+'</th>';
+  }
+  function TD(txt, align, extra) {
+    return '<td style="padding:5px 7px;border-bottom:.5px solid #ebebf0;vertical-align:middle;font-size:8pt;'+(align?'text-align:'+align+';':'')+(extra||'')+'">'+txt+'</td>';
+  }
+  function TABLE(head, rows, altColor) {
+    var h = '<table style="width:100%;border-collapse:collapse;font-size:8pt;margin-bottom:10px;"><thead><tr>'+head+'</tr></thead><tbody>';
+    rows.forEach(function(r,i){
+      h += '<tr style="'+(i%2&&altColor?'background:'+altColor+';':'')+'">' + r.join('') + '</tr>';
+    });
+    return h + '</tbody></table>';
+  }
+
+  // ── P1: 報名數據 ──
+  var p1 = HDR()
+    + '<div style="padding:0 0 0;">'
+    + SEC('報名數據總覽')
+    + KROW([
+        KBOX('累計報名隊伍', k1[0].value+' 組', '目標 '+op.registrationTarget+' 隊 ('+k1[1].value+')', C.blue),
+        KBOX('累計註冊帳號', k1[2].value+' 位', '已驗證帳號', C.teal),
+        KBOX('涵蓋學校數',   k1[4].value+' 所', '全台分佈', C.blue),
+        KBOX('報名學生人數', k1[3].value+' 人', k1[3].sub, C.purple)
+      ])
+    + KROW([
+        KBOX('創意組', gb.creative+' 隊', '', C.blue),
+        KBOX('創新組', gb.innovative+' 隊', '', C.orange),
+        KBOX('創業組', gb.startup+' 隊', '', C.green),
+        KBOX('企劃書已繳', String(gb.submitted), '未繳 '+gb.notSubmitted, C.green)
+      ])
+    + SEC('科系 &amp; 學校分佈', C.teal)
+    + '<div style="display:flex;gap:16px;margin-bottom:10px;">'
+      + '<div style="flex:1;"><div style="font-size:7.5pt;font-weight:600;color:'+C.gray+';margin-bottom:4px;">科系分佈</div>'
+        + (imgs.deptChart ? '<img src="'+imgs.deptChart+'" style="width:100%;max-width:230px;height:auto;display:block;">' : '') + '</div>'
+      + '<div style="flex:1;"><div style="font-size:7.5pt;font-weight:600;color:'+C.gray+';margin-bottom:4px;">學校分佈</div>'
+        + (imgs.schoolChart ? '<img src="'+imgs.schoolChart+'" style="width:100%;max-width:230px;height:auto;display:block;">' : '') + '</div>'
+    + '</div>'
+    + SEC('活動類型分佈 &amp; 網站瀏覽', C.orange)
+    + '<div style="display:flex;gap:16px;margin-bottom:8px;align-items:flex-start;">'
+      + '<div style="flex:0 0 160px;">'
+        + (imgs.actTypeChart ? '<img src="'+imgs.actTypeChart+'" style="width:160px;height:auto;display:block;">' : '') + '</div>'
+      + '<div style="flex:1;">' + KROW(op.websites.map(function(w){ return KBOX(w.label, w.value, w.sub, C.teal); })) + '</div>'
+    + '</div>'
+    + '</div>';
+
+  // ── P2: 宣講會 + EDM + 社群媒體 ──
+  var sessRows = mk.sessions.map(function(s,i){
+    return [TD(s.school),TD(s.date),TD(s.lecturer),TD(s.type),TD(s.people+' 人','right')];
+  });
+  var emailRows = mk.emails.map(function(e){
+    return [TD(e.name),TD(e.sent,'right'),TD(e.opened,'right'),TD(e.openRate+'%','right','font-weight:600;'),TD(e.clicks,'right'),TD(e.ctr+'%','right')];
+  });
+
+  // 社群媒體：依 event 分組後轉成表格列
+  var socialRows = [];
+  var posts = mk.socialPosts || [];
+  var groups = {};
+  posts.forEach(function(p){ if(!groups[p.event]) groups[p.event]=[]; groups[p.event].push(p); });
+  Object.keys(groups).forEach(function(event){
+    groups[event].forEach(function(p, i){
+      var eventCell = i===0
+        ? '<td rowspan="'+groups[event].length+'" style="padding:5px 7px;border-bottom:.5px solid #ebebf0;font-size:7.5pt;font-weight:600;vertical-align:top;border-right:1px solid #ebebf0;"><span style="font-size:6.5pt;color:#8e8e93;display:block;margin-bottom:2px;">'+p.date+'</span>'+event+'</td>'
+        : '';
+      socialRows.push(eventCell
+        + TD(p.platform) + TD(p.views.toLocaleString(),'right','font-weight:700;color:#0071e3;')
+        + TD(p.reach.toLocaleString(),'right') + TD(p.interactions,'right')
+        + TD(p.linkClicks > 0 ? String(p.linkClicks) : '–','right', p.linkClicks > 0 ? 'font-weight:700;color:#ff9500;' : 'color:#8e8e93;'));
+    });
+  });
+
+  var p2 = HDR()
+    + '<div style="padding:0;">'
+    + SEC('已完成宣講場次', C.orange)
+    + TABLE(TH('學校')+TH('日期')+TH('講師')+TH('形式')+TH('人數','right'), sessRows, '#fff8ee')
+    + SEC('EDM 信件成效', C.orange)
+    + TABLE(TH('信件名稱')+TH('寄出','right')+TH('開信','right')+TH('開信率','right')+TH('點擊','right')+TH('CTR','right'), emailRows, '#fff8ee')
+    + '</div>';
+
+  // P2b: 社群媒體貼文成效（獨立頁）
+  var p2b = HDR()
+    + '<div style="padding:0;">'
+    + SEC('社群媒體貼文成效', C.blue)
+    + (socialRows.length
+        ? '<table style="width:100%;border-collapse:collapse;font-size:8pt;margin-bottom:10px;">'
+          + '<thead><tr>'
+          + TH('活動 / 貼文') + TH('平台') + TH('瀏覽','right') + TH('觸及','right') + TH('互動','right') + TH('連結點擊','right')
+          + '</tr></thead><tbody>'
+          + socialRows.map(function(r, i){ return '<tr style="'+(i%2?'background:#eff6ff;':'')+'">' + r + '</tr>'; }).join('')
+          + '</tbody></table>'
+        : '<div style="color:#8e8e93;font-size:8pt;padding:16px 0;">（尚無社群媒體貼文資料）</div>')
+    + '</div>';
+
+  // ── 時間軸 helper ──
+  function buildTL(months) {
+    var h = '';
+    months.forEach(function(mg){
+      h += '<div style="background:#eff6ff;color:'+C.blue+';font-weight:700;font-size:9pt;padding:4px 8px;border-radius:3px;margin:6px 0 3px;">'+mg.month+'</div>';
+      mg.items.forEach(function(item){
+        var t = (item.type||'op').toLowerCase();
+        var tc = TC[t] || C.blue;
+        h += '<div style="display:flex;align-items:flex-start;gap:6px;padding:3px 4px;border-bottom:.5px solid #f3f3f5;">'
+           + '<div style="width:3px;background:'+tc+';border-radius:2px;flex-shrink:0;min-height:'+(item.meta?'14':'10')+'px;margin-top:1px;"></div>'
+           + '<div style="min-width:44px;font-size:7pt;color:'+C.gray+';flex-shrink:0;padding-top:1px;">'+item.date+'</div>'
+           + '<div><div style="font-size:7.5pt;font-weight:600;color:'+C.text+';">'+(item.name.length>68?item.name.slice(0,65)+'…':item.name)+'</div>'
+           + (item.meta ? '<div style="font-size:6.5pt;color:'+C.gray+';margin-top:1.5px;">'+(item.meta.length>78?item.meta.slice(0,75)+'…':item.meta)+'</div>' : '')
+           + '</div></div>';
       });
-  }, 500);
+    });
+    return h;
+  }
+
+  var tl = op.timeline;
+  var p3 = HDR()
+    + '<div style="padding:0;">'
+    + SEC('全年活動時間軸（3月 – 4月）')
+    + '<div style="display:flex;gap:16px;font-size:7pt;color:'+C.gray+';margin-bottom:8px;">'
+      + '<span style="display:flex;align-items:center;gap:4px;"><div style="width:9px;height:9px;border-radius:2px;background:'+C.blue+';"></div>Operation</span>'
+      + '<span style="display:flex;align-items:center;gap:4px;"><div style="width:9px;height:9px;border-radius:2px;background:'+C.orange+';"></div>Marketing</span>'
+      + '<span style="display:flex;align-items:center;gap:4px;"><div style="width:9px;height:9px;border-radius:2px;background:'+C.green+';"></div>Training</span>'
+      + '<span style="display:flex;align-items:center;gap:4px;"><div style="width:9px;height:9px;border-radius:2px;background:'+C.purple+';"></div>GC</span>'
+    + '</div>'
+    + buildTL(tl.filter(function(m){return m.month==='3月'||m.month==='4月';}))
+    + '</div>';
+
+  var p4 = HDR()
+    + '<div style="padding:0;">'
+    + SEC('全年活動時間軸（5月 – 以後）')
+    + buildTL(tl.filter(function(m){return m.month!=='3月'&&m.month!=='4月';}))
+    + '</div>';
+
+  // ── P5: Training ──
+  var rtcRows = tr.rtc.map(function(r,i){
+    return [TD(r.date),TD(r.name),TD(r.lecturer),TD(r.done?'✓ 已完成':'待執行','left',r.done?'color:#34c759;font-weight:600;':'color:#8e8e93;')];
+  });
+  var wsBody = [];
+  tr.workshops.forEach(function(wg){
+    wg.items.forEach(function(item,i){
+      wsBody.push([TD(wg.month),TD(item.date),TD(item.name),TD(item.format),TD(item.done?'✓ 完成':'待執行','left',item.done?'color:#34c759;font-weight:600;':'color:#8e8e93;')]);
+    });
+  });
+  var p5 = HDR()
+    + '<div style="padding:0;">'
+    + SEC('RTC 課程進度', C.green)
+    + TABLE(TH('日期')+TH('課程名稱')+TH('講師')+TH('狀態'), rtcRows, '#f0fdf5')
+    + SEC('多元能力強化講座', C.green)
+    + TABLE(TH('月份')+TH('日期')+TH('講座名稱')+TH('形式')+TH('狀態'), wsBody, '#f0fdf5')
+    + '</div>';
+
+  // ── P6: 決議追蹤 ──
+  var tOpen=0, tDone=0, tDelay=0;
+  DATA.decisions.forEach(function(g){g.items.forEach(function(i){var e=(typeof dcDoneIds!=='undefined'&&dcDoneIds.has(i.id))?'done':i.status;if(e==='open')tOpen++;else if(e==='done')tDone++;else tDelay++;});});
+  var decHTML = '';
+  DATA.decisions.forEach(function(g){
+    var items=g.items.filter(function(i){var e=(typeof dcDoneIds!=='undefined'&&dcDoneIds.has(i.id))?'done':i.status;return e==='open';});
+    if(!items.length) return;
+    decHTML += '<div style="font-size:8pt;font-weight:700;color:'+C.gray+';padding:4px 0 3px;border-bottom:.5px solid #d2d2d7;margin:10px 0 5px;display:flex;align-items:center;gap:8px;">📅 '+g.meeting
+             + ' <span style="font-size:7.5pt;font-weight:500;background:#f0f0f5;padding:1px 7px;border-radius:100px;">'+items.length+' 項</span></div>';
+    items.forEach(function(i){
+      var priC = {high:C.red,mid:C.orange,low:C.teal}[i.priority]||C.gray;
+      var priT = {high:'高優先',mid:'一般',low:'低'}[i.priority]||'一般';
+      decHTML += '<div style="display:flex;align-items:flex-start;gap:10px;padding:5px 8px 5px 10px;border-left:3px solid '+C.blue+';background:#f0f6ff;border-radius:0 4px 4px 0;margin-bottom:4px;">'
+               + '<div style="font-size:7pt;font-weight:700;color:'+C.blue+';min-width:70px;flex-shrink:0;padding-top:1px;">'+i.owner+'</div>'
+               + '<div style="font-size:7.5pt;flex:1;color:'+C.text+';">'+i.item+'</div>'
+               + '<div style="font-size:7pt;color:'+C.gray+';min-width:36px;flex-shrink:0;text-align:right;padding-top:1px;">'+i.deadline+'</div>'
+               + '<div style="font-size:6.5pt;font-weight:700;min-width:44px;flex-shrink:0;text-align:right;padding-top:1px;color:'+priC+';">'+priT+'</div>'
+               + '</div>';
+    });
+  });
+  var p6 = HDR()
+    + '<div style="padding:0;">'
+    + SEC('待辦決議追蹤', C.purple)
+    + '<div style="font-size:8pt;color:'+C.gray+';background:'+C.bg+';border-radius:5px;padding:6px 10px;margin-bottom:10px;">待處理 '+tOpen+' 項 | 延遲 '+tDelay+' | 已完成 '+tDone+'（不顯示）</div>'
+    + decHTML
+    + '</div>';
+
+  // ── 組合 7 頁 ──
+  return '<div style="font-family:-apple-system,\'Helvetica Neue\',Arial,sans-serif;color:#1d1d1f;background:#fff;width:'+W+';">'
+    + PAGE(p1,  1, 7) + PB()
+    + PAGE(p2,  2, 7) + PB()
+    + PAGE(p2b, 3, 7) + PB()
+    + PAGE(p3,  4, 7) + PB()
+    + PAGE(p4,  5, 7) + PB()
+    + PAGE(p5,  6, 7) + PB()
+    + PAGE(p6,  7, 7)
+    + '</div>';
 }
 
 // ════ DECISION TRACKER ════
@@ -1673,12 +1989,18 @@ function _printRestore() {
     if (p.dataset.wasHidden === '1') p.style.display = '';
     delete p.dataset.wasHidden;
   });
+  // 還原被 PDF 隱藏的決議項目
+  document.querySelectorAll('[data-pdf-dc-hide]').forEach(function(el) {
+    el.style.display = '';
+    el.removeAttribute('data-pdf-dc-hide');
+  });
 }
 
 // Cmd+P 直接列印：beforeprint 內無法等待，盡力而為
 window.addEventListener('beforeprint', function() {
   _printShowPages();
   _printCanvasToImg();
+  _printHideNonOpenDecisions();
 });
 window.addEventListener('afterprint', _printRestore);
 
