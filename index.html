@@ -1330,8 +1330,9 @@ function _buildPDFHTML(imgs) {
          + 'MAIC 2026 Dashboard · '+dl+' · '+n+' / '+tot+'</div>';
   }
   function SEC(title, color) {
-    color = color || C.blue;
-    return '<div style="font-size:11pt;font-weight:700;color:'+color+';padding-bottom:4px;border-bottom:1.5px solid '+color+';margin:14px 0 8px;">'+title+'</div>';
+    color = color || '#1d1d1f';
+    var lineColor = color === '#1d1d1f' ? '#d2d2d7' : color;
+    return '<div style="font-size:11pt;font-weight:700;color:'+color+';padding-bottom:4px;border-bottom:1.5px solid '+lineColor+';margin:14px 0 8px;">'+title+'</div>';
   }
   function KBOX(lbl, val, sub, color) {
     color = color || C.blue;
@@ -1384,9 +1385,9 @@ function _buildPDFHTML(imgs) {
     + SEC('科系 &amp; 學校分佈', C.teal)
     + '<div style="display:flex;gap:16px;margin-bottom:10px;">'
       + '<div style="flex:1;"><div style="font-size:7.5pt;font-weight:600;color:'+C.gray+';margin-bottom:4px;">科系分佈</div>'
-        + (imgs.deptChart ? '<img src="'+imgs.deptChart+'" style="width:100%;max-width:230px;height:auto;display:block;">' : '') + '</div>'
+        + (imgs.deptChart ? '<img src="'+imgs.deptChart+'" style="width:100%;max-width:270px;height:auto;display:block;">' : '') + '</div>'
       + '<div style="flex:1;"><div style="font-size:7.5pt;font-weight:600;color:'+C.gray+';margin-bottom:4px;">學校分佈</div>'
-        + (imgs.schoolChart ? '<img src="'+imgs.schoolChart+'" style="width:100%;max-width:230px;height:auto;display:block;">' : '') + '</div>'
+        + (imgs.schoolChart ? '<img src="'+imgs.schoolChart+'" style="width:100%;max-width:270px;height:auto;display:block;">' : '') + '</div>'
     + '</div>'
     + SEC('活動類型分佈 &amp; 網站瀏覽', C.orange)
     + '<div style="display:flex;gap:16px;margin-bottom:8px;align-items:flex-start;">'
@@ -1412,11 +1413,11 @@ function _buildPDFHTML(imgs) {
   Object.keys(groups).forEach(function(event){
     groups[event].forEach(function(p, i){
       var eventCell = i===0
-        ? '<td rowspan="'+groups[event].length+'" style="padding:5px 7px;border-bottom:.5px solid #ebebf0;font-size:7.5pt;font-weight:600;vertical-align:top;border-right:1px solid #ebebf0;"><span style="font-size:6.5pt;color:#8e8e93;display:block;margin-bottom:2px;">'+p.date+'</span>'+event+'</td>'
+        ? '<td rowspan="'+groups[event].length+'" style="padding:5px 7px;border-bottom:.5px solid #ebebf0;font-size:7pt;font-weight:600;vertical-align:top;border-right:1px solid #ebebf0;min-width:150px;word-wrap:break-word;overflow-wrap:break-word;"><span style="font-size:6.5pt;color:#8e8e93;display:block;margin-bottom:2px;">'+p.date+'</span>'+event+'</td>'
         : '';
       socialRows.push(eventCell
-        + TD(p.platform) + TD(p.views.toLocaleString(),'right','font-weight:700;color:#0071e3;')
-        + TD(p.reach.toLocaleString(),'right') + TD(p.interactions,'right')
+        + TD(p.platform,'left','white-space:nowrap;') + TD(p.views.toLocaleString(),'right','font-weight:700;color:#0071e3;white-space:nowrap;')
+        + TD(p.reach.toLocaleString(),'right','white-space:nowrap;') + TD(p.interactions,'right','white-space:nowrap;')
         + TD(p.linkClicks > 0 ? String(p.linkClicks) : '–','right', p.linkClicks > 0 ? 'font-weight:700;color:#ff9500;' : 'color:#8e8e93;'));
     });
   });
@@ -1436,7 +1437,7 @@ function _buildPDFHTML(imgs) {
     + (socialRows.length
         ? '<table style="width:100%;border-collapse:collapse;font-size:8pt;margin-bottom:10px;">'
           + '<thead><tr>'
-          + TH('活動 / 貼文') + TH('平台') + TH('瀏覽','right') + TH('觸及','right') + TH('互動','right') + TH('連結點擊','right')
+          + TH('活動 / 貼文') + TH('平台') + TH('瀏覽','right') + TH('觸及','right') + TH('互動','right') + TH('點擊','right')
           + '</tr></thead><tbody>'
           + socialRows.map(function(r, i){ return '<tr style="'+(i%2?'background:#eff6ff;':'')+'">' + r + '</tr>'; }).join('')
           + '</tbody></table>'
