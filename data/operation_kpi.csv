@@ -1,18 +1,18 @@
 field,value,note
-teams,89,累計報名隊伍數
-teams_new_this_week,+84,本週新增隊伍
-accounts,142,累計註冊帳號
-students,142,報名學生人數
+teams,160,累計報名隊伍數
+teams_new_this_week,+71,本週新增隊伍
+accounts,235,累計註冊帳號
+students,235,報名學生人數
 students_returning,3,參加過 N 人（用於計算百分比）
-schools,12,涵蓋學校數
+schools,14,涵蓋學校數
 creative,44,創意組隊數
 innovative,40,創新組隊數
 startup,50,創業組隊數
 submitted,1,企劃書已繳
 not_submitted,88,企劃書未繳
 website1_label,🌐 maic.straighta.com.tw,網站1 名稱
-website1_views,16437,網站1 瀏覽數
-website1_today,+63,網站1 今日新增
+website1_views,18470,網站1 瀏覽數
+website1_today,+60,網站1 今日新增
 website2_label,🌐 bts.straighta.com.tw,網站2 名稱
-website2_views,9199,網站2 瀏覽數
-website2_today,+42,網站2 今日新增
+website2_views,9940,網站2 瀏覽數
+website2_today,+43,網站2 今日新增
