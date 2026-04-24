@@ -1302,9 +1302,16 @@ function exportPDF() {
       filename: 'MAIC2026_Dashboard_' + DATA.meta.currentDate + '.pdf',
       image: { type: 'jpeg', quality: 0.97 },
       html2canvas: {
-        scale: 2, useCORS: true, allowTaint: true,
-        logging: false, backgroundColor: '#ffffff',
-        scrollX: 0, scrollY: 0
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: 794,          // 與 PDF 頁面寬度一致，防止 responsive 斷點影響佈局
+        letterRendering: true,     // 改善中文字符渲染準確性
+        foreignObjectRendering: false  // 關閉 foreignObject，避免跨瀏覽器渲染差異
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: 'css', before: '.PDF_PB' }
@@ -1331,50 +1338,54 @@ function _buildPDFHTML(imgs) {
   };
   var TC = { op:C.blue, mk:C.orange, tr:C.green, gc:C.purple };
 
-  // ── 元件函式（全 inline style）──
+  // ── 元件函式（全 inline style，所有顏色硬編碼，不依賴 CSS 繼承）──
   var W = '794px';
+  var BASE = 'font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;color:#1d1d1f;background:#ffffff;-webkit-print-color-adjust:exact;';
   function HDR() {
-    return '<div style="background:'+C.blue+';color:#fff;padding:10px 40px 9px;">'
-         + '<div style="font-size:13pt;font-weight:700;">MAIC Dashboard 2026</div>'
-         + '<div style="font-size:7.5pt;opacity:.85;margin-top:2px;">行動應用創新賽 2026 Season | Straight A × Apple | '+dl+'</div>'
+    return '<div style="background:#0071e3;color:#ffffff;padding:10px 40px 9px;">'
+         + '<div style="font-size:13pt;font-weight:700;color:#ffffff;">MAIC Dashboard 2026</div>'
+         + '<div style="font-size:7.5pt;color:rgba(255,255,255,0.85);margin-top:2px;">行動應用創新賽 2026 Season | Straight A × Apple | '+dl+'</div>'
          + '</div>';
   }
   function FTR(n, tot) {
-    return '<div style="text-align:center;font-size:7pt;color:'+C.gray+';background:#f5f5f7;padding:5px 40px;border-top:1px solid #e0e0e5;">'
+    return '<div style="text-align:center;font-size:7pt;color:#6e6e73;background:#f5f5f7;padding:5px 40px;border-top:1px solid #e0e0e5;">'
          + 'MAIC 2026 Dashboard · '+dl+' · '+n+' / '+tot+'</div>';
   }
   function SEC(title, color) {
-    color = color || C.blue;
+    color = color || '#0071e3';
     return '<div style="font-size:11pt;font-weight:700;color:'+color+';padding-bottom:4px;border-bottom:1.5px solid '+color+';margin:14px 0 8px;">'+title+'</div>';
   }
   function KBOX(lbl, val, sub, color) {
-    color = color || C.blue;
-    return '<div style="flex:1;background:'+C.bg+';border:.5px solid '+C.border+';border-radius:5px;padding:8px 10px 7px;">'
-         + '<div style="font-size:7pt;color:'+C.gray+';margin-bottom:3px;font-weight:500;">'+lbl+'</div>'
+    color = color || '#0071e3';
+    return '<div style="flex:1;background:#f7f7f9;border:.5px solid #d8d8dc;border-radius:5px;padding:8px 10px 7px;">'
+         + '<div style="font-size:7pt;color:#6e6e73;margin-bottom:3px;font-weight:500;">'+lbl+'</div>'
          + '<div style="font-size:18pt;font-weight:700;line-height:1.1;color:'+color+';">'+val+'</div>'
-         + (sub ? '<div style="font-size:6.5pt;color:'+C.gray+';margin-top:3px;">'+sub+'</div>' : '')
+         + (sub ? '<div style="font-size:6.5pt;color:#6e6e73;margin-top:3px;">'+sub+'</div>' : '')
          + '</div>';
   }
   function KROW(boxes) {
     return '<div style="display:flex;gap:8px;margin-bottom:8px;">'+boxes.join('')+'</div>';
   }
   function PAGE(content, n, tot) {
-    return '<div style="width:'+W+';background:#fff;padding:28px 40px 0;">'
+    // color:#1d1d1f 確保 html2canvas iframe 中所有文字有正確基底色
+    return '<div style="width:'+W+';background:#ffffff;color:#1d1d1f;'+BASE+'padding:28px 40px 0;">'
          + content + FTR(n, tot) + '</div>';
   }
   function PB() {
     return '<div class="PDF_PB" style="page-break-before:always;"></div>';
   }
   function TH(txt, align) {
-    return '<th style="background:#f0f0f5;padding:5px 7px;text-align:'+(align||'left')+';font-size:7.5pt;font-weight:600;color:#5e5e63;border-bottom:1px solid #d2d2d7;">'+txt+'</th>';
+    // 背景和文字顏色都明確指定，不依賴任何繼承
+    return '<th style="background:#f0f0f5;padding:5px 7px;text-align:'+(align||'left')+';font-size:7.5pt;font-weight:600;color:#3d3d3d;border-bottom:1px solid #d2d2d7;letter-spacing:0;">'+txt+'</th>';
   }
   function TD(txt, align, extra) {
-    return '<td style="padding:5px 7px;border-bottom:.5px solid #ebebf0;vertical-align:middle;font-size:8pt;'+(align?'text-align:'+align+';':'')+(extra||'')+'">'+txt+'</td>';
+    // color:#1d1d1f 每格都明確，不靠繼承
+    return '<td style="padding:5px 7px;border-bottom:.5px solid #ebebf0;vertical-align:middle;font-size:8pt;color:#1d1d1f;'+(align?'text-align:'+align+';':'')+(extra||'')+'">'+txt+'</td>';
   }
   function TABLE(head, rows, altColor) {
-    var h = '<table style="width:100%;border-collapse:collapse;font-size:8pt;margin-bottom:10px;"><thead><tr>'+head+'</tr></thead><tbody>';
+    var h = '<table style="width:100%;border-collapse:collapse;font-size:8pt;margin-bottom:10px;color:#1d1d1f;"><thead><tr>'+head+'</tr></thead><tbody>';
     rows.forEach(function(r,i){
-      h += '<tr style="'+(i%2&&altColor?'background:'+altColor+';':'')+'">' + r.join('') + '</tr>';
+      h += '<tr style="color:#1d1d1f;'+(i%2&&altColor?'background:'+altColor+';':'')+'">' + r.join('') + '</tr>';
     });
     return h + '</tbody></table>';
   }
@@ -1461,15 +1472,15 @@ function _buildPDFHTML(imgs) {
   function buildTL(months) {
     var h = '';
     months.forEach(function(mg){
-      h += '<div style="background:#eff6ff;color:'+C.blue+';font-weight:700;font-size:9pt;padding:4px 8px;border-radius:3px;margin:6px 0 3px;">'+mg.month+'</div>';
+      h += '<div style="background:#eff6ff;color:#0071e3;font-weight:700;font-size:9pt;padding:4px 8px;border-radius:3px;margin:6px 0 3px;">'+mg.month+'</div>';
       mg.items.forEach(function(item){
         var t = (item.type||'op').toLowerCase();
         var tc = TC[t] || C.blue;
-        h += '<div style="display:flex;align-items:flex-start;gap:6px;padding:3px 4px;border-bottom:.5px solid #f3f3f5;">'
+        h += '<div style="display:flex;align-items:flex-start;gap:6px;padding:3px 4px;border-bottom:.5px solid #f3f3f5;color:#1d1d1f;">'
            + '<div style="width:3px;background:'+tc+';border-radius:2px;flex-shrink:0;min-height:'+(item.meta?'14':'10')+'px;margin-top:1px;"></div>'
-           + '<div style="min-width:44px;font-size:7pt;color:'+C.gray+';flex-shrink:0;padding-top:1px;">'+item.date+'</div>'
-           + '<div><div style="font-size:7.5pt;font-weight:600;color:'+C.text+';">'+(item.name.length>68?item.name.slice(0,65)+'…':item.name)+'</div>'
-           + (item.meta ? '<div style="font-size:6.5pt;color:'+C.gray+';margin-top:1.5px;">'+(item.meta.length>78?item.meta.slice(0,75)+'…':item.meta)+'</div>' : '')
+           + '<div style="min-width:44px;font-size:7pt;color:#6e6e73;flex-shrink:0;padding-top:1px;">'+item.date+'</div>'
+           + '<div><div style="font-size:7.5pt;font-weight:600;color:#1d1d1f;">'+(item.name.length>68?item.name.slice(0,65)+'…':item.name)+'</div>'
+           + (item.meta ? '<div style="font-size:6.5pt;color:#6e6e73;margin-top:1.5px;">'+(item.meta.length>78?item.meta.slice(0,75)+'…':item.meta)+'</div>' : '')
            + '</div></div>';
       });
     });
@@ -1480,11 +1491,11 @@ function _buildPDFHTML(imgs) {
   var p3 = HDR()
     + '<div style="padding:0;">'
     + SEC('全年活動時間軸（3月 – 4月）')
-    + '<div style="display:flex;gap:16px;font-size:7pt;color:'+C.gray+';margin-bottom:8px;">'
-      + '<span style="display:flex;align-items:center;gap:4px;"><div style="width:9px;height:9px;border-radius:2px;background:'+C.blue+';"></div>Operation</span>'
-      + '<span style="display:flex;align-items:center;gap:4px;"><div style="width:9px;height:9px;border-radius:2px;background:'+C.orange+';"></div>Marketing</span>'
-      + '<span style="display:flex;align-items:center;gap:4px;"><div style="width:9px;height:9px;border-radius:2px;background:'+C.green+';"></div>Training</span>'
-      + '<span style="display:flex;align-items:center;gap:4px;"><div style="width:9px;height:9px;border-radius:2px;background:'+C.purple+';"></div>GC</span>'
+    + '<div style="display:flex;gap:16px;font-size:7pt;color:#6e6e73;margin-bottom:8px;">'
+      + '<span style="display:flex;align-items:center;gap:4px;"><div style="width:9px;height:9px;border-radius:2px;background:#0071e3;"></div><span style="color:#6e6e73;">Operation</span></span>'
+      + '<span style="display:flex;align-items:center;gap:4px;"><div style="width:9px;height:9px;border-radius:2px;background:#ff9500;"></div><span style="color:#6e6e73;">Marketing</span></span>'
+      + '<span style="display:flex;align-items:center;gap:4px;"><div style="width:9px;height:9px;border-radius:2px;background:#34c759;"></div><span style="color:#6e6e73;">Training</span></span>'
+      + '<span style="display:flex;align-items:center;gap:4px;"><div style="width:9px;height:9px;border-radius:2px;background:#af52de;"></div><span style="color:#6e6e73;">GC</span></span>'
     + '</div>'
     + buildTL(tl.filter(function(m){return m.month==='3月'||m.month==='4月';}))
     + '</div>';
@@ -1541,7 +1552,8 @@ function _buildPDFHTML(imgs) {
     + '</div>';
 
   // ── 組合 6 頁（決議追蹤不列印）──
-  return '<div style="font-family:-apple-system,\'Helvetica Neue\',Arial,sans-serif;color:#1d1d1f;background:#fff;width:'+W+';">'
+  // 最外層加完整 CSS reset，防止 html2canvas iframe 繼承主頁的任何 CSS 變數或樣式
+  return '<div style="'+BASE+'width:'+W+';margin:0;padding:0;">'
     + PAGE(p1,  1, 6) + PB()
     + PAGE(p2,  2, 6) + PB()
     + PAGE(p2b, 3, 6) + PB()
