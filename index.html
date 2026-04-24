@@ -198,6 +198,17 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
 
   /* 段落標題前不換頁 */
   .sec{page-break-after:avoid!important;break-after:avoid!important}
+
+  /* ── 社群媒體貼文成效表格：修正 CSS variable 在列印時失效造成文字消失 ── */
+  #socialPostsList table{page-break-inside:auto!important;break-inside:auto!important}
+  #socialPostsList thead{display:table-header-group!important}
+  #socialPostsList th{color:#5e5e63!important;border-bottom:1.5px solid #d2d2d7!important;background:#f5f5f7!important}
+  #socialPostsList td{color:#1d1d1f!important;border-color:#ebebf0!important}
+  #socialPostsList .sp-views{color:#0071e3!important}
+  #socialPostsList .sp-click{color:#ff9500!important}
+  #socialPostsList .sp-muted{color:#6e6e73!important}
+  #socialPostsList .sp-event{color:#1d1d1f!important}
+  #socialPostsList .sp-date{color:#6e6e73!important}
 }
 
 /* ── CSV Import Modal ── */
@@ -981,12 +992,12 @@ new Chart(document.getElementById('channelChart'), {
 
   let html = '<table style="width:100%;font-size:11px;border-collapse:collapse">';
   html += '<thead><tr>';
-  html += '<th style="padding:5px 8px;text-align:left;color:var(--text2);font-size:10px;font-weight:600;border-bottom:1.5px solid var(--border)">活動 / 貼文</th>';
-  html += '<th style="padding:5px 8px;text-align:left;color:var(--text2);font-size:10px;font-weight:600;border-bottom:1.5px solid var(--border)">平台</th>';
-  html += '<th style="padding:5px 8px;text-align:right;color:var(--text2);font-size:10px;font-weight:600;border-bottom:1.5px solid var(--border)">瀏覽</th>';
-  html += '<th style="padding:5px 8px;text-align:right;color:var(--text2);font-size:10px;font-weight:600;border-bottom:1.5px solid var(--border)">觸及</th>';
-  html += '<th style="padding:5px 8px;text-align:right;color:var(--text2);font-size:10px;font-weight:600;border-bottom:1.5px solid var(--border)">互動</th>';
-  html += '<th style="padding:5px 8px;text-align:right;color:var(--text2);font-size:10px;font-weight:600;border-bottom:1.5px solid var(--border)">連結點擊</th>';
+  html += '<th style="padding:5px 8px;text-align:left;color:#5e5e63;font-size:10px;font-weight:600;border-bottom:1.5px solid #d2d2d7;background:#f5f5f7">活動 / 貼文</th>';
+  html += '<th style="padding:5px 8px;text-align:left;color:#5e5e63;font-size:10px;font-weight:600;border-bottom:1.5px solid #d2d2d7;background:#f5f5f7">平台</th>';
+  html += '<th style="padding:5px 8px;text-align:right;color:#5e5e63;font-size:10px;font-weight:600;border-bottom:1.5px solid #d2d2d7;background:#f5f5f7">瀏覽</th>';
+  html += '<th style="padding:5px 8px;text-align:right;color:#5e5e63;font-size:10px;font-weight:600;border-bottom:1.5px solid #d2d2d7;background:#f5f5f7">觸及</th>';
+  html += '<th style="padding:5px 8px;text-align:right;color:#5e5e63;font-size:10px;font-weight:600;border-bottom:1.5px solid #d2d2d7;background:#f5f5f7">互動</th>';
+  html += '<th style="padding:5px 8px;text-align:right;color:#5e5e63;font-size:10px;font-weight:600;border-bottom:1.5px solid #d2d2d7;background:#f5f5f7">連結點擊</th>';
   html += '</tr></thead><tbody>';
 
   let firstRow = true;
@@ -1000,14 +1011,14 @@ new Chart(document.getElementById('channelChart'), {
       firstRow = false;
       html += `<tr style="border-bottom:1px solid #f5f5f7">`;
       if (i === 0) {
-        html += `<td rowspan="${rows.length}" style="padding:8px;vertical-align:top;font-weight:600;font-size:11px;border-right:1px solid var(--border)">
-          <span style="font-size:9px;color:var(--text2);display:block;margin-bottom:2px">${p.date}</span>${event}</td>`;
+        html += `<td rowspan="${rows.length}" class="sp-event" style="padding:8px;vertical-align:top;font-weight:600;font-size:11px;color:#1d1d1f;border-right:1px solid #d2d2d7">
+          <span class="sp-date" style="font-size:9px;color:#6e6e73;display:block;margin-bottom:2px">${p.date}</span>${event}</td>`;
       }
-      html += `<td style="padding:6px 8px"><span style="font-size:11px">${icon}</span> <span style="font-size:10px;font-weight:500;color:${color}">${p.platform}</span><div style="font-size:9px;color:var(--text2)">${p.account}</div></td>`;
-      html += `<td style="padding:6px 8px;text-align:right;font-weight:700;color:var(--blue)">${p.views.toLocaleString()}</td>`;
-      html += `<td style="padding:6px 8px;text-align:right;font-weight:600">${p.reach.toLocaleString()}</td>`;
-      html += `<td style="padding:6px 8px;text-align:right">${p.interactions}</td>`;
-      html += `<td style="padding:6px 8px;text-align:right">${p.linkClicks > 0 ? `<span style="font-weight:700;color:var(--orange)">${p.linkClicks}</span>` : '<span style="color:var(--text2)">–</span>'}</td>`;
+      html += `<td style="padding:6px 8px;color:#1d1d1f"><span style="font-size:11px">${icon}</span> <span style="font-size:10px;font-weight:500;color:${color}">${p.platform}</span><div class="sp-muted" style="font-size:9px;color:#6e6e73">${p.account}</div></td>`;
+      html += `<td class="sp-views" style="padding:6px 8px;text-align:right;font-weight:700;color:#0071e3">${p.views.toLocaleString()}</td>`;
+      html += `<td style="padding:6px 8px;text-align:right;font-weight:600;color:#1d1d1f">${p.reach.toLocaleString()}</td>`;
+      html += `<td style="padding:6px 8px;text-align:right;color:#1d1d1f">${p.interactions}</td>`;
+      html += `<td style="padding:6px 8px;text-align:right">${p.linkClicks > 0 ? `<span class="sp-click" style="font-weight:700;color:#ff9500">${p.linkClicks}</span>` : '<span class="sp-muted" style="color:#6e6e73">–</span>'}</td>`;
       html += `</tr>`;
     });
   });
