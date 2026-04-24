@@ -190,6 +190,9 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
   #page-marketing{page-break-after:always}
   #page-training{page-break-after:always}
 
+  /* 決議追蹤頁不列印 */
+  #page-decision{display:none!important}
+
   /* 圖表區塊 */
   .ch200,.ch240,.ch260{
     page-break-inside:avoid!important;
@@ -1537,15 +1540,14 @@ function _buildPDFHTML(imgs) {
     + decHTML
     + '</div>';
 
-  // ── 組合 7 頁 ──
+  // ── 組合 6 頁（決議追蹤不列印）──
   return '<div style="font-family:-apple-system,\'Helvetica Neue\',Arial,sans-serif;color:#1d1d1f;background:#fff;width:'+W+';">'
-    + PAGE(p1,  1, 7) + PB()
-    + PAGE(p2,  2, 7) + PB()
-    + PAGE(p2b, 3, 7) + PB()
-    + PAGE(p3,  4, 7) + PB()
-    + PAGE(p4,  5, 7) + PB()
-    + PAGE(p5,  6, 7) + PB()
-    + PAGE(p6,  7, 7)
+    + PAGE(p1,  1, 6) + PB()
+    + PAGE(p2,  2, 6) + PB()
+    + PAGE(p2b, 3, 6) + PB()
+    + PAGE(p3,  4, 6) + PB()
+    + PAGE(p4,  5, 6) + PB()
+    + PAGE(p5,  6, 6)
     + '</div>';
 }
 
