@@ -1403,8 +1403,8 @@ function _buildPDFHTML(imgs) {
     + '</div>'
     + SEC('活動類型分佈 &amp; 網站瀏覽', C.orange)
     + '<div style="display:flex;gap:16px;margin-bottom:8px;align-items:flex-start;">'
-      + '<div style="flex:0 0 160px;">'
-        + (imgs.actTypeChart ? '<img src="'+imgs.actTypeChart+'" style="width:160px;height:auto;display:block;">' : '') + '</div>'
+      + '<div style="flex:0 0 220px;">'
+        + (imgs.actTypeChart ? '<img src="'+imgs.actTypeChart+'" style="width:220px;height:auto;display:block;">' : '') + '</div>'
       + '<div style="flex:1;">' + KROW(op.websites.map(function(w){ return KBOX(w.label, w.value, w.sub, C.teal); })) + '</div>'
     + '</div>'
     + '</div>';
@@ -1418,19 +1418,28 @@ function _buildPDFHTML(imgs) {
   });
 
   // 社群媒體：依 event 分組後轉成表格列
+  // 注意：html2canvas 不支援 rowspan，改用「首行顯示事件名、後續行留空」
   var socialRows = [];
   var posts = mk.socialPosts || [];
   var groups = {};
   posts.forEach(function(p){ if(!groups[p.event]) groups[p.event]=[]; groups[p.event].push(p); });
   Object.keys(groups).forEach(function(event){
     groups[event].forEach(function(p, i){
-      var eventCell = i===0
-        ? '<td rowspan="'+groups[event].length+'" style="padding:5px 7px;border-bottom:.5px solid #ebebf0;font-size:7pt;font-weight:600;vertical-align:top;border-right:1px solid #ebebf0;width:220px;max-width:220px;white-space:normal;word-break:break-word;line-height:1.5;"><span style="font-size:6.5pt;color:#8e8e93;display:block;margin-bottom:2px;">'+p.date+'</span>'+event+'</td>'
-        : '';
+      // 首行顯示日期 + 事件名稱，後續行顯示空白格（帶左邊框延續感）
+      var isFirst = (i === 0);
+      var isLast  = (i === groups[event].length - 1);
+      var borderBottom = isLast ? '.5px solid #d2d2d7' : 'none';
+      var eventCell = isFirst
+        ? '<td style="padding:5px 7px;border-bottom:'+borderBottom+';border-right:1px solid #ebebf0;width:200px;max-width:200px;white-space:normal;word-break:break-word;line-height:1.5;vertical-align:top;font-size:7pt;font-weight:600;color:#1d1d1f;">'
+          + '<span style="font-size:6.5pt;color:#8e8e93;display:block;margin-bottom:2px;">'+p.date+'</span>'+event+'</td>'
+        : '<td style="padding:0;border-bottom:'+borderBottom+';border-right:1px solid #ebebf0;width:200px;background:linear-gradient(to right,#e8edf2 2px,transparent 2px);"></td>';
       socialRows.push(eventCell
-        + TD(p.platform) + TD(p.views.toLocaleString(),'right','font-weight:700;color:#0071e3;')
-        + TD(p.reach.toLocaleString(),'right') + TD(p.interactions,'right')
-        + TD(p.linkClicks > 0 ? String(p.linkClicks) : '–','right', p.linkClicks > 0 ? 'font-weight:700;color:#ff9500;' : 'color:#8e8e93;'));
+        + TD(p.platform,'left','border-bottom:'+borderBottom+';')
+        + TD(p.views.toLocaleString(),'right','font-weight:700;color:#0071e3;border-bottom:'+borderBottom+';')
+        + TD(p.reach.toLocaleString(),'right','border-bottom:'+borderBottom+';')
+        + TD(p.interactions,'right','border-bottom:'+borderBottom+';')
+        + TD(p.linkClicks > 0 ? String(p.linkClicks) : '–','right',
+            (p.linkClicks > 0 ? 'font-weight:700;color:#ff9500;' : 'color:#8e8e93;')+'border-bottom:'+borderBottom+';'));
     });
   });
 
