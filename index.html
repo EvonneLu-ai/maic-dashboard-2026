@@ -1288,11 +1288,28 @@ function exportPDF() {
   }
 
   setTimeout(function() {
-    // 截取 canvas 圖表為固定 PNG
+    // 高解析度截取 canvas 圖表：先放大 canvas 再截圖，確保 PDF 中清晰
     var imgs = {};
+    var CHART_SCALE = 3; // 截圖倍率（3x 確保 PDF 中圖表清晰）
     ['deptChart','schoolChart','actTypeChart'].forEach(function(id){
       var cv = document.getElementById(id);
-      if (cv) { try { imgs[id] = cv.toDataURL('image/png'); } catch(e){} }
+      if (!cv) return;
+      try {
+        // 建立高解析度離屏 canvas
+        var w = cv.offsetWidth  || 300;
+        var h = cv.offsetHeight || 200;
+        var offscreen = document.createElement('canvas');
+        offscreen.width  = w * CHART_SCALE;
+        offscreen.height = h * CHART_SCALE;
+        var ctx = offscreen.getContext('2d');
+        ctx.scale(CHART_SCALE, CHART_SCALE);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(cv, 0, 0, w, h);
+        imgs[id] = offscreen.toDataURL('image/png');
+      } catch(e) {
+        imgs[id] = cv.toDataURL('image/png'); // fallback
+      }
     });
     _printRestore();
     if (btn) { btn.textContent = '⏳ 產生 PDF…'; }
@@ -1395,11 +1412,15 @@ function _buildPDFHTML(imgs) {
         KBOX('企劃書已繳', String(gb.submitted), '未繳 '+gb.notSubmitted, C.green)
       ])
     + SEC('科系 &amp; 學校分佈', C.teal)
-    + '<div style="display:flex;gap:16px;margin-bottom:10px;">'
-      + '<div style="flex:1;"><div style="font-size:7.5pt;font-weight:600;color:'+C.gray+';margin-bottom:4px;">科系分佈</div>'
-        + (imgs.deptChart ? '<img src="'+imgs.deptChart+'" style="width:100%;max-width:230px;height:auto;display:block;">' : '') + '</div>'
-      + '<div style="flex:1;"><div style="font-size:7.5pt;font-weight:600;color:'+C.gray+';margin-bottom:4px;">學校分佈</div>'
-        + (imgs.schoolChart ? '<img src="'+imgs.schoolChart+'" style="width:100%;max-width:230px;height:auto;display:block;">' : '') + '</div>'
+    + '<div style="display:flex;gap:24px;margin-bottom:14px;align-items:flex-start;">'
+      + '<div style="flex:1;">'
+        + '<div style="font-size:8pt;font-weight:600;color:'+C.gray+';margin-bottom:6px;">科系分佈</div>'
+        + (imgs.deptChart ? '<img src="'+imgs.deptChart+'" style="width:100%;max-width:320px;height:auto;display:block;">' : '')
+      + '</div>'
+      + '<div style="flex:1;">'
+        + '<div style="font-size:8pt;font-weight:600;color:'+C.gray+';margin-bottom:6px;">學校分佈</div>'
+        + (imgs.schoolChart ? '<img src="'+imgs.schoolChart+'" style="width:100%;max-width:320px;height:auto;display:block;">' : '')
+      + '</div>'
     + '</div>'
     + SEC('活動類型分佈 &amp; 網站瀏覽', C.orange)
     + '<div style="display:flex;gap:16px;margin-bottom:8px;align-items:flex-start;">'
