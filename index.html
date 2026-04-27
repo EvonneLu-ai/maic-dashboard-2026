@@ -2044,6 +2044,122 @@ window.addEventListener('beforeprint', function() {
 window.addEventListener('afterprint', _printRestore);
 
 
+// ══════════════════════════════════════════════════════
+//  GOOGLE SHEETS 自動同步
+//  每次開啟頁面自動拉取最新資料，無需手動更新
+// ══════════════════════════════════════════════════════
+(async function autoSyncFromSheets() {
+  const SID  = '1bB21tu-2JyIDBejqpNcMTH9-zGr3-8XHwZagbnnJwxU';
+  const base = `https://docs.google.com/spreadsheets/d/${SID}/gviz/tq?tqx=out:csv&sheet=`;
+
+  // CSV 解析（處理引號欄位）
+  function parseCSV(text) {
+    return text.trim().split('\n').filter(r => r.trim()).map(row => {
+      const result = []; let cur = ''; let q = false;
+      for (const ch of row) {
+        if (ch === '"') q = !q;
+        else if (ch === ',' && !q) { result.push(cur.trim()); cur = ''; }
+        else cur += ch;
+      }
+      result.push(cur.trim()); return result;
+    });
+  }
+
+  // Fetch 一個 sheet
+  async function fetchSheet(name) {
+    try {
+      const r = await fetch(base + encodeURIComponent(name), { cache: 'no-store' });
+      if (!r.ok) return null;
+      return parseCSV(await r.text());
+    } catch (e) { console.warn('[AutoSync] fetch failed:', name, e); return null; }
+  }
+
+  // 同步狀態顯示
+  const statusEl = document.getElementById('hdr-date');
+  statusEl.textContent = '⟳ 資料同步中...';
+
+  // 同時拉取三個 sheets
+  const [deptRows, schoolRows, kpiRows] = await Promise.all([
+    fetchSheet('departments'),
+    fetchSheet('shcools'),
+    fetchSheet('operation_kp'),
+  ]);
+
+  // ── 1. 科系分佈 ──
+  if (deptRows && deptRows.length > 1) {
+    const rows  = deptRows.slice(1).filter(r => r[0] && r[1] && !isNaN(+r[1]));
+    const total = rows.reduce((s, r) => s + (+r[1] || 0), 0) || 1;
+    const pcts  = rows.map(r => Math.round((+r[1] || 0) / total * 100));
+    DATA.operation.deptChart.labels = rows.map((r, i) => `${r[0]}(${pcts[i]}%)`);
+    DATA.operation.deptChart.data   = pcts;
+    const dc = Chart.getChart(document.getElementById('deptChart'));
+    if (dc) { dc.data.labels = DATA.operation.deptChart.labels; dc.data.datasets[0].data = pcts; dc.update(); }
+    console.log('[AutoSync] 科系分佈 ✓', rows.length, '筆');
+  }
+
+  // ── 2. 學校分佈 ──
+  if (schoolRows && schoolRows.length > 1) {
+    const rows  = schoolRows.slice(1).filter(r => r[0] && r[1] && !isNaN(+r[1]));
+    const total = rows.reduce((s, r) => s + (+r[1] || 0), 0) || 1;
+    const pcts  = rows.map(r => Math.round((+r[1] || 0) / total * 100));
+    DATA.operation.schoolChart.labels = rows.map((r, i) => `${r[0]}(${pcts[i]}%)`);
+    DATA.operation.schoolChart.data   = pcts;
+    const sc = Chart.getChart(document.getElementById('schoolChart'));
+    if (sc) { sc.data.labels = DATA.operation.schoolChart.labels; sc.data.datasets[0].data = pcts; sc.update(); }
+    // 自動更新「涵蓋學校數」
+    const schoolCount = rows.length;
+    if (DATA.operation.kpi1[4]) { DATA.operation.kpi1[4].value = String(schoolCount); }
+    console.log('[AutoSync] 學校分佈 ✓', rows.length, '所');
+  }
+
+  // ── 3. operation_kp (key-value 對應表) ──
+  if (kpiRows && kpiRows.length > 1) {
+    const kv = {};
+    kpiRows.slice(1).forEach(r => { if (r[0]) kv[r[0].trim()] = (r[1] || '').trim(); });
+
+    // currentDate
+    if (kv['currentDate']) {
+      const m = kv['currentDate'].match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+      if (m) {
+        const norm = `${m[1]}-${('0'+m[2]).slice(-2)}-${('0'+m[3]).slice(-2)}`;
+        DATA.meta.currentDate = norm;
+        DATA.meta.dataAsOf    = '📅 資料截至 ' + norm.replace(/-/g, '/');
+      }
+    }
+
+    // registrationTarget
+    if (kv['registrationTarget']) DATA.operation.registrationTarget = parseInt(kv['registrationTarget']) || 800;
+
+    // KPI 數值 mapping（在 operation_kp 分頁加對應 row 即可自動更新）
+    const kpiMap = {
+      'cumTeams':  v => { DATA.operation.kpi1[0].value = v; DATA.operation.kpi1[0].sub = `本週新增`; },
+      'weeklyNew': v => { DATA.operation.kpi1[0].sub = `本週新增 +${v} 隊`; },
+      'accounts':  v => { DATA.operation.kpi1[2].value = v; DATA.operation.kpi1[2].sub = `已驗證帳號 ${v} 位`; },
+      'students':  v => { DATA.operation.kpi1[3].value = v; },
+    };
+    Object.entries(kpiMap).forEach(([key, fn]) => { if (kv[key]) fn(kv[key]); });
+
+    // 自動計算 目標達成率
+    const teams  = parseInt(DATA.operation.kpi1[0].value) || 0;
+    const target = DATA.operation.registrationTarget;
+    if (teams > 0 && target > 0) {
+      const rate = (teams / target * 100).toFixed(1) + '%';
+      DATA.operation.kpi1[1].value = rate;
+      DATA.operation.kpi1[1].sub   = `TW Season 初期階段（${teams}/${target}）`;
+    }
+
+    // Re-render KPI
+    document.getElementById('op-kpi-row1').innerHTML = buildKPI(DATA.operation.kpi1);
+    autoMarkTrainingDone();
+    console.log('[AutoSync] KPI ✓', kv);
+  }
+
+  // 同步完成，更新時間戳記
+  const hhmm = new Date().toLocaleTimeString('zh-TW', { hour:'2-digit', minute:'2-digit' });
+  statusEl.textContent = (DATA.meta.dataAsOf || '📅') + ` ｜ ✅ 已同步 ${hhmm}`;
+})();
+
+
 function switchTab(tab) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
