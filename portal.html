@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Dashboard App</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --sidebar-w: 240px;
+  --sidebar-bg: rgba(246,246,247,0.92);
+  --sidebar-border: rgba(0,0,0,0.10);
+  --item-hover: rgba(0,0,0,0.05);
+  --item-active-bg: rgba(0,0,0,0.07);
+  --item-active-text: #1d1d1f;
+  --text-primary: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-tertiary: #aeaeb2;
+  --content-bg: #ffffff;
+  --header-bg: rgba(255,255,255,0.85);
+  --shadow: 0 0 0 1px rgba(0,0,0,0.06), 1px 0 0 rgba(0,0,0,0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sidebar-bg: rgba(36,36,38,0.95);
+    --sidebar-border: rgba(255,255,255,0.08);
+    --item-hover: rgba(255,255,255,0.06);
+    --item-active-bg: rgba(255,255,255,0.12);
+    --item-active-text: #f5f5f7;
+    --text-primary: #f5f5f7;
+    --text-secondary: #98989d;
+    --text-tertiary: #48484a;
+    --content-bg: #1c1c1e;
+    --header-bg: rgba(28,28,30,0.85);
+    --shadow: 0 0 0 1px rgba(255,255,255,0.06), 1px 0 0 rgba(255,255,255,0.03);
+  }
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: -apple-system, 'PingFang TC', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: var(--content-bg);
+}
+
+/* ── App Shell ── */
+.app {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--sidebar-bg);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  border-right: 1px solid var(--sidebar-border);
+}
+
+.sidebar-header {
+  padding: 20px 16px 8px;
+  flex-shrink: 0;
+}
+
+/* macOS traffic-light dots (decorative) */
+.traffic-lights {
+  display: flex;
+  gap: 7px;
+  margin-bottom: 20px;
+}
+.tl {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+}
+.tl-red    { background: #ff5f57; }
+.tl-yellow { background: #febc2e; }
+.tl-green  { background: #28c840; }
+
+.sidebar-app-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(145deg, #3a3a3c, #1d1d1f);
+  border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.20);
+  flex-shrink: 0;
+}
+
+.sidebar-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.2px;
+}
+.sidebar-subtitle {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* ── Nav section ── */
+.nav-section {
+  padding: 16px 8px 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  padding: 0 10px;
+  margin-bottom: 4px;
+  margin-top: 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  user-select: none;
+  position: relative;
+  margin-bottom: 2px;
+}
+
+.nav-item:hover { background: var(--item-hover); }
+
+.nav-item.active {
+  background: var(--item-active-bg);
+}
+
+.nav-icon {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.nav-item-text { flex: 1; min-width: 0; }
+.nav-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.nav-item-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 1px;
+}
+
+.nav-item.active .nav-item-name { color: var(--item-active-text); font-weight: 600; }
+.nav-item.active .nav-item-meta { color: var(--item-active-text); opacity: 0.7; }
+
+/* Icon colours */
+.icon-maic     { background: #f2f2f7; color:#1d1d1f; box-shadow:0 1px 4px rgba(0,0,0,.10); }
+.icon-analysis { background: #f2f2f7; color:#1d1d1f; box-shadow:0 1px 4px rgba(0,0,0,.10); }
+.icon-visit    { background: #f2f2f7; color:#1d1d1f; box-shadow:0 1px 4px rgba(0,0,0,.10); }
+
+/* active dot */
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: -2px; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 18px;
+  background: var(--item-active-text);
+  border-radius: 2px;
+}
+
+/* ── Sidebar footer ── */
+.sidebar-footer {
+  padding: 12px 16px 20px;
+  border-top: 1px solid var(--sidebar-border);
+  flex-shrink: 0;
+}
+.sidebar-footer-text {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ── Content area ── */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--content-bg);
+  position: relative;
+}
+
+/* ── Top bar ── */
+.topbar {
+  height: 48px;
+  min-height: 48px;
+  background: var(--header-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--sidebar-border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 10px;
+  flex-shrink: 0;
+  z-index: 5;
+}
+
+.topbar-icon {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.topbar-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.topbar-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+/* ── iframe container ── */
+.frame-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.frame-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  background: var(--content-bg);
+}
+
+.frame-wrap iframe.visible { opacity: 1; }
+
+/* ── Loading spinner ── */
+.loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: var(--content-bg);
+  z-index: 2;
+  transition: opacity 0.3s ease;
+}
+.loader.hidden { opacity: 0; pointer-events: none; }
+
+.spinner {
+  width: 28px; height: 28px;
+  border: 2.5px solid var(--sidebar-border);
+  border-top-color: var(--item-active-text);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loader-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ── Welcome screen ── */
+.welcome {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: var(--content-bg);
+  z-index: 3;
+  text-align: center;
+  padding: 40px;
+  transition: opacity 0.4s ease;
+}
+.welcome.hidden { opacity: 0; pointer-events: none; }
+
+.welcome-icon {
+  font-size: 52px;
+  margin-bottom: 4px;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+}
+.welcome h2 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--text-primary);
+}
+.welcome p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  max-width: 320px;
+  line-height: 1.6;
+}
+
+/* ── Mobile responsive ── */
+@media (max-width: 700px) {
+  .app { flex-direction: column; }
+  .sidebar {
+    width: 100%;
+    min-width: unset;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--sidebar-border);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.05);
+  }
+  .sidebar-header { padding: 16px 16px 4px; }
+  .traffic-lights { display: none; }
+  .sidebar-app-icon { width: 36px; height: 36px; font-size: 18px; border-radius: 9px; }
+  .sidebar-title { font-size: 13px; }
+  .nav-section { display: flex; padding: 8px 8px; gap: 6px; overflow-x: auto; overflow-y: hidden; flex-direction: row; }
+  .nav-section-label { display: none; }
+  .nav-item { flex-direction: column; gap: 4px; padding: 8px 10px; min-width: 80px; text-align: center; margin-bottom: 0; }
+  .nav-item-text { text-align: center; }
+  .nav-item-meta { display: none; }
+  .nav-icon { width: 36px; height: 36px; font-size: 18px; border-radius: 10px; }
+  .nav-item.active::before { display: none; }
+  .sidebar-footer { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── Sidebar ── -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="traffic-lights">
+        <div class="tl tl-red"></div>
+        <div class="tl tl-yellow"></div>
+        <div class="tl tl-green"></div>
+      </div>
+      <div class="sidebar-app-icon">📊</div>
+      <div class="sidebar-title">Dashboard App</div>
+      <div class="sidebar-subtitle">Apple EDU Taiwan</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Reports</div>
+
+      <div class="nav-item active" data-id="maic"
+           data-src="./index.html"
+           data-title="MAIC 主 Dashboard"
+           data-badge="即時" data-badge-color="#6e6e73"
+           onclick="switchTo(this)">
+        <div class="nav-icon icon-maic">🏆</div>
+        <div class="nav-item-text">
+          <div class="nav-item-name">MAIC 主 Dashboard</div>
+          <div class="nav-item-meta">MAIC 2026</div>
+        </div>
+      </div>
+
+      <div class="nav-item" data-id="analysis"
+           data-src="./analysis.html"
+           data-title="MAIC 學校・科系分析"
+           data-badge="4/17 vs 4/20" data-badge-color="#6e6e73"
+           onclick="switchTo(this)">
+        <div class="nav-icon icon-analysis">📈</div>
+        <div class="nav-item-text">
+          <div class="nav-item-name">學校・科系分析</div>
+          <div class="nav-item-meta">深度分析報告</div>
+        </div>
+      </div>
+
+      <div class="nav-item" data-id="visit"
+           data-src="./visits.html"
+           data-title="校園拜訪管理"
+           data-badge="Straight A" data-badge-color="#6e6e73"
+           onclick="switchTo(this)">
+        <div class="nav-icon icon-visit">🏫</div>
+        <div class="nav-item-text">
+          <div class="nav-item-name">校園拜訪管理</div>
+          <div class="nav-item-meta">Straight A</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-text">
+        Evonne Lu · Apple EDU Taiwan<br>
+        建議加入 Dock 使用 (Safari → 加入 Dock)
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Main content ── -->
+  <main class="content">
+
+    <!-- Top bar -->
+    <div class="topbar" id="topbar">
+      <div class="topbar-icon icon-maic" id="topbarIcon">🏆</div>
+      <div class="topbar-title" id="topbarTitle">MAIC 主 Dashboard</div>
+      <div class="topbar-badge" id="topbarBadge"
+           style="background:rgba(0,0,0,0.06);color:#6e6e73;">即時</div>
+    </div>
+
+    <!-- Frames -->
+    <div class="frame-wrap" id="frameWrap">
+
+      <!-- Loading spinner -->
+      <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <div class="loader-text">載入中…</div>
+      </div>
+
+      <!-- Welcome screen (first load) -->
+      <div class="welcome" id="welcome">
+        <div class="welcome-icon">👈</div>
+        <h2>選擇左側 Dashboard</h2>
+        <p>點擊側邊欄的項目，即可在這裡開啟對應的報告。</p>
+      </div>
+
+      <!-- iframes (lazy-loaded) -->
+      <iframe id="frame-maic"     src="" title="MAIC 主 Dashboard"></iframe>
+      <iframe id="frame-analysis" src="" title="MAIC 學校科系分析"></iframe>
+      <iframe id="frame-visit"    src="" title="校園拜訪管理"></iframe>
+
+    </div>
+  </main>
+</div>
+
+<script>
+const frames   = {};   // cache loaded state
+const topbarIcon  = document.getElementById('topbarIcon');
+const topbarTitle = document.getElementById('topbarTitle');
+const topbarBadge = document.getElementById('topbarBadge');
+const loader      = document.getElementById('loader');
+const welcome     = document.getElementById('welcome');
+
+// icon bg classes per id
+const iconClass = {
+  maic:     'icon-maic',
+  analysis: 'icon-analysis',
+  visit:    'icon-visit',
+};
+
+function switchTo(navItem) {
+  const id    = navItem.dataset.id;
+  const src   = navItem.dataset.src;
+  const title = navItem.dataset.title;
+  const badge = navItem.dataset.badge;
+  const color = navItem.dataset.badgeColor;
+
+  // Update sidebar active state
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  navItem.classList.add('active');
+
+  // Update top bar
+  topbarTitle.textContent = title;
+  topbarBadge.textContent = badge;
+  topbarBadge.style.background = color + '18';
+  topbarBadge.style.color = color;
+  topbarIcon.className = 'topbar-icon ' + iconClass[id];
+  topbarIcon.textContent = navItem.querySelector('.nav-icon').textContent;
+
+  // Hide welcome screen
+  welcome.classList.add('hidden');
+
+  // Hide all iframes
+  document.querySelectorAll('.frame-wrap iframe').forEach(f => f.classList.remove('visible'));
+
+  const iframe = document.getElementById('frame-' + id);
+
+  if (!frames[id]) {
+    // First load — show spinner, inject src
+    loader.classList.remove('hidden');
+    iframe.src = src;
+    frames[id] = true;
+    iframe.onload = () => {
+      loader.classList.add('hidden');
+      iframe.classList.add('visible');
+    };
+  } else {
+    // Already loaded
+    loader.classList.add('hidden');
+    iframe.classList.add('visible');
+  }
+}
+
+// Auto-load first item on startup
+document.addEventListener('DOMContentLoaded', () => {
+  const first = document.querySelector('.nav-item');
+  if (first) switchTo(first);
+});
+</script>
+</body>
+</html>
