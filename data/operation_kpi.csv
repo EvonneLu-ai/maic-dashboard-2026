@@ -1,6 +1,6 @@
 field,value,note
 cumteams,222,累計報名隊伍數
-teams_new_this_week,62,本週新增隊伍
+weeklynew,62,本週新增隊伍
 accounts,320,累計註冊帳號
 students,320,報名學生人數
 students_returning,3,參加過 N 人（用於計算百分比）
