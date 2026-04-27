@@ -2081,7 +2081,7 @@ window.addEventListener('afterprint', _printRestore);
   // 同時拉取三個 sheets
   const [deptRows, schoolRows, kpiRows] = await Promise.all([
     fetchSheet('departments'),
-    fetchSheet('shcools'),
+    fetchSheet('schools'),
     fetchSheet('operation_kp'),
   ]);
 
