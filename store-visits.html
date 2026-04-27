@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Straight A — 拜訪記錄 Dashboard Q1 2026</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue','PingFang TC',sans-serif;background:#f0f2f5;color:#1d1d1f;}
+    .page-header{background:linear-gradient(135deg,#0d2137 0%,#0a3d6b 45%,#1769c8 100%);color:white;padding:26px 40px;display:flex;align-items:center;justify-content:space-between;}
+    .page-header h1{font-size:21px;font-weight:700;letter-spacing:-0.3px}
+    .page-header p{font-size:12.5px;opacity:.72;margin-top:4px}
+    .header-pills{display:flex;gap:8px;align-items:center;flex-shrink:0}
+    .pill{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:5px 13px;border-radius:20px;font-size:11.5px;font-weight:500;white-space:nowrap}
+    .content{padding:22px 40px 16px;max-width:1440px;margin:0 auto}
+    .section-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#6e6e73;margin:20px 0 11px;display:flex;align-items:center;gap:8px;}
+    .section-label::after{content:'';flex:1;height:1px;background:#e5e5ea}
+    .kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-bottom:4px}
+    .kpi{background:white;border-radius:14px;padding:17px 18px;box-shadow:0 1px 4px rgba(0,0,0,.07),0 4px 18px rgba(0,0,0,.04);border-top:3px solid;transition:transform .18s;cursor:default;}
+    .kpi:hover{transform:translateY(-2px)}
+    .kpi.c1{border-color:#0071e3}.kpi.c2{border-color:#30d158}.kpi.c3{border-color:#ff9f0a}.kpi.c4{border-color:#bf5af2}.kpi.c5{border-color:#32ade6}
+    .kpi-label{font-size:10px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+    .kpi-value{font-size:30px;font-weight:800;line-height:1;transition:all .2s}
+    .kpi.c1 .kpi-value{color:#0071e3}.kpi.c2 .kpi-value{color:#28b84e}.kpi.c3 .kpi-value{color:#d97f00}.kpi.c4 .kpi-value{color:#9b45e4}.kpi.c5 .kpi-value{color:#269dc0}
+    .kpi-sub{font-size:11px;color:#8e8e93;margin-top:5px;line-height:1.45}
+    .kpi-sub b{color:#1d1d1f;font-weight:700}
+    .up{color:#28b84e;font-weight:700}
+    .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+    .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+    .g13{display:grid;grid-template-columns:1fr 1.6fr;gap:14px;margin-bottom:14px}
+    .card{background:white;border-radius:14px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,.07),0 4px 18px rgba(0,0,0,.04);}
+    .card-title{font-size:13px;font-weight:700;color:#1d1d1f;margin-bottom:1px}
+    .card-sub{font-size:11px;color:#8e8e93;margin-bottom:14px}
+    .ch{position:relative}
+    table{width:100%;border-collapse:collapse;font-size:11.5px}
+    th{background:#f5f5f7;color:#6e6e73;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:8px 11px;text-align:left;border-bottom:1px solid #e5e5ea}
+    td{padding:8.5px 11px;border-bottom:1px solid #f5f5f7;color:#1d1d1f;vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#fafafa}
+    .rank{font-weight:700;color:#0071e3}
+    .badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:10px;font-weight:600}
+    .b-blue{background:#e3f2fd;color:#1565c0}.b-green{background:#e8f5e9;color:#1b5e20}.b-orange{background:#fff3e0;color:#bf360c}.b-purple{background:#f3e5f5;color:#6a1b9a}.b-teal{background:#e0f7fa;color:#00695c}
+    .pg-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+    .pg-name{font-size:10.5px;color:#3d3d40;width:90px;flex-shrink:0;text-align:right;font-weight:500}
+    .pg-track{flex:1;height:7px;background:#f0f0f5;border-radius:4px;overflow:hidden}
+    .pg-fill{height:100%;border-radius:4px;transition:width .4s}
+    .pg-count{font-size:10.5px;color:#8e8e93;width:52px;text-align:right;flex-shrink:0}
+    .pg-legend{display:flex;gap:14px;font-size:10px;color:#8e8e93;margin-top:10px}
+    .pg-legend span{display:flex;align-items:center;gap:4px}
+    .dot{display:inline-block;width:8px;height:8px;border-radius:2px}
+    .sp{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f5f5f7;font-size:11.5px}
+    .sp:last-child{border-bottom:none}
+    .sp-k{color:#6e6e73}.sp-v{font-weight:700;color:#1d1d1f}
+    .funnel{display:flex;flex-direction:column;align-items:center;gap:5px;margin-top:6px}
+    .f-step{border-radius:8px;padding:9px 14px;text-align:center;font-size:11.5px;font-weight:600;transition:opacity .2s}
+    .insight-row{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:14px}
+    .insight{background:white;border-radius:14px;padding:17px 19px;box-shadow:0 1px 4px rgba(0,0,0,.07),0 4px 18px rgba(0,0,0,.04);border-left:4px solid}
+    .insight.blue{border-color:#0071e3}.insight.green{border-color:#30d158}.insight.orange{border-color:#ff9f0a}
+    .insight h3{font-size:12.5px;font-weight:700;margin-bottom:7px;color:#1d1d1f}
+    .insight p{font-size:11.5px;color:#6e6e73;line-height:1.65}
+    .insight p b{color:#1d1d1f}
+    footer{text-align:center;font-size:11px;color:#aeaeb2;padding:18px 0 28px}
+    .filter-bar{background:white;border-radius:12px;padding:12px 20px;box-shadow:0 1px 4px rgba(0,0,0,.07);display:flex;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap;}
+    .filter-bar label{font-size:11.5px;font-weight:600;color:#6e6e73}
+    .filter-bar select{border:1px solid #e5e5ea;border-radius:8px;padding:5px 10px;font-size:11.5px;color:#1d1d1f;background:#fafafa;cursor:pointer;font-family:inherit;outline:none;}
+    .filter-bar select:focus{border-color:#0071e3}
+    .filter-tag{background:#e3f2fd;color:#0071e3;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;display:none}
+    .filter-tag.show{display:inline-block}
+    .update-time{margin-left:auto;font-size:10.5px;color:#aeaeb2}
+    .dim{opacity:.35;transition:opacity .3s}
+
+    /* ── CSV Import ── */
+    .import-btn{background:#0071e3;color:white;border:none;border-radius:8px;padding:6px 15px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;white-space:nowrap;}
+    .import-btn:hover{background:#0063c9;}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+    .modal-box{background:white;border-radius:18px;padding:28px 30px;width:500px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,.2);}
+    .modal-box h2{font-size:17px;font-weight:700;color:#1d1d1f;margin-bottom:5px;}
+    .modal-sub{font-size:11.5px;color:#8e8e93;margin-bottom:20px;line-height:1.6;}
+    .drop-zone{border:2px dashed #d1d5db;border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;transition:all .2s;background:#fafafa;}
+    .drop-zone:hover,.drop-zone.drag-over{border-color:#0071e3;background:#f0f7ff;}
+    .dz-icon{font-size:34px;margin-bottom:8px;}
+    .drop-zone p{font-size:12px;color:#8e8e93;margin:3px 0;}
+    .drop-zone b{color:#0071e3;}
+    .file-info{background:#f0f7ff;border:1px solid #b3d4f5;border-radius:8px;padding:10px 14px;font-size:12px;color:#0071e3;font-weight:600;margin-top:12px;display:none;}
+    .csv-hint{font-size:10.5px;color:#aeaeb2;margin-top:14px;line-height:1.8;}
+    .csv-hint b{color:#6e6e73;}
+    .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;}
+    .mbtn{border:none;border-radius:8px;padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;}
+    .mbtn-primary{background:#0071e3;color:white;}.mbtn-primary:hover{background:#0063c9;}
+    .mbtn-primary:disabled{background:#b3d4f5;cursor:not-allowed;}
+    .mbtn-ghost{background:#f5f5f7;color:#1d1d1f;}.mbtn-ghost:hover{background:#e5e5ea;}
+    .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:#1d1d1f;color:white;padding:11px 22px;border-radius:22px;font-size:12.5px;font-weight:500;z-index:2000;transition:transform .3s,opacity .3s;opacity:0;pointer-events:none;}
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+    /* ── PDF Print ── */
+    .pdf-btn{background:#1d1d1f;color:white;border:none;border-radius:8px;padding:6px 15px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;white-space:nowrap;}
+    .pdf-btn:hover{background:#3a3a3c;}
+    .print-cover{display:none;}
+    .print-footer-bar{display:none;}
+
+    @media print {
+      *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+      @page{size:A4 portrait;margin:12mm 10mm 10mm;}
+
+      body{background:white !important;}
+
+      /* 隱藏操作元素 */
+      .filter-bar,.modal-overlay,.toast,.no-print{display:none !important;}
+
+      /* Header 精簡化 */
+      .page-header{padding:12px 16px !important;background:linear-gradient(135deg,#0d2137 0%,#0a3d6b 45%,#1769c8 100%) !important;}
+      .header-pills{display:none !important;}
+
+      /* 內容區域 */
+      .content{padding:0 !important;max-width:100% !important;}
+
+      /* 列印封面 */
+      .print-cover{
+        display:flex !important;flex-direction:column;align-items:center;
+        padding:7mm 0 5mm;border-bottom:2px solid #0071e3;margin-bottom:4mm;
+        text-align:center;
+      }
+
+      /* KPI */
+      .kpi-row{gap:5px !important;margin-bottom:5px !important;}
+      .kpi{padding:8px 10px !important;box-shadow:none !important;border:1px solid #e5e5ea !important;break-inside:avoid;}
+      .kpi-value{font-size:19px !important;}
+      .kpi-sub{font-size:9.5px !important;}
+
+      /* Cards */
+      .card{box-shadow:none !important;border:1px solid #e5e5ea !important;padding:9px 11px !important;break-inside:avoid;}
+      .g2{gap:6px !important;margin-bottom:6px !important;}
+      .g3{gap:6px !important;margin-bottom:6px !important;}
+      .g13{gap:6px !important;margin-bottom:6px !important;}
+      .ch{height:145px !important;}
+      .card-title{font-size:10.5px !important;}
+      .card-sub{font-size:9px !important;margin-bottom:6px !important;}
+
+      /* Section labels */
+      .section-label{font-size:9px !important;margin:4mm 0 2mm !important;}
+
+      /* Table */
+      table{font-size:9px !important;}
+      th{padding:4px 7px !important;}
+      td{padding:4px 7px !important;}
+
+      /* Progress bars */
+      .pg-name{font-size:9px !important;width:80px !important;}
+      .pg-count{font-size:9px !important;}
+
+      /* Insights */
+      .insight{box-shadow:none !important;border-left-width:4px !important;padding:11px 13px !important;break-inside:avoid;}
+      .insight h3{font-size:11px !important;}
+      .insight p{font-size:9.5px !important;}
+
+      /* Funnel */
+      .f-step{font-size:10px !important;padding:7px 10px !important;}
+
+      /* Page break */
+      .print-page-break{break-before:page !important;display:block !important;}
+
+      /* Print footer */
+      footer{display:none !important;}
+      .print-footer-bar{
+        display:flex !important;justify-content:space-between;align-items:center;
+        font-size:8.5px;color:#aeaeb2;border-top:1px solid #e5e5ea;
+        padding-top:3mm;margin-top:3mm;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <h1>📊 Straight A — 拜訪記錄 Dashboard</h1>
+    <p>業務開發概況報告 &nbsp;·&nbsp; 資料期間：2026 年 2 月 – 3 月</p>
+  </div>
+  <div class="header-pills">
+    <div class="pill" id="pill-period">📅 2026/02/01 – 03/31</div>
+    <div class="pill" id="pill-schools">🏫 20 所學校</div>
+    <div class="pill" id="pill-visits">📋 96 筆記錄</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ═══ 列印封面（僅 PDF 顯示）═══ -->
+  <div class="print-cover">
+    <div style="font-size:10px;font-weight:600;letter-spacing:2px;color:#8e8e93;text-transform:uppercase;margin-bottom:6px">STRAIGHT A BUSINESS REPORT</div>
+    <div style="font-size:22px;font-weight:800;color:#0071e3;letter-spacing:-0.5px;margin-bottom:4px">拜訪記錄分析報告</div>
+    <div style="font-size:11px;color:#1d1d1f;font-weight:600;margin-bottom:3px" id="print-scope">2026年 2–3月 · 全部地區</div>
+    <div style="font-size:10px;color:#8e8e93" id="print-kpi-summary"></div>
+    <div style="font-size:9.5px;color:#aeaeb2;margin-top:5px" id="print-meta"></div>
+  </div>
+
+  <div class="filter-bar">
+    <label>篩選月份</label>
+    <select id="monthFilter">
+      <option value="all">全部（1–3月）</option>
+      <option value="jan">1月</option>
+      <option value="feb">2月</option>
+      <option value="mar">3月</option>
+    </select>
+    <label>地區</label>
+    <select id="regionFilter">
+      <option value="all">全部地區</option>
+      <option value="north">北部</option>
+      <option value="central">中部</option>
+      <option value="south">南部</option>
+    </select>
+    <span class="filter-tag" id="filterTag">已篩選</span>
+    <button class="import-btn" onclick="openImportModal()">📂 匯入 CSV</button>
+    <button class="pdf-btn" id="pdfBtn" onclick="printDashboard()">📄 下載 PDF</button>
+    <div class="update-time">最後更新：2026/03/31 &nbsp;·&nbsp; 資料來源：拜訪紀錄 PDF</div>
+  </div>
+
+  <div class="section-label">核心指標 · KPI Overview</div>
+  <div class="kpi-row" id="pdfKpis">
+    <div class="kpi c1">
+      <div class="kpi-label">總拜訪次數</div>
+      <div class="kpi-value" id="kv1">96</div>
+      <div class="kpi-sub" id="ks1">2月 <b>37</b> 次 → 3月 <b class="up">59</b> 次</div>
+    </div>
+    <div class="kpi c2">
+      <div class="kpi-label">月增長率</div>
+      <div class="kpi-value" id="kv2">+59%</div>
+      <div class="kpi-sub" id="ks2">環比增加 <b>22 次</b>，開學季驅動</div>
+    </div>
+    <div class="kpi c3">
+      <div class="kpi-label">拜訪學校數</div>
+      <div class="kpi-value" id="kv3">20</div>
+      <div class="kpi-sub" id="ks3">2月 <b>12</b> 所 → 3月 <b>18</b> 所</div>
+    </div>
+    <div class="kpi c4">
+      <div class="kpi-label">初訪率</div>
+      <div class="kpi-value" id="kv4">33%</div>
+      <div class="kpi-sub" id="ks4">初訪 <b>27</b> 次（27%）<br>再訪 <b>73</b> 次（73%）</div>
+    </div>
+    <div class="kpi c5">
+      <div class="kpi-label">長期採購客戶</div>
+      <div class="kpi-value" id="kv5">21%</div>
+      <div class="kpi-sub" id="ks5"><b>20</b> 次拜訪為長期採購對象</div>
+    </div>
+  </div>
+
+  <div class="section-label">學校分佈分析 · School Distribution</div>
+  <div class="g2" id="pdfSection1">
+    <div class="card">
+      <div class="card-title">📅 月度拜訪趨勢（初訪 vs 再訪）</div>
+      <div class="card-sub" id="monthlySub">2月 vs 3月拜訪次數分類比較</div>
+      <div class="ch" style="height:230px"><canvas id="monthlyChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🏆 拜訪次數排名學校</div>
+      <div class="card-sub" id="topSchoolsSub">累計排名（藍 = 2月，深藍 = 3月）</div>
+      <div class="ch" style="height:230px"><canvas id="topSchoolsChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g3" id="pdfSection2">
+    <div class="card">
+      <div class="card-title">🎓 學校等級分佈</div>
+      <div class="card-sub" id="schoolTypeSub">依性質分類</div>
+      <div class="ch" style="height:195px"><canvas id="schoolTypeChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🗺️ 地理區域分佈</div>
+      <div class="card-sub" id="geoSub">北部 46 / 中部 44 / 南部 6</div>
+      <div class="ch" style="height:195px"><canvas id="geoChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">💳 採購關係分佈</div>
+      <div class="card-sub">依採購等級統計拜訪次數</div>
+      <div class="ch" style="height:195px"><canvas id="purchaseChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- 分頁符（第2頁起：科系/進階分析）-->
+  <div class="print-page-break" style="display:none"></div>
+  <div class="section-label">科系分佈分析 · Department Insights</div>
+  <div class="g2" id="pdfSection3">
+    <div class="card">
+      <div class="card-title">🔬 科系領域分佈</div>
+      <div class="card-sub">各學術領域觸及次數（估算值）</div>
+      <div class="ch" style="height:235px"><canvas id="deptChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📱 Apple 產品需求分佈</div>
+      <div class="card-sub">各產品線被詢問或採購的次數統計</div>
+      <div class="ch" style="height:235px"><canvas id="productChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-label">進階交叉分析 · Advanced Analytics</div>
+  <div class="g2" id="pdfSection4">
+    <div class="card">
+      <div class="card-title">🎯 拜訪目的分析</div>
+      <div class="card-sub">各類型目的佔比</div>
+      <div class="ch" style="height:215px"><canvas id="visitPurposeChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔽 銷售漏斗分析</div>
+      <div class="card-sub">從初次接觸到長期合作建立的各階段轉化</div>
+      <div class="funnel" id="funnelArea" style="margin-top:10px">
+        <div class="f-step" style="width:100%;background:#e3f2fd;color:#1565c0">📋 拜訪覆蓋 — <span id="f1">96 次拜訪 / 20 所學校（100%）</span></div>
+        <div style="font-size:11px;color:#aeaeb2">▼</div>
+        <div class="f-step" style="width:88%;background:#e8f5e9;color:#1b5e20">💬 開立報價 / 接洽討論 — <span id="f2">估計 ~65 件（67.7%）</span></div>
+        <div style="font-size:11px;color:#aeaeb2">▼</div>
+        <div class="f-step" style="width:72%;background:#fff3e0;color:#bf360c">📦 確認下訂 / 完成交機 — <span id="f3">估計 ~40 件（41.7%）</span></div>
+        <div style="font-size:11px;color:#aeaeb2">▼</div>
+        <div class="f-step" style="width:52%;background:#f3e5f5;color:#6a1b9a">🤝 建立長期採購關係 — <span id="f4">20 位對象（20.8%）</span></div>
+        <div style="font-size:11px;color:#aeaeb2">▼</div>
+        <div class="f-step" style="width:32%;background:#fce4ec;color:#880e4f">🏅 大型 / 上標案件 — <span id="f5">約 6 件（6.3%）</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g13" id="pdfSection5">
+    <div class="card">
+      <div class="card-title">🔄 各校初訪 vs 再訪分析</div>
+      <div class="card-sub">進度條 = 初訪佔比；橘色表示初訪比例偏高</div>
+      <div id="pgBars" style="margin-top:4px"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 學校拜訪詳細統計</div>
+      <div class="card-sub" id="tableSub">完整數據（2–3月累計）</div>
+      <table>
+        <thead>
+          <tr id="schoolThead"><th>#</th><th>學校名稱</th><th>總計</th><th>2月</th><th>3月</th><th>初訪率</th><th>客戶關係</th></tr>
+        </thead>
+        <tbody id="schoolTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="g3" id="statsGrid">
+    <div class="card">
+      <div class="card-title">📌 拜訪對象職稱分佈</div>
+      <div class="card-sub">按聯絡人身份統計</div>
+      <div class="ch" style="height:185px"><canvas id="contactTypeChart"></canvas></div>
+    </div>
+    <div class="card" id="janCard" style="display:none">
+      <div class="card-title">📊 1月詳細統計</div>
+      <div class="card-sub">January 2026 breakdown</div>
+      <div class="sp"><span class="sp-k">拜訪次數</span><span class="sp-v" id="jan-v1">–</span></div>
+      <div class="sp"><span class="sp-k">初訪</span><span class="sp-v" style="color:#0071e3" id="jan-v2">–</span></div>
+      <div class="sp"><span class="sp-k">再訪</span><span class="sp-v" id="jan-v3">–</span></div>
+      <div class="sp"><span class="sp-k">拜訪學校數</span><span class="sp-v" id="jan-v4">–</span></div>
+      <div class="sp"><span class="sp-k">長期採購</span><span class="sp-v" style="color:#28b84e" id="jan-v5">–</span></div>
+      <div class="sp"><span class="sp-k">從未採購</span><span class="sp-v" style="color:#ff453a" id="jan-v6">–</span></div>
+    </div>
+    <div class="card" id="febCard">
+      <div class="card-title">📊 2月詳細統計</div>
+      <div class="card-sub">February 2026 breakdown</div>
+      <div class="sp"><span class="sp-k">拜訪次數</span><span class="sp-v" id="feb-v1">37 次</span></div>
+      <div class="sp"><span class="sp-k">初訪</span><span class="sp-v" style="color:#0071e3" id="feb-v2">14 次（37.8%）</span></div>
+      <div class="sp"><span class="sp-k">再訪</span><span class="sp-v" id="feb-v3">23 次（62.2%）</span></div>
+      <div class="sp"><span class="sp-k">拜訪學校數</span><span class="sp-v" id="feb-v4">12 所</span></div>
+      <div class="sp"><span class="sp-k">長期採購</span><span class="sp-v" style="color:#28b84e" id="feb-v5">8 次（21.6%）</span></div>
+      <div class="sp"><span class="sp-k">從未採購</span><span class="sp-v" style="color:#ff453a" id="feb-v6">2 次（5.4%）</span></div>
+    </div>
+    <div class="card" id="marCard">
+      <div class="card-title">📊 3月詳細統計</div>
+      <div class="card-sub">March 2026 breakdown</div>
+      <div class="sp"><span class="sp-k">拜訪次數</span><span class="sp-v" id="mar-v1">59 次 <span class="up">↑+59%</span></span></div>
+      <div class="sp"><span class="sp-k">初訪</span><span class="sp-v" style="color:#0071e3" id="mar-v2">18 次（30.5%）</span></div>
+      <div class="sp"><span class="sp-k">再訪</span><span class="sp-v" id="mar-v3">41 次（69.5%）</span></div>
+      <div class="sp"><span class="sp-k">拜訪學校數</span><span class="sp-v" id="mar-v4">18 所 <span class="up">↑+6校</span></span></div>
+      <div class="sp"><span class="sp-k">長期採購</span><span class="sp-v" style="color:#28b84e" id="mar-v5">12 次（20.3%）</span></div>
+      <div class="sp"><span class="sp-k">從未採購</span><span class="sp-v" style="color:#ff453a" id="mar-v6">6 次（10.2%）</span></div>
+    </div>
+  </div>
+
+  <div class="section-label">關鍵洞察 · Key Insights</div>
+  <div class="insight-row" id="pdfSection7">
+    <!-- 由 updateInsights() 動態填入 -->
+  </div>
+
+  <!-- 列印頁尾（僅 PDF 顯示）-->
+  <div class="print-footer-bar">
+    <span>📊 Straight A — 拜訪記錄 Dashboard</span>
+    <span id="print-footer-center"></span>
+    <span id="print-footer-date"></span>
+  </div>
+
+</div>
+
+<footer>
+  資料來源：Straight A 2026.02 &amp; 2026.03 拜訪紀錄 PDF &nbsp;·&nbsp; Dashboard by Enchanté &nbsp;·&nbsp; 僅供內部參考
+</footer>
+
+<!-- ═══ CSV IMPORT MODAL ═══ -->
+<div class="modal-overlay" id="importModal" style="display:none" onclick="if(event.target===this)closeImportModal()">
+  <div class="modal-box">
+    <h2>📂 匯入 CSV 資料</h2>
+    <p class="modal-sub">上傳拜訪記錄後，所有圖表與數字將自動更新<br>支援 UTF-8（含 BOM）編碼，可直接從 Excel 另存 CSV</p>
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('csvInput').click()">
+      <div class="dz-icon">📄</div>
+      <p><b>點擊選擇檔案</b>或將 CSV 拖曳至此</p>
+      <p>支援 .csv 格式</p>
+    </div>
+    <div class="file-info" id="fileInfo">✅ 已選擇：<span id="fileName"></span></div>
+    <input type="file" id="csvInput" accept=".csv" style="display:none">
+    <div class="csv-hint">
+      <b>必要欄位：</b>日期、學校名稱、地區、拜訪類型、採購關係<br>
+      <b>選填欄位：</b>拜訪目的、產品、科系領域、聯絡人職稱、學校類型<br>
+      <b>地區值：</b>北部 / 中部 / 南部 &nbsp;·&nbsp; <b>拜訪類型：</b>初訪 / 再訪<br>
+      <b>採購關係：</b>長期採購 / 偶爾採購 / 從未採購
+    </div>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-ghost" onclick="downloadTemplate()">⬇ 下載範本</button>
+      <button class="mbtn mbtn-ghost" onclick="closeImportModal()">取消</button>
+      <button class="mbtn mbtn-primary" id="confirmImportBtn" disabled onclick="confirmImport()">匯入並更新</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- ═══ PDF 公版截圖元素（隱藏在畫面外）═══ -->
+<div id="pdfBannerEl" style="position:absolute;left:-9999px;top:0;width:960px;
+  padding:18px 24px;
+  background:linear-gradient(135deg,#0d2137 0%,#0a3d6b 45%,#1769c8 100%);
+  color:white;font-family:-apple-system,BlinkMacSystemFont,'PingFang TC',sans-serif;">
+  <div style="font-size:9px;font-weight:600;letter-spacing:2px;opacity:.6;text-transform:uppercase;margin-bottom:6px">STRAIGHT A BUSINESS REPORT</div>
+  <div style="font-size:20px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px">拜訪記錄分析報告</div>
+  <div id="pdfBannerSub" style="font-size:11px;opacity:.82;margin-bottom:2px"></div>
+  <div id="pdfBannerMeta" style="font-size:9.5px;opacity:.6"></div>
+</div>
+
+<div id="pdfPageHdrEl" style="position:absolute;left:-9999px;top:0;width:960px;
+  padding:7px 24px;
+  background:linear-gradient(135deg,#0d2137 0%,#0a3d6b 45%,#1769c8 100%);
+  color:white;font-family:-apple-system,BlinkMacSystemFont,'PingFang TC',sans-serif;">
+  <div id="pdfPageHdrText" style="font-size:10px;opacity:.82"></div>
+</div>
+
+<div id="pdfFtrEl" style="position:absolute;left:-9999px;top:0;width:960px;
+  padding:6px 24px;background:white;border-top:2px solid #e5e5ea;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:-apple-system,BlinkMacSystemFont,'PingFang TC',sans-serif;font-size:9px;color:#aeaeb2;">
+  <span>Straight A Dashboard &nbsp;·&nbsp; 僅供內部參考</span>
+  <span id="pdfFtrCenter"></span>
+  <span id="pdfFtrDate"></span>
+</div>
+
+<script>
+Chart.defaults.font.family = '-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif';
+Chart.defaults.font.size = 11;
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyleWidth = 8;
+Chart.defaults.plugins.legend.labels.padding = 11;
+
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+
+// All schools with region, monthly breakdown, first/return visits
+let ALL_SCHOOLS = [
+  {name:'臺中教育大學', region:'central', jan:3, feb:5, mar:6, first:8,  ret:9,  badge:'b-orange', status:'開發中',   total:14},
+  {name:'台北大學',     region:'north',   jan:5, feb:5, mar:5, first:1,  ret:14, badge:'b-green',  status:'長期夥伴', total:15},
+  {name:'輔仁大學',     region:'north',   jan:5, feb:5, mar:5, first:4,  ret:11, badge:'b-blue',   status:'穩定客戶', total:15},
+  {name:'中興大學',     region:'central', jan:4, feb:5, mar:5, first:3,  ret:11, badge:'b-blue',   status:'穩定客戶', total:14},
+  {name:'淡江大學',     region:'north',   jan:6, feb:5, mar:5, first:2,  ret:14, badge:'b-blue',   status:'穩定客戶', total:16},
+  {name:'逢甲大學',     region:'central', jan:5, feb:3, mar:5, first:8,  ret:5,  badge:'b-orange', status:'積極開發', total:13},
+  {name:'政治大學',     region:'north',   jan:5, feb:1, mar:5, first:0,  ret:11, badge:'b-green',  status:'長期夥伴', total:11},
+  {name:'清華大學',     region:'north',   jan:2, feb:3, mar:3, first:0,  ret:8,  badge:'b-green',  status:'長期夥伴', total:8},
+  {name:'東海大學',     region:'central', jan:7, feb:2, mar:3, first:1,  ret:11, badge:'b-blue',   status:'穩定客戶', total:12},
+  {name:'成功大學',     region:'south',   jan:5, feb:1, mar:1, first:3,  ret:4,  badge:'b-green',  status:'長期夥伴', total:7},
+  {name:'亞洲大學',     region:'central', jan:0, feb:0, mar:4, first:4,  ret:0,  badge:'b-orange', status:'新開發',   total:4},
+  {name:'中央大學',     region:'north',   jan:0, feb:0, mar:4, first:2,  ret:2,  badge:'b-blue',   status:'穩定客戶', total:4},
+  {name:'中山大學',     region:'south',   jan:0, feb:2, mar:2, first:2,  ret:2,  badge:'b-blue',   status:'穩定客戶', total:4},
+  {name:'台中科技大學', region:'central', jan:0, feb:2, mar:1, first:2,  ret:1,  badge:'b-teal',   status:'偶爾往來', total:3},
+  {name:'暨南大學',     region:'central', jan:0, feb:1, mar:2, first:1,  ret:2,  badge:'b-blue',   status:'穩定客戶', total:3},
+  // ── 1月新增學校 ──
+  {name:'海洋大學',         region:'north',   jan:3, feb:0, mar:0, first:0, ret:3, badge:'b-blue',   status:'穩定客戶', total:3},
+  {name:'陽明交通大學',     region:'north',   jan:2, feb:0, mar:0, first:0, ret:2, badge:'b-blue',   status:'穩定客戶', total:2},
+  {name:'崇右影藝科技大學', region:'north',   jan:1, feb:0, mar:0, first:0, ret:1, badge:'b-blue',   status:'穩定客戶', total:1},
+  {name:'苗栗縣立大同高中', region:'central', jan:1, feb:0, mar:0, first:0, ret:1, badge:'b-blue',   status:'穩定客戶', total:1},
+  {name:'中山醫學大學',     region:'central', jan:1, feb:0, mar:0, first:0, ret:1, badge:'b-blue',   status:'穩定客戶', total:1},
+  {name:'爽文國中',         region:'central', jan:1, feb:0, mar:0, first:1, ret:0, badge:'b-orange', status:'新開發',   total:1},
+  {name:'臺中市立臺中第一高中', region:'central', jan:1, feb:0, mar:0, first:1, ret:0, badge:'b-orange', status:'開發中', total:1},
+];
+
+// Pre-computed stats per [month_region]
+let STATS = {
+  jan_all:     {v:57, s:17, f:10, r:47, lt:15, occ:36, nv:6},
+  jan_north:   {v:29, s:8,  f:1,  r:28, lt:12, occ:17, nv:0},
+  jan_central: {v:23, s:8,  f:7,  r:16, lt:2,  occ:16, nv:5},
+  jan_south:   {v:5,  s:1,  f:2,  r:3,  lt:1,  occ:3,  nv:1},
+  all_all:     {v:153, s:22, f:42, r:111, lt:35, occ:104, nv:14, janV:57, janF:10, janR:47, febV:37, marV:59, febF:14, febR:23, marF:18, marR:41},
+  all_north:   {v:75,  s:11, f:12, r:63,  lt:24, occ:48,  nv:3,  janV:29, janF:1,  janR:28, febV:17, marV:29, febF:5,  febR:12, marF:6,  marR:23},
+  all_central: {v:67,  s:13, f:26, r:41,  lt:9,  occ:49,  nv:9,  janV:23, janF:7,  janR:16, febV:18, marV:26, febF:8,  febR:10, marF:11, marR:15},
+  all_south:   {v:11,  s:3,  f:4,  r:7,   lt:2,  occ:7,   nv:2,  janV:5,  janF:2,  janR:3,  febV:2,  marV:4,  febF:1,  febR:1,  marF:1,  marR:3},
+  feb_all:     {v:37, s:12, f:14, r:23, lt:8,  occ:27, nv:2},
+  feb_north:   {v:17, s:6,  f:5,  r:12, lt:5,  occ:11, nv:1},
+  feb_central: {v:18, s:7,  f:8,  r:10, lt:3,  occ:14, nv:1},
+  feb_south:   {v:2,  s:1,  f:1,  r:1,  lt:0,  occ:2,  nv:0},
+  mar_all:     {v:59, s:18, f:18, r:41, lt:12, occ:41, nv:6},
+  mar_north:   {v:29, s:7,  f:6,  r:23, lt:7,  occ:20, nv:2},
+  mar_central: {v:26, s:8,  f:11, r:15, lt:4,  occ:19, nv:3},
+  mar_south:   {v:4,  s:2,  f:1,  r:3,  lt:1,  occ:2,  nv:1},
+};
+
+// School type distribution per region [國立,私立,師範,科技,K12,醫學]
+let SCHOOL_TYPE = {
+  all:     [36, 37, 14, 4, 4, 1],
+  north:   [26, 20,  0, 0, 0, 0],
+  central: [13, 17, 11, 3, 0, 0],
+  south:   [ 6,  0,  0, 0, 0, 0],
+};
+
+// State
+let curMonth = 'all', curRegion = 'all';
+const charts = {};
+
+// Mutable chart base data (updated after CSV import)
+let BASE_DEPT    = [25, 18, 18, 12, 10, 8, 5];
+let BASE_PRODUCT = [14, 12, 10, 10, 10, 8, 5, 4, 23];
+let BASE_PURPOSE = [28, 20, 20, 12, 16];
+let BASE_CONTACT = [44, 30, 8, 10, 4];
+
+// ══════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════
+function st() { return STATS[curMonth + '_' + curRegion]; }
+
+function filteredSchools() {
+  let list = curRegion === 'all' ? ALL_SCHOOLS : ALL_SCHOOLS.filter(s => s.region === curRegion);
+  if (curMonth === 'jan') {
+    list = list.map(s => ({...s, total: s.jan || 0})).filter(s => s.total > 0).sort((a,b) => b.total - a.total);
+  } else if (curMonth === 'feb') {
+    list = list.map(s => ({...s, total: s.feb})).filter(s => s.total > 0).sort((a,b) => b.total - a.total);
+  } else if (curMonth === 'mar') {
+    list = list.map(s => ({...s, total: s.mar})).filter(s => s.total > 0).sort((a,b) => b.total - a.total);
+  } else {
+    // 全部模式：依 1+2+3 月合計排序
+    list = list.map(s => ({...s, total: (s.jan||0) + s.feb + s.mar}))
+               .filter(s => s.total > 0)
+               .sort((a,b) => b.total - a.total);
+  }
+  return list;
+}
+
+function scale(arr, ratio) { return arr.map(v => Math.max(0, Math.round(v * ratio))); }
+
+// ══════════════════════════════════════════════
+// UPDATE FUNCTIONS
+// ══════════════════════════════════════════════
+
+function updateKPIs() {
+  const s = st();
+  // KPI 1: total visits
+  document.getElementById('kv1').textContent = s.v;
+  if (curMonth === 'all' && s.febV !== undefined) {
+    const janInfo = s.janV > 0 ? '1月 <b>' + s.janV + '</b> → ' : '';
+    document.getElementById('ks1').innerHTML = janInfo + '2月 <b>' + s.febV + '</b> 次 → 3月 <b class="up">' + s.marV + '</b> 次';
+  } else {
+    const mName = {jan:'1月', feb:'2月', mar:'3月'}[curMonth] || '';
+    document.getElementById('ks1').innerHTML = mName + ' 共 <b>' + s.v + '</b> 次拜訪';
+  }
+  // KPI 2: growth
+  if (curMonth === 'all' && s.febV && s.marV) {
+    const g = Math.round((s.marV - s.febV) / s.febV * 100);
+    document.getElementById('kv2').textContent = '+' + g + '%';
+    document.getElementById('ks2').innerHTML = '環比增加 <b>' + (s.marV - s.febV) + ' 次</b>，開學季驅動';
+  } else {
+    document.getElementById('kv2').textContent = '–';
+    document.getElementById('ks2').innerHTML = curMonth === 'all' ? '請選擇月份查看' : '單月數據';
+  }
+  // KPI 3: schools
+  document.getElementById('kv3').textContent = s.s;
+  if (curMonth === 'all') {
+    const fS = STATS['feb_'+curRegion]; const mS = STATS['mar_'+curRegion];
+    document.getElementById('ks3').innerHTML = '2月 <b>' + fS.s + '</b> 所 → 3月 <b>' + mS.s + '</b> 所';
+  } else {
+    document.getElementById('ks3').innerHTML = '本期 <b>' + s.s + '</b> 所學校';
+  }
+  // KPI 4: first/return %
+  const fp = Math.round(s.f / s.v * 100);
+  const rp = 100 - fp;
+  document.getElementById('kv4').textContent = fp + '%';
+  document.getElementById('ks4').innerHTML =
+    '初訪 <b>' + s.f + '</b> 次（' + fp + '%）<br>'
+    + '再訪 <b>' + s.r + '</b> 次（' + rp + '%）';
+  // KPI 5: longterm %
+  const lp = Math.round(s.lt / s.v * 100);
+  document.getElementById('kv5').textContent = lp + '%';
+  document.getElementById('ks5').innerHTML = '<b>' + s.lt + '</b> 次拜訪為長期採購對象';
+}
+
+function updateHeaderPills() {
+  const s = st();
+  const periodMap = {all:'📅 2026/01/01 – 03/31', jan:'📅 2026 年 1 月', feb:'📅 2026 年 2 月', mar:'📅 2026 年 3 月'};
+  const regionMap  = {all:'', north:'（北部）', central:'（中部）', south:'（南部）'};
+  document.getElementById('pill-period').textContent = periodMap[curMonth];
+  document.getElementById('pill-schools').textContent = '🏫 ' + s.s + ' 所學校' + regionMap[curRegion];
+  document.getElementById('pill-visits').textContent  = '📋 ' + s.v + ' 筆記錄';
+  const tag = document.getElementById('filterTag');
+  tag.classList.toggle('show', curMonth !== 'all' || curRegion !== 'all');
+  const parts = [];
+  if (curMonth !== 'all') parts.push({jan:'1月', feb:'2月', mar:'3月'}[curMonth]);
+  if (curRegion !== 'all') parts.push({north:'北部', central:'中部', south:'南部'}[curRegion]);
+  tag.textContent = '✦ 已篩選：' + parts.join(' · ');
+}
+
+function updateMonthlyChart() {
+  const s = st(); const c = charts.monthly;
+  if (curMonth === 'all') {
+    const hasJan = (s.janV || 0) > 0;
+    c.data.labels = hasJan ? ['1月（Jan）','2月（Feb）','3月（Mar）'] : ['2月（Feb）','3月（Mar）'];
+    c.data.datasets[0].data = hasJan ? [s.janF||0, s.febF, s.marF] : [s.febF, s.marF];
+    if (c.data.datasets[1]) c.data.datasets[1].data = hasJan ? [s.janR||0, s.febR, s.marR] : [s.febR, s.marR];
+  } else if (curMonth === 'jan') {
+    c.data.labels = ['1月（Jan）'];
+    c.data.datasets[0].data = [s.f];
+    if (c.data.datasets[1]) c.data.datasets[1].data = [s.r]; else c.data.datasets.push({label:'再訪',data:[s.r],backgroundColor:'#32ade6',borderRadius:7,borderSkipped:false});
+  } else {
+    const lbl = curMonth === 'feb' ? '2月（Feb）' : '3月（Mar）';
+    c.data.labels = [lbl];
+    c.data.datasets[0].data = [s.f];
+    if (c.data.datasets[1]) c.data.datasets[1].data = [s.r]; else c.data.datasets.push({label:'再訪',data:[s.r],backgroundColor:'#32ade6',borderRadius:7,borderSkipped:false});
+  }
+  const maxStack = c.data.labels.map((_,i)=>c.data.datasets.reduce((a,d)=>a+(d.data[i]||0),0)).reduce((a,b)=>Math.max(a,b),0);
+  c.options.scales.y.max = Math.ceil(maxStack * 1.25 / 10) * 10 || 70;
+  c.update('none');
+}
+
+function updateTopSchoolsChart() {
+  const c = charts.topSchools;
+  const schools = filteredSchools().slice(0, 10);
+  c.data.labels = schools.map(s => s.name);
+  if (curMonth === 'all') {
+    const hasJan = ALL_SCHOOLS.some(s => s.jan > 0);
+    c.data.datasets = hasJan ? [
+      {label:'1月', data:schools.map(s=>s.jan||0), backgroundColor:'#e8c7f5', borderRadius:4, borderSkipped:false},
+      {label:'2月', data:schools.map(s=>s.feb), backgroundColor:'#bfd9f5', borderRadius:4, borderSkipped:false},
+      {label:'3月', data:schools.map(s=>s.mar), backgroundColor:'#0071e3', borderRadius:4, borderSkipped:false}
+    ] : [
+      {label:'2月', data:schools.map(s=>s.feb), backgroundColor:'#bfd9f5', borderRadius:4, borderSkipped:false},
+      {label:'3月', data:schools.map(s=>s.mar), backgroundColor:'#0071e3', borderRadius:4, borderSkipped:false}
+    ];
+  } else if (curMonth === 'jan') {
+    const vals = schools.map(s => s.jan || 0);
+    c.data.datasets = [{label:'1月', data:vals, backgroundColor:'#bf5af2', borderRadius:4, borderSkipped:false}];
+  } else {
+    const vals = schools.map(s => curMonth === 'feb' ? s.feb : s.mar);
+    c.data.datasets = [{label: curMonth==='feb'?'2月':'3月', data:vals, backgroundColor:'#0071e3', borderRadius:4, borderSkipped:false}];
+  }
+  const maxVal = Math.max(...c.data.datasets.flatMap(d=>d.data));
+  c.options.scales.x.max = Math.ceil(maxVal * 1.4);
+  c.update('none');
+}
+
+function updateGeoChart() {
+  const c = charts.geo;
+  let geoData;
+  if (curMonth === 'all') {
+    geoData = [46, 44, 6];
+  } else {
+    geoData = [STATS[curMonth+'_north'].v, STATS[curMonth+'_central'].v, STATS[curMonth+'_south'].v];
+  }
+  const baseColors = ['#0071e3','#ff9f0a','#30d158'];
+  const regions = ['north','central','south'];
+  c.data.datasets[0].data = geoData;
+  c.data.datasets[0].backgroundColor = regions.map((r,i) =>
+    curRegion === 'all' || curRegion === r ? baseColors[i] : baseColors[i] + '33'
+  );
+  document.getElementById('geoSub').textContent = '北部 ' + geoData[0] + ' / 中部 ' + geoData[1] + ' / 南部 ' + geoData[2];
+  c.update('none');
+}
+
+function updateSchoolTypeChart() {
+  const c = charts.schoolType;
+  let allData = [...SCHOOL_TYPE[curRegion]];
+  if (curMonth !== 'all') {
+    const ratio = STATS[curMonth+'_'+curRegion].v / STATS['all_'+curRegion].v;
+    allData = scale(allData, ratio);
+  }
+  const allLabels = ['一般國立大學','私立大學','師範/教育大學','科技大學','K12','醫學大學'];
+  const allColors = ['#0071e3','#ff9f0a','#bf5af2','#30d158','#32ade6','#ff453a'];
+  // 過濾掉 0 值的類別
+  const filtered = allLabels.map((l,i) => ({l, d:allData[i], c:allColors[i]})).filter(x => x.d > 0);
+  c.data.labels = filtered.map(x => x.l);
+  c.data.datasets[0].data = filtered.map(x => x.d);
+  c.data.datasets[0].backgroundColor = filtered.map(x => x.c);
+  const total = allData.reduce((a,b)=>a+b,0);
+  document.getElementById('schoolTypeSub').textContent = '依性質分類（共 ' + total + ' 次拜訪）';
+  c.update('none');
+}
+
+function updatePurchaseChart() {
+  const s = st(); const c = charts.purchase;
+  c.data.datasets[0].data = [s.occ, s.lt, s.nv];
+  c.data.labels = ['偶爾採購（'+s.occ+'次）','長期採購（'+s.lt+'次）','從未採購（'+s.nv+'次）'];
+  c.update('none');
+}
+
+function updateScaledCharts() {
+  const ratio = st().v / 96;
+  const scaled = (base) => scale(base, ratio);
+  charts.dept.data.datasets[0].data = scaled(BASE_DEPT); charts.dept.update('none');
+  charts.product.data.datasets[0].data = scaled(BASE_PRODUCT); charts.product.update('none');
+  const pd = scaled(BASE_PURPOSE);
+  const pl = ['報價/洽談','交機/完成','關係維護','技術支援','初次接洽'];
+  charts.visitPurpose.data.datasets[0].data = pd;
+  charts.visitPurpose.data.labels = pl.map((l,i)=>l+'（'+pd[i]+'）');
+  charts.visitPurpose.update('none');
+  charts.contact.data.datasets[0].data = scaled(BASE_CONTACT); charts.contact.update('none');
+}
+
+function updateTable() {
+  const schools = filteredSchools();
+  const total = schools.reduce((a, s) => a + s.total, 0);
+  const showRegion = curRegion === 'all';
+  const singleMonth = curMonth !== 'all';
+  const mLabel = curMonth === 'feb' ? '2月' : '3月';
+
+  const hasJanData = ALL_SCHOOLS.some(s => (s.jan || 0) > 0);
+
+  // 動態表頭
+  let thHTML = '<tr><th>#</th><th>學校名稱</th>';
+  if (showRegion) thHTML += '<th>地區</th>';
+  if (singleMonth) {
+    thHTML += '<th>' + mLabel + ' 拜訪</th><th>佔比</th>';
+  } else {
+    thHTML += '<th>總計</th>';
+    if (hasJanData) thHTML += '<th>1月</th>';
+    thHTML += '<th>2月</th><th>3月</th>';
+  }
+  thHTML += '<th>初訪率</th><th>客戶關係</th></tr>';
+  document.getElementById('schoolThead').innerHTML = thHTML;
+
+  const regionLabel = {north:'北部', central:'中部', south:'南部'};
+  const regionColor  = {north:'#0071e3', central:'#ff9f0a', south:'#30d158'};
+
+  document.getElementById('schoolTbody').innerHTML = schools.map((s, i) => {
+    const firstTotal = s.first + s.ret;
+    const firstRate  = firstTotal > 0 ? Math.round(s.first / firstTotal * 100) : 0;
+    const pct        = total > 0 ? Math.round(s.total / total * 100) : 0;
+    const barColor   = firstRate > 40 ? '#ff9f0a' : '#0071e3';
+
+    let cells = '<td class="rank">' + (i + 1) + '</td><td>' + s.name + '</td>';
+
+    if (showRegion) {
+      cells += '<td><span style="font-size:10px;font-weight:700;color:' + regionColor[s.region] + '">'
+             + regionLabel[s.region] + '</span></td>';
+    }
+
+    if (singleMonth) {
+      cells += '<td><b>' + s.total + '</b></td>';
+      cells += '<td><div style="display:flex;align-items:center;gap:5px">'
+             + '<div style="width:48px;height:5px;background:#f0f0f5;border-radius:3px">'
+             + '<div style="width:' + Math.min(pct * 3, 100) + '%;height:100%;background:#0071e3;border-radius:3px"></div></div>'
+             + '<span style="font-size:10px;color:#8e8e93;white-space:nowrap">' + pct + '%</span></div></td>';
+    } else {
+      cells += '<td><b>' + s.total + '</b></td>';
+      if (hasJanData) cells += '<td>' + (s.jan||0) + '</td>';
+      cells += '<td>' + s.feb + '</td><td>' + s.mar + '</td>';
+    }
+
+    cells += '<td><div style="display:flex;align-items:center;gap:5px">'
+           + '<div style="width:32px;height:5px;background:#f0f0f5;border-radius:3px">'
+           + '<div style="width:' + firstRate + '%;height:100%;background:' + barColor + ';border-radius:3px"></div></div>'
+           + '<span style="font-size:10px;color:#8e8e93">' + firstRate + '%</span></div></td>';
+    cells += '<td><span class="badge ' + s.badge + '">' + s.status + '</span></td>';
+
+    return '<tr>' + cells + '</tr>';
+  }).join('');
+
+  document.getElementById('tableSub').textContent =
+    (singleMonth ? mLabel + '份' : '2–3月累計') + ' · 共 ' + schools.length + ' 所學校（' + total + ' 次）';
+}
+
+function updateProgressBars() {
+  const schools = filteredSchools().filter(s => (s.first + s.ret) > 0);
+  const html = schools.map(s => {
+    const total = s.first + s.ret;
+    const pct = total > 0 ? Math.round(s.first / total * 100) : 0;
+    const color = pct > 40 ? '#ff9f0a' : '#0071e3';
+    return '<div class="pg-row"><div class="pg-name">'+s.name+'</div>'
+      +'<div class="pg-track"><div class="pg-fill" style="width:'+pct+'%;background:'+color+'"></div></div>'
+      +'<div class="pg-count">'+s.first+'初/'+s.ret+'再</div></div>';
+  }).join('');
+  document.getElementById('pgBars').innerHTML = html
+    + '<div class="pg-legend"><span><span class="dot" style="background:#0071e3"></span>關係穩固</span>'
+    + '<span><span class="dot" style="background:#ff9f0a"></span>積極開發中</span></div>';
+}
+
+function updateMonthlyCards() {
+  const janCard  = document.getElementById('janCard');
+  const febCard  = document.getElementById('febCard');
+  const marCard  = document.getElementById('marCard');
+  const statsGrid = document.getElementById('statsGrid');
+
+  if (curMonth === 'jan') {
+    janCard.style.display = ''; febCard.style.display = 'none'; marCard.style.display = 'none';
+    statsGrid.style.gridTemplateColumns = '1fr 1fr';
+  } else if (curMonth === 'feb') {
+    janCard.style.display = 'none'; febCard.style.display = ''; marCard.style.display = 'none';
+    statsGrid.style.gridTemplateColumns = '1fr 1fr';
+  } else if (curMonth === 'mar') {
+    janCard.style.display = 'none'; febCard.style.display = 'none'; marCard.style.display = '';
+    statsGrid.style.gridTemplateColumns = '1fr 1fr';
+  } else {
+    // 全部：顯示所有有資料的月份卡片
+    const hasJan = STATS['jan_all'].v > 0;
+    janCard.style.display = hasJan ? '' : 'none';
+    febCard.style.display = ''; marCard.style.display = '';
+    statsGrid.style.gridTemplateColumns = hasJan ? 'repeat(4, 1fr)' : '';
+  }
+
+  // 更新 1月卡片
+  const jSt = STATS['jan_' + curRegion] || STATS['jan_all'];
+  if (jSt && jSt.v > 0) {
+    const jFpct = Math.round(jSt.f / jSt.v * 100);
+    document.getElementById('jan-v1').textContent = jSt.v + ' 次';
+    document.getElementById('jan-v2').textContent = jSt.f + ' 次（' + jFpct + '%）';
+    document.getElementById('jan-v3').textContent = jSt.r + ' 次（' + (100-jFpct) + '%）';
+    document.getElementById('jan-v4').textContent = jSt.s + ' 所';
+    document.getElementById('jan-v5').textContent = jSt.lt + ' 次（' + Math.round(jSt.lt/jSt.v*100) + '%）';
+    document.getElementById('jan-v6').textContent = jSt.nv + ' 次（' + Math.round(jSt.nv/jSt.v*100) + '%）';
+  }
+
+  // 更新 2月卡片
+  const fSt = STATS['feb_' + curRegion] || STATS['feb_all'];
+  const fFpct = Math.round(fSt.f / fSt.v * 100);
+  document.getElementById('feb-v1').textContent = fSt.v + ' 次';
+  document.getElementById('feb-v2').textContent = fSt.f + ' 次（' + fFpct + '%）';
+  document.getElementById('feb-v3').textContent = fSt.r + ' 次（' + (100 - fFpct) + '%）';
+  document.getElementById('feb-v4').textContent = fSt.s + ' 所';
+  document.getElementById('feb-v5').textContent = fSt.lt + ' 次（' + Math.round(fSt.lt / fSt.v * 100) + '%）';
+  document.getElementById('feb-v6').textContent = fSt.nv + ' 次（' + Math.round(fSt.nv / fSt.v * 100) + '%）';
+
+  // 更新 3月卡片
+  const mSt = STATS['mar_' + curRegion] || STATS['mar_all'];
+  const mFpct = Math.round(mSt.f / mSt.v * 100);
+  document.getElementById('mar-v1').innerHTML = mSt.v + ' 次 <span class="up">↑+' + Math.round((mSt.v - fSt.v) / fSt.v * 100) + '%</span>';
+  document.getElementById('mar-v2').textContent = mSt.f + ' 次（' + mFpct + '%）';
+  document.getElementById('mar-v3').textContent = mSt.r + ' 次（' + (100 - mFpct) + '%）';
+  document.getElementById('mar-v4').textContent = mSt.s + ' 所';
+  document.getElementById('mar-v5').textContent = mSt.lt + ' 次（' + Math.round(mSt.lt / mSt.v * 100) + '%）';
+  document.getElementById('mar-v6').textContent = mSt.nv + ' 次（' + Math.round(mSt.nv / mSt.v * 100) + '%）';
+}
+
+function updateFunnel() {
+  const s = st();
+  const q = Math.round(s.v * 0.678), d = Math.round(s.v * 0.417);
+  document.getElementById('f1').textContent = s.v + ' 次拜訪 / ' + s.s + ' 所學校（100%）';
+  document.getElementById('f2').textContent = '估計 ~' + q + ' 件（67.8%）';
+  document.getElementById('f3').textContent = '估計 ~' + d + ' 件（41.7%）';
+  document.getElementById('f4').textContent = s.lt + ' 位對象（' + Math.round(s.lt/s.v*100) + '%）';
+  document.getElementById('f5').textContent = '約 ' + Math.max(1, Math.round(s.v * 0.063)) + ' 件（6.3%）';
+}
+
+// ══════════════════════════════════════════════
+// 動態關鍵洞察
+// ══════════════════════════════════════════════
+function updateInsights() {
+  const s = st();
+  const fp  = Math.round(s.f  / s.v * 100);
+  const ltp = Math.round(s.lt / s.v * 100);
+  const m = curMonth, r = curRegion;
+  const jV = STATS.jan_all.v;
+
+  function card(color, title, body) {
+    return '<div class="insight ' + color + '"><h3>' + title + '</h3><p>' + body + '</p></div>';
+  }
+
+  let cards = [];
+
+  // ── 1月 ───────────────────────────────────────
+  if (m === 'jan') {
+    if (r === 'all' || r === 'north') {
+      cards = [
+        card('blue',   '🌱 年初關係維護，奠定全年基礎',
+             '1月共拜訪 <b>' + s.v + ' 次</b>，覆蓋 <b>' + s.s + ' 所學校</b>。再訪率高達 <b>' + (100-fp) + '%</b>，以既有客戶關係鞏固為主軸，為後續季度採購預熱。'),
+        card('green',  '💰 長期客戶比例高達 ' + ltp + '%',
+             '政治、台北、淡江等北部長期夥伴持續穩定往來。1月新增海洋大學、陽明交通大學、崇右影藝科技大學，北部學校版圖持續擴展。'),
+        card('orange', '🔍 初訪率 ' + fp + '%，新客開發以精準為主',
+             '1月初訪集中在逢甲大學（3次新教師）、爽文國中、臺中第一高中等，策略性選點而非大量撒網，有助建立深度合作關係。'),
+      ];
+    } else if (r === 'central') {
+      cards = [
+        card('blue',   '🌆 中部1月：東海大學最活躍',
+             '中部 <b>' + s.v + ' 次</b>拜訪，東海大學7次涵蓋多個院所；逢甲有3次初訪，積極拓展新教師客群。'),
+        card('green',  '📱 iPad 系列主導中部需求',
+             '東海、逢甲、中興多筆拜訪涉及 iPad 系列報價，建議備有常見配置報價單便於即時回應，縮短成交時間。'),
+        card('orange', '🏫 K12 市場出現新機會',
+             '1月首次拜訪苗栗縣立大同高中、爽文國中、臺中市立第一高中。BYOD 政策推動下，中部高中職具備開發潛力。'),
+      ];
+    } else {
+      cards = [
+        card('blue',   '🌊 南部1月：成功大學多院所深耕',
+             '南部 <b>' + s.v + ' 次</b>拜訪，覆蓋地科系、交通管理、都計系、臨床醫學所等，跨院廣度佳，奠定穩固合作基礎。'),
+        card('green',  '💻 Mac mini 打入醫學研究市場',
+             '成功大學臨床醫學所完成 Mac mini 交機，南部醫學研究院所對工作站需求值得持續追蹤，可主動提案擴大院所滲透。'),
+        card('orange', '📈 南部市場仍有廣闊擴展空間',
+             '南部佔整體拜訪比例僅 <b>' + Math.round(s.v/STATS.all_all.v*100) + '%</b>。高雄大學、中正大學等尚待開拓，建議規劃季度性南部專場行程。'),
+      ];
+    }
+  }
+
+  // ── 2月 ───────────────────────────────────────
+  else if (m === 'feb') {
+    if (r === 'all') {
+      cards = [
+        card('blue',   '📅 2月：年後回溫，穩健開局',
+             '2月共 <b>' + s.v + ' 次</b>拜訪，覆蓋 <b>' + s.s + ' 所學校</b>。農曆年後快速恢復拜訪節奏，為3月開學季積極鋪路。'),
+        card('green',  '🏆 中北部大學均衡推進',
+             '臺中教育大學、台北大學、中興大學、輔仁、淡江各5次，業務行程規劃均衡，無遺漏重點學校，顯示系統化的客戶管理能力。'),
+        card('orange', '🔖 大量報價單蓄勢待發',
+             '初訪率 <b>' + fp + '%</b>，2月大量建立報價單，建議持續追蹤尚未回覆的案件，把握3月開學季成交時機。'),
+      ];
+    } else if (r === 'north') {
+      cards = [
+        card('blue',   '🏙️ 北部2月：多點齊發',
+             '北部 <b>' + s.v + ' 次</b>，台北大學、輔仁、淡江均達5次，長期採購比例 <b>' + ltp + '%</b>，是北部業績的穩定支柱。'),
+        card('green',  '📚 清華大學可加強拜訪頻率',
+             '清華大學2月僅3次，相較其他主力偏少。建議提高拜訪頻率，加深與各院所（特別是理工所）的聯繫，把握採購機會。'),
+        card('orange', '🎯 政治大學2月1次，3月反彈至5次',
+             '2月政大業務較淡，3月開學後迅速回升，顯示與政大的合作具有明顯季節性，建議3月前提前溝通確認採購計畫。'),
+      ];
+    } else if (r === 'central') {
+      cards = [
+        card('blue',   '🌆 中部2月：臺中教大與中興領跑',
+             '中部 <b>' + s.v + ' 次</b>，臺中教育大學（5次）、中興（5次）為最積極，中部市場年後迅速恢復業務節奏。'),
+        card('green',  '📦 交機業務開始啟動',
+             '2月出現多筆交機記錄，顯示年前或1月報價已陸續成交，進入出貨高峰，確保物流與售後服務安排妥善。'),
+        card('orange', '⚡ 逢甲大學3次，成長潛力待釋放',
+             '逢甲2月3次，3月增至5次，關係在持續深化。建議在新學期初主動安排各院系拜訪，擴大逢甲的院所覆蓋廣度。'),
+      ];
+    } else {
+      cards = [
+        card('blue',   '🌊 南部2月：穩定維護中',
+             '南部 <b>' + s.v + ' 次</b>拜訪，成功大學與中山大學均有聯繫，客戶關係平穩維持，為下季採購預作準備。'),
+        card('green',  '💼 長期採購關係穩固',
+             '南部長期採購佔比 <b>' + ltp + '%</b>，中山大學為穩定的長期夥伴，建議定期拜訪各院所確認下學期採購需求。'),
+        card('orange', '📈 建議擴大南部學校版圖',
+             '南部目前主要依賴成功大學與中山大學，建議主動拜訪高雄大學、義守大學、文藻外語大學等，擴大區域業務覆蓋。'),
+      ];
+    }
+  }
+
+  // ── 3月 ───────────────────────────────────────
+  else if (m === 'mar') {
+    if (r === 'all') {
+      cards = [
+        card('blue',   '🚀 3月：開學季爆發，成長 ' + Math.round((s.v - STATS.feb_all.v) / STATS.feb_all.v * 100) + '%',
+             '3月拜訪量 <b>' + s.v + ' 次</b>，新增 <b>' + (s.s - STATS.feb_all.s) + ' 所</b>學校。開學採購潮全面啟動，業務活動進入全年高峰。'),
+        card('green',  '⚡ iPad Air 降價帶動採購潮',
+             'iPad Air 降價效應在3月全面發酵，多所學校重啟待成案的採購流程。Mac mini 在理工所、醫學院需求穩定，建議把握時機加速成單。'),
+        card('orange', '🏫 新開發學校大幅增加',
+             '3月新增亞洲大學（4次全為初訪）等多所新學校。建議對3月新接觸的學校快速跟進，趁熱打鐵轉化為穩定客戶。'),
+      ];
+    } else if (r === 'north') {
+      cards = [
+        card('blue',   '🏙️ 北部3月：政治大學由1次爆發至5次',
+             '北部 <b>' + s.v + ' 次</b>，政治大學開學後業務明顯活躍，與長期合作關係深度相符，顯示開學季是北部學校的採購高峰期。'),
+        card('green',  '📱 MacBook 系列需求旺盛',
+             '清華、輔仁、淡江多所北部大學3月詢問 MacBook 系列，建議確保庫存充足並加快報價回覆速度，避免機會流失。'),
+        card('orange', '🆕 中央大學快速建立關係',
+             '中央大學3月出現4次拜訪，屬快速建立中的新關係，建議持續深化並了解各院所採購計畫，爭取成為長期合作夥伴。'),
+      ];
+    } else if (r === 'central') {
+      cards = [
+        card('blue',   '🌆 中部3月：亞洲大學全為初訪',
+             '中部 <b>' + s.v + ' 次</b>，亞洲大學4次全為初訪，是本月最具開發潛力的新客戶，建議積極跟進首批報價案件，趁早建立合作關係。'),
+        card('green',  '🎓 臺中教育大學持續領跑',
+             '臺中教育大學3月6次為中部最高，再訪為主，關係穩固，建議提出學校整體採購方案，爭取更大規模院所訂單。'),
+        card('orange', '⚡ 逢甲加速，建議趁勢追擊',
+             '逢甲大學3月5次，開學後快速深化各院系聯繫。建議月底前整理所有逢甲的待報價單，集中火力推進成交。'),
+      ];
+    } else {
+      cards = [
+        card('blue',   '🌊 南部3月：成功大學加速拓展',
+             '南部 <b>' + s.v + ' 次</b>，成功大學3月新增3所院所拜訪，顯示開學季南部學校也積極回應採購需求，業務動能持續上升。'),
+        card('green',  '💻 多元產品需求湧現',
+             '南部3月涉及 iPad、MacBook Air、Mac mini 等多種產品，採購需求多元。建議提供跨院所整合採購方案，提升平均訂單金額。'),
+        card('orange', '📈 把握開學季擴大南部版圖',
+             '建議在3月開學季主動聯繫其他南部高校（高雄大學、中正大學等），藉由開學採購潮打入新市場，為Q2奠定基礎。'),
+      ];
+    }
+  }
+
+  // ── 全部月份 ──────────────────────────────────
+  else {
+    if (r === 'north') {
+      cards = [
+        card('blue',   '🏙️ 北部：' + s.v + ' 次拜訪，' + s.s + ' 所學校',
+             '1–3月北部業務覆蓋台北大學、輔仁、淡江、政治、清華等核心大學，另新增海洋大學、陽明交通大學、崇右影藝科技大學，長期採購比例 <b>' + ltp + '%</b>，業績基盤最穩固的區域。'),
+        card('green',  '💰 長期客戶關係最成熟',
+             '台北大學、政治大學、清華大學均為多年長期夥伴，採購節奏規律，可預測性高。建議深化院所覆蓋廣度，挖掘既有學校更多部門的潛在需求。'),
+        card('orange', '🆕 1月3所新學校，北部版圖擴展',
+             '1月新增海洋大學（3次）、陽明交通大學（2次）、崇右影藝科技大學（1次），建議持續追蹤這3所學校的採購意願，推動從初次接觸到穩定合作。'),
+      ];
+    } else if (r === 'central') {
+      cards = [
+        card('blue',   '🌆 中部：核心市場，高度活躍',
+             '1–3月中部 <b>' + s.v + ' 次</b>，覆蓋 <b>' + s.s + ' 所</b>，三區中學校數量最多。臺中高校密集、校際關係緊密，每次拜訪行程效率最高。'),
+        card('green',  '🎓 東海大學成為1–3月中部新冠軍',
+             '東海大學1–3月合計12次，超越中興大學（10次），成為中部拜訪最密集的學校。建議持續加強東海各院系覆蓋，並以東海為示範案例帶動鄰近學校。'),
+        card('orange', '🏫 K12 市場出現新機會',
+             '1月新接觸苗栗縣立大同高中、爽文國中、臺中市立第一高中，BYOD 政策推動下中部高中職需求增加，建議規劃針對中學的專屬採購方案。'),
+      ];
+    } else if (r === 'south') {
+      cards = [
+        card('blue',   '🌊 南部：成功大學為業務核心',
+             '南部 <b>' + s.v + ' 次</b>，覆蓋 <b>' + s.s + ' 所學校</b>，以成功大學（7次）與中山大學（4次）為主。南部客戶關係穩定，長期採購比例達 <b>' + ltp + '%</b>。'),
+        card('green',  '💻 成功大學跨院所滲透成效佳',
+             '1–3月成功大學覆蓋地科系、交通管理、都計系、臨床醫學所等院所，從 iPad 到 Mac mini 需求多元，展現優異的院所深耕能力。'),
+        card('orange', '📈 南部仍有廣闊擴展空間',
+             '南部佔整體拜訪比例僅 <b>' + Math.round(s.v/STATS.all_all.v*100) + '%</b>，高雄大學、中正大學、義守大學等尚待開拓，建議規劃季度性南部專場拜訪行程，加速擴大版圖。'),
+      ];
+    } else {
+      // all + all
+      const janV = STATS.all_all.janV || 57;
+      cards = [
+        card('blue',   '📈 1–3月業務持續成長',
+             '1月 <b>' + janV + ' 次</b> → 2月 <b>' + STATS.all_all.febV + ' 次</b> → 3月 <b>' + STATS.all_all.marV + ' 次</b>，三個月逐步攀升。開學季驅動3月達高峰，iPad Air 降價更帶動多校重啟採購流程。'),
+        card('green',  '🏆 中部大學群是核心市場',
+             '中部地區1–3月累計 <b>67 次（44%）</b>，台中高校密集、校際關係緊密。東海、中興、逢甲、臺中教大構成穩定採購基盤，建議持續深化並擴大院所覆蓋率。'),
+        card('orange', '⚡ iPad 系列是最強業務驅動力',
+             '超過 <b>40% 的拜訪</b>涉及 iPad 系列（Pro / Air）。Mac mini 在研究所穩定需求持續。建議追蹤尚未結案的報價單，特別是 <b>設計系、理工所</b> 的高潛力案件。'),
+      ];
+    }
+  }
+
+  document.getElementById('pdfSection7').innerHTML = cards.join('');
+}
+
+// ── Main update ──────────────────────────────────
+function updateDashboard() {
+  updateKPIs();
+  updateHeaderPills();
+  updateMonthlyChart();
+  updateTopSchoolsChart();
+  updateGeoChart();
+  updateSchoolTypeChart();
+  updatePurchaseChart();
+  updateScaledCharts();
+  updateTable();
+  updateProgressBars();
+  updateMonthlyCards();
+  updateFunnel();
+  updateInsights();
+}
+
+// ══════════════════════════════════════════════
+// CHART INIT
+// ══════════════════════════════════════════════
+
+charts.monthly = new Chart(document.getElementById('monthlyChart'),{
+  type:'bar',
+  data:{labels:['2月（Feb）','3月（Mar）'],datasets:[
+    {label:'初訪',data:[14,18],backgroundColor:'#0071e3',borderRadius:7,borderSkipped:false},
+    {label:'再訪',data:[23,41],backgroundColor:'#32ade6',borderRadius:7,borderSkipped:false}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},
+    scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,beginAtZero:true,grid:{color:'#f5f5f7'},ticks:{stepSize:10},max:70}}}
+});
+
+charts.topSchools = new Chart(document.getElementById('topSchoolsChart'),{
+  type:'bar',
+  data:{labels:['臺中教育大學','台北大學','輔仁大學','中興大學','淡江大學','逢甲大學','政治大學','清華大學','東海大學','亞洲大學'],
+    datasets:[
+      {label:'2月',data:[5,5,5,5,5,3,1,3,2,0],backgroundColor:'#bfd9f5',borderRadius:4,borderSkipped:false},
+      {label:'3月',data:[6,5,5,5,5,5,5,3,3,4],backgroundColor:'#0071e3',borderRadius:4,borderSkipped:false}
+    ]},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},
+    scales:{x:{stacked:true,beginAtZero:true,grid:{color:'#f5f5f7'},max:14},y:{stacked:true,grid:{display:false},ticks:{font:{size:10}}}}}
+});
+
+charts.schoolType = new Chart(document.getElementById('schoolTypeChart'),{
+  type:'doughnut',
+  data:{labels:['一般國立大學','私立大學','師範/教育大學','科技大學','K12','醫學大學'],
+    datasets:[{data:[36,37,14,4,4,1],backgroundColor:['#0071e3','#ff9f0a','#bf5af2','#30d158','#32ade6','#ff453a'],borderWidth:2,borderColor:'white'}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right',labels:{font:{size:9.5},padding:7}}}}
+});
+
+charts.geo = new Chart(document.getElementById('geoChart'),{
+  type:'doughnut',
+  data:{labels:['北部（台北/新竹/桃園）','中部（台中/彰化/苗栗）','南部（高雄）'],
+    datasets:[{data:[46,44,6],backgroundColor:['#0071e3','#ff9f0a','#30d158'],borderWidth:2,borderColor:'white'}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right',labels:{font:{size:9.5},padding:7}}}}
+});
+
+charts.purchase = new Chart(document.getElementById('purchaseChart'),{
+  type:'doughnut',
+  data:{labels:['偶爾採購（68次）','長期採購（20次）','從未採購（8次）'],
+    datasets:[{data:[68,20,8],backgroundColor:['#32ade6','#30d158','#ff453a'],borderWidth:2,borderColor:'white'}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right',labels:{font:{size:9.5},padding:7}}}}
+});
+
+charts.dept = new Chart(document.getElementById('deptChart'),{
+  type:'bar',
+  data:{labels:['理工/資訊','語文/人文','行政/服務','商管學院','教育/體育','醫療/生命','設計/藝術'],
+    datasets:[{label:'拜訪次數',data:[25,18,18,12,10,8,5],
+      backgroundColor:['#0071e3','#bf5af2','#32ade6','#ff9f0a','#30d158','#ff453a','#ffd60a'],borderRadius:8,borderSkipped:false}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{beginAtZero:true,grid:{color:'#f5f5f7'}}}}
+});
+
+charts.product = new Chart(document.getElementById('productChart'),{
+  type:'bar',
+  data:{labels:['iPad Pro','iPad Air','Mac mini','MacBook Air','MacBook Pro','iPad(通用)','Apple Pencil','iMac','配件/服務'],
+    datasets:[{label:'次數',data:[14,12,10,10,10,8,5,4,23],
+      backgroundColor:['#0071e3','#32ade6','#ff9f0a','#30d158','#bf5af2','#74b9ff','#fd79a8','#a29bfe','#b2bec3'],borderRadius:7,borderSkipped:false}]},
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{beginAtZero:true,grid:{color:'#f5f5f7'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}
+});
+
+charts.visitPurpose = new Chart(document.getElementById('visitPurposeChart'),{
+  type:'polarArea',
+  data:{labels:['報價/洽談（28）','交機/完成（20）','關係維護（20）','技術支援（12）','初次接洽（16）'],
+    datasets:[{data:[28,20,20,12,16],
+      backgroundColor:['rgba(0,113,227,.72)','rgba(48,209,88,.72)','rgba(255,159,10,.72)','rgba(50,173,230,.72)','rgba(191,90,242,.72)'],
+      borderWidth:1,borderColor:'white'}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:9.5},padding:7}}},
+    scales:{r:{grid:{color:'#f0f0f5'},ticks:{display:false,backdropColor:'transparent'}}}}
+});
+
+charts.contact = new Chart(document.getElementById('contactTypeChart'),{
+  type:'doughnut',
+  data:{labels:['教授/副教授/專任','助教/職員','院長/主任','秘書/行政','其他'],
+    datasets:[{data:[44,30,8,10,4],backgroundColor:['#0071e3','#32ade6','#ff9f0a','#30d158','#bf5af2'],borderWidth:2,borderColor:'white'}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'right',labels:{font:{size:9.5},padding:7}}}}
+});
+
+// ══════════════════════════════════════════════
+// EVENT LISTENERS
+// ══════════════════════════════════════════════
+document.getElementById('monthFilter').addEventListener('change', function() {
+  curMonth = this.value;
+  updateDashboard();
+});
+document.getElementById('regionFilter').addEventListener('change', function() {
+  curRegion = this.value;
+  updateDashboard();
+});
+
+// Initial render
+updateDashboard();
+updateTable();
+updateProgressBars();
+updateMonthlyCards();
+
+// ══════════════════════════════════════════════
+// CSV IMPORT
+// ══════════════════════════════════════════════
+
+let pendingRecords = null;
+
+function openImportModal() {
+  document.getElementById('importModal').style.display = 'flex';
+}
+function closeImportModal() {
+  document.getElementById('importModal').style.display = 'none';
+  pendingRecords = null;
+  document.getElementById('confirmImportBtn').disabled = true;
+  document.getElementById('fileInfo').style.display = 'none';
+  document.getElementById('csvInput').value = '';
+}
+
+// Drag & drop
+(function() {
+  const dz = document.getElementById('dropZone');
+  dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) handleCSVFile(e.dataTransfer.files[0]);
+  });
+  document.getElementById('csvInput').addEventListener('change', e => {
+    if (e.target.files[0]) handleCSVFile(e.target.files[0]);
+  });
+})();
+
+function handleCSVFile(file) {
+  if (!file.name.toLowerCase().endsWith('.csv')) { showToast('❌ 請上傳 .csv 格式的檔案'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const records = parseCSV(e.target.result);
+      if (records.length === 0) { showToast('❌ 未找到有效資料，請確認欄位格式'); return; }
+      pendingRecords = records;
+      document.getElementById('fileName').textContent = file.name + '（' + records.length + ' 筆有效記錄）';
+      document.getElementById('fileInfo').style.display = 'block';
+      document.getElementById('confirmImportBtn').disabled = false;
+    } catch(err) { showToast('❌ 解析錯誤：' + err.message); }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function parseCSV(text) {
+  text = text.replace(/^\uFEFF/, ''); // 移除 BOM
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) throw new Error('內容不足（需要標題列 + 至少 1 筆資料）');
+  const headers = splitLine(lines[0]).map(h => h.trim());
+  const required = ['日期','學校名稱','地區','拜訪類型','採購關係'];
+  const missing = required.filter(r => !headers.includes(r));
+  if (missing.length) throw new Error('缺少必要欄位：' + missing.join('、'));
+  const RMAP = {'北部':'north','中部':'central','南部':'south'};
+  const records = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = splitLine(lines[i]);
+    if (vals.every(v => !v.trim())) continue;
+    const row = {};
+    headers.forEach((h, j) => row[h] = (vals[j] || '').trim());
+    const region = RMAP[row['地區']];
+    const month  = monthFrom(row['日期']);
+    if (!region || !month) continue;
+    records.push({
+      month, school: row['學校名稱'], region,
+      visitType:  row['拜訪類型'],
+      purchase:   row['採購關係'],
+      purpose:    row['拜訪目的']   || '',
+      product:    row['產品']       || '',
+      dept:       row['科系領域']   || '',
+      contact:    row['聯絡人職稱'] || '',
+      schoolType: row['學校類型']   || '',
+    });
+  }
+  return records;
+}
+
+function splitLine(line) {
+  const r = []; let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === '"') { if (inQ && line[i+1]==='"') { cur+='"'; i++; } else inQ=!inQ; }
+    else if (line[i] === ',' && !inQ) { r.push(cur); cur = ''; }
+    else cur += line[i];
+  }
+  r.push(cur); return r;
+}
+
+function monthFrom(d) {
+  if (!d) return null;
+  const m = d.match(/\d{4}[\/\-](\d{1,2})/);
+  if (!m) return null;
+  const n = parseInt(m[1]);
+  return n === 1 ? 'jan' : n === 2 ? 'feb' : n === 3 ? 'mar' : 'other';
+}
+
+function confirmImport() {
+  if (!pendingRecords) return;
+  processCSVRecords(pendingRecords);
+  closeImportModal();
+  showToast('✅ 已匯入 ' + pendingRecords.length + ' 筆記錄，Dashboard 已更新！');
+}
+
+function processCSVRecords(records) {
+  // 1. 彙整各校數據
+  const sMap = {};
+  records.forEach(r => {
+    if (!sMap[r.school]) sMap[r.school] = {name:r.school, region:r.region, jan:0, feb:0, mar:0, first:0, ret:0, lt:0, occ:0, nv:0};
+    const s = sMap[r.school];
+    if (r.month==='jan') s.jan++; else if (r.month==='feb') s.feb++; else if (r.month==='mar') s.mar++;
+    if (r.visitType==='初訪') s.first++; else if (r.visitType==='再訪') s.ret++;
+    if (r.purchase==='長期採購') s.lt++;
+    else if (r.purchase==='偶爾採購') s.occ++;
+    else if (r.purchase==='從未採購') s.nv++;
+  });
+  ALL_SCHOOLS = Object.values(sMap).map(s => {
+    s.total = s.feb + s.mar;
+    const fr = s.total > 0 ? s.first / s.total : 0;
+    if (s.lt > s.occ && s.lt > s.nv)      { s.badge='b-green';  s.status='長期夥伴'; }
+    else if (fr >= 1 && s.total <= 3)      { s.badge='b-orange'; s.status='新開發'; }
+    else if (fr > 0.5)                     { s.badge='b-orange'; s.status='積極開發'; }
+    else if (fr > 0.25)                    { s.badge='b-orange'; s.status='開發中'; }
+    else if (s.nv > s.occ && s.nv > s.lt) { s.badge='b-purple'; s.status='待開發'; }
+    else                                   { s.badge='b-blue';   s.status='穩定客戶'; }
+    return s;
+  }).sort((a,b) => b.total - a.total);
+
+  // 2. 重算 STATS（16 種組合：含 1月）
+  ['all','jan','feb','mar'].forEach(month => {
+    ['all','north','central','south'].forEach(region => {
+      const fil = records.filter(r =>
+        (month==='all' || r.month===month) &&
+        (region==='all' || r.region===region)
+      );
+      const stat = {
+        v: fil.length,
+        s: new Set(fil.map(r=>r.school)).size,
+        f: fil.filter(r=>r.visitType==='初訪').length,
+        r: fil.filter(r=>r.visitType==='再訪').length,
+        lt:  fil.filter(r=>r.purchase==='長期採購').length,
+        occ: fil.filter(r=>r.purchase==='偶爾採購').length,
+        nv:  fil.filter(r=>r.purchase==='從未採購').length,
+      };
+      if (month === 'all') {
+        const jan = fil.filter(r=>r.month==='jan');
+        const feb = fil.filter(r=>r.month==='feb');
+        const mar = fil.filter(r=>r.month==='mar');
+        stat.janV=jan.length; stat.febV=feb.length; stat.marV=mar.length;
+        stat.janF=jan.filter(r=>r.visitType==='初訪').length;
+        stat.janR=jan.filter(r=>r.visitType==='再訪').length;
+        stat.febF=feb.filter(r=>r.visitType==='初訪').length;
+        stat.febR=feb.filter(r=>r.visitType==='再訪').length;
+        stat.marF=mar.filter(r=>r.visitType==='初訪').length;
+        stat.marR=mar.filter(r=>r.visitType==='再訪').length;
+      }
+      STATS[month+'_'+region] = stat;
+    });
+  });
+
+  // 3. 重算圖表分佈資料
+  const dL = ['理工/資訊','語文/人文','行政/服務','商管學院','教育/體育','醫療/生命','設計/藝術'];
+  const pL = ['iPad Pro','iPad Air','Mac mini','MacBook Air','MacBook Pro','iPad(通用)','Apple Pencil','iMac','配件/服務'];
+  const puL = ['報價洽談','交機完成','關係維護','技術支援','初次接洽'];
+  const cL = ['教授/副教授/專任','助教/職員','院長/主任','秘書/行政','其他'];
+  const tL = ['一般國立大學','私立大學','師範/教育大學','科技大學','K12','醫學大學'];
+  BASE_DEPT    = dL.map(l => records.filter(r=>r.dept===l).length);
+  BASE_PRODUCT = pL.map(l => records.filter(r=>r.product===l).length);
+  BASE_PURPOSE = puL.map(l => records.filter(r=>r.purpose===l).length);
+  BASE_CONTACT = cL.map((l,i) =>
+    i===4 ? records.filter(r=>r.contact && !cL.slice(0,4).includes(r.contact)).length
+          : records.filter(r=>r.contact===l).length
+  );
+  ['all','north','central','south'].forEach(region => {
+    const fil = region==='all' ? records : records.filter(r=>r.region===region);
+    SCHOOL_TYPE[region] = tL.map(l => fil.filter(r=>r.schoolType===l).length);
+  });
+
+  // 4. 更新 Dashboard
+  const totalV = STATS.all_all.v;
+  document.getElementById('pill-visits').textContent = '📋 ' + totalV + ' 筆記錄';
+  updateDashboard();
+}
+
+function downloadTemplate() {
+  const header = '日期,學校名稱,地區,拜訪類型,採購關係,拜訪目的,產品,科系領域,聯絡人職稱,學校類型';
+  const rows = [
+    '2026/02/03,臺中教育大學,中部,初訪,偶爾採購,報價洽談,iPad Pro,理工/資訊,教授/副教授/專任,師範/教育大學',
+    '2026/02/05,台北大學,北部,再訪,長期採購,關係維護,MacBook Air,商管學院,院長/主任,一般國立大學',
+    '2026/02/12,中興大學,中部,再訪,偶爾採購,交機完成,Mac mini,理工/資訊,教授/副教授/專任,一般國立大學',
+    '2026/03/04,逢甲大學,中部,初訪,偶爾採購,報價洽談,iPad Air,設計/藝術,助教/職員,私立大學',
+    '2026/03/10,淡江大學,北部,再訪,長期採購,關係維護,MacBook Pro,理工/資訊,教授/副教授/專任,私立大學',
+    '2026/03/18,政治大學,北部,再訪,長期採購,技術支援,Mac mini,商管學院,秘書/行政,一般國立大學',
+  ];
+  const csv = '\uFEFF' + header + '\n' + rows.join('\n');
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'})),
+    download: 'visit_record_template.csv'
+  });
+  a.click();
+  showToast('📥 範本已下載！');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ══════════════════════════════════════════════
+// PDF DOWNLOAD — html2canvas 全截圖版（避免中文亂碼）
+// ══════════════════════════════════════════════
+
+async function printDashboard() {
+  const btn = document.getElementById('pdfBtn');
+  btn.textContent = '⏳ 產生中…'; btn.disabled = true;
+  showToast('⏳ 正在截圖並產生 PDF，請稍候…');
+
+  try {
+    await loadScript('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js');
+    await loadScript('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    const PW = 210, PH = 297, M = 8, CW = PW - M * 2;
+
+    // 報告元數據
+    const s   = st();
+    const now = new Date();
+    const ds  = now.getFullYear() + '/' + String(now.getMonth()+1).padStart(2,'0') + '/' + String(now.getDate()).padStart(2,'0');
+    const mLbl = {all:'1月至3月份', jan:'1月份', feb:'2月份', mar:'3月份'}[curMonth];
+    const rLbl = {all:'全部地區', north:'北部地區', central:'中部地區', south:'南部地區'}[curRegion];
+
+    // 填入 PDF 公版元素內容
+    document.getElementById('pdfBannerSub').textContent  = mLbl + ' · ' + rLbl + ' · 共 ' + s.v + ' 次拜訪 / ' + s.s + ' 所學校';
+    document.getElementById('pdfBannerMeta').textContent = '初訪率 ' + Math.round(s.f/s.v*100) + '% · 長期採購 ' + Math.round(s.lt/s.v*100) + '% · 偶爾採購 ' + Math.round(s.occ/s.v*100) + '% · 產製：' + ds + ' · 僅供內部參考';
+    document.getElementById('pdfPageHdrText').textContent = 'Straight A — 拜訪記錄分析報告 · ' + mLbl + ' · ' + rLbl;
+    document.getElementById('pdfFtrCenter').textContent  = mLbl + ' · ' + rLbl;
+    document.getElementById('pdfFtrDate').textContent    = '產製：' + ds;
+
+    // 截圖 helper（全部用 html2canvas，完全不依賴字型）
+    const H2C_OPT = { scale: 2, useCORS: true, logging: false, allowTaint: true };
+    async function cap(id, bg) {
+      const el = document.getElementById(id);
+      if (!el) return null;
+      const c = await html2canvas(el, { ...H2C_OPT, backgroundColor: bg || '#f0f2f5' });
+      return { data: c.toDataURL('image/jpeg', 0.92), ow: c.width, oh: c.height };
+    }
+
+    // 貼圖 helper（回傳下一個 y 位置）
+    function put(img, y, ww) {
+      if (!img) return y;
+      const w = ww || CW;
+      const h = w * img.oh / img.ow;
+      pdf.addImage(img.data, 'JPEG', M, y, w, h);
+      return y + h + 2.5;
+    }
+
+    // 截圖（先截，後組 PDF，減少頁面跳動感）
+    const [banner, pageHdr, ftr, kpis, s1, s2, s3, s4, s5, s6, s7] = await Promise.all([
+      cap('pdfBannerEl',  '#0a3d6b'),
+      cap('pdfPageHdrEl', '#0a3d6b'),
+      cap('pdfFtrEl',     '#ffffff'),
+      cap('pdfKpis'),
+      cap('pdfSection1'),
+      cap('pdfSection2'),
+      cap('pdfSection3'),
+      cap('pdfSection4'),
+      cap('pdfSection5'),
+      cap('statsGrid'),
+      cap('pdfSection7'),
+    ]);
+
+    // ── 第 1 頁：封面 Banner + KPIs + 學校分佈 ──
+    let y = M;
+    y = put(banner, y);
+    y += 1;
+    y = put(kpis, y);
+    y = put(s1, y);
+    y = put(s2, y);
+    putFooter(pdf, ftr, PW, PH, M, CW);
+
+    // ── 第 2 頁：科系 + 進階交叉 ──
+    pdf.addPage();
+    y = M; y = put(pageHdr, y); y += 1;
+    y = put(s3, y);
+    y = put(s4, y);
+    putFooter(pdf, ftr, PW, PH, M, CW);
+
+    // ── 第 3 頁：表格 + 月統計 + 洞察 ──
+    pdf.addPage();
+    y = M; y = put(pageHdr, y); y += 1;
+    y = put(s5, y);
+    y = put(s6, y);
+    y = put(s7, y);
+    putFooter(pdf, ftr, PW, PH, M, CW);
+
+    // 頁碼（純數字，不會亂碼）
+    const total = pdf.getNumberOfPages();
+    for (let i = 1; i <= total; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(7.5);
+      pdf.setTextColor(174, 174, 178);
+      pdf.text(i + ' / ' + total, PW / 2, PH - 2.5, { align: 'center' });
+    }
+
+    const fname = 'Straight-A_' + mLbl + '_' + rLbl + '_' + ds.replace(/\//g, '-') + '.pdf';
+    pdf.save(fname);
+    showToast('✅ PDF 已下載：' + fname);
+
+  } catch (err) {
+    console.error(err);
+    showToast('❌ PDF 產生失敗，請確認網路連線後再試');
+  } finally {
+    btn.textContent = '📄 下載 PDF'; btn.disabled = false;
+  }
+}
+
+// 頁尾截圖貼到每頁底部
+function putFooter(pdf, ftr, PW, PH, M, CW) {
+  if (!ftr) return;
+  const h = CW * ftr.oh / ftr.ow;
+  pdf.addImage(ftr.data, 'JPEG', M, PH - M - h, CW, h);
+}
+
+function drawPageHeader(pdf, PW, M, mLbl, rLbl) {} // 保留空函數，已由截圖取代
+function drawFooter(pdf, PW, PH, M, mLbl, rLbl, ds) {} // 保留空函數，已由截圖取代
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve;
+    s.onerror = () => reject(new Error('載入失敗：' + src));
+    document.head.appendChild(s);
+  });
+}
+</script>
+<div style="position:fixed;bottom:24px;left:24px;z-index:9999;background:rgba(255,255,255,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(0,0,0,.10);border-radius:22px;padding:9px 16px;font-family:-apple-system,sans-serif;font-size:13px;font-weight:600;color:#1d1d1f;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.12)" onclick="location.href='./portal.html'">&#9664; Hub</div>
+</body>
+</html>
