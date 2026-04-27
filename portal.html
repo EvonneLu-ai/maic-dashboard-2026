@@ -266,11 +266,12 @@ html, body {
   height: 100%;
   border: none;
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.25s ease;
   background: var(--content-bg);
 }
 
-.frame-wrap iframe.visible { opacity: 1; }
+.frame-wrap iframe.visible { opacity: 1; pointer-events: auto; }
 
 /* ── Loading spinner ── */
 .loader {
@@ -285,7 +286,7 @@ html, body {
   z-index: 2;
   transition: opacity 0.3s ease;
 }
-.loader.hidden { opacity: 0; pointer-events: none; }
+.loader.hidden { opacity: 0; pointer-events: none; display: none; }
 
 .spinner {
   width: 28px; height: 28px;
@@ -316,7 +317,7 @@ html, body {
   padding: 40px;
   transition: opacity 0.4s ease;
 }
-.welcome.hidden { opacity: 0; pointer-events: none; }
+.welcome.hidden { opacity: 0; pointer-events: none; display: none; }
 
 .welcome-icon {
   font-size: 52px;
