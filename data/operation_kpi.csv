@@ -1,13 +1,13 @@
 field,value,note
 teams,222,累計報名隊伍數
-teams_new_this_week,+71,本週新增隊伍
+teams_new_this_week,62,本週新增隊伍
 accounts,320,累計註冊帳號
 students,320,報名學生人數
 students_returning,3,參加過 N 人（用於計算百分比）
 schools,20,涵蓋學校數
-creative,44,創意組隊數
-innovative,40,創新組隊數
-startup,50,創業組隊數
+creative,118,創意組隊數
+innovative,68,創新組隊數
+startup,36,創業組隊數
 submitted,1,企劃書已繳
 not_submitted,88,企劃書未繳
 website1_label,🌐 maic.straighta.com.tw,網站1 名稱
