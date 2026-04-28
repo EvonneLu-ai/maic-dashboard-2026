@@ -1,287 +1,486 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MAIC 報名周報分析</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <style>
-:root{
-  --bg:#f2f2f7;--card:#fff;--text:#1d1d1f;--text2:#6e6e73;
-  --blue:#0071e3;--green:#34c759;--orange:#ff9f0a;--red:#ff3b30;
-  --border:#d2d2d7;--shadow:0 2px 14px rgba(0,0,0,.07);
-}
-@media(prefers-color-scheme:dark){
-  :root{--bg:#1c1c1e;--card:#2c2c2e;--text:#f5f5f7;--text2:#98989d;--border:#3a3a3c}
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,'SF Pro Display',sans-serif;background:var(--bg);color:var(--text)}
-
-header{
-  background:linear-gradient(135deg,#0071e3,#5ac8fa);
-  color:#fff;padding:28px 32px 24px;
-  display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:100;
-}
-.hdr-left{display:flex;align-items:center;gap:14px}
-.hdr-icon{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.2);
-  display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.hdr-title{font-size:20px;font-weight:800;letter-spacing:-.3px}
-.hdr-sub{font-size:12px;opacity:.8;margin-top:3px}
-.back-btn{
-  background:rgba(255,255,255,.2);border:none;color:#fff;
-  border-radius:20px;padding:7px 16px;font-size:13px;font-weight:600;
-  cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:5px;
-  transition:background .2s;
-}
-.back-btn:hover{background:rgba(255,255,255,.3)}
-
-.wrap{max-width:980px;margin:0 auto;padding:28px 24px 60px}
-h2{font-size:16px;font-weight:700;margin:32px 0 14px;padding-bottom:8px;
-  border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
-
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
-.kpi{background:var(--card);border-radius:14px;padding:18px 20px;
-  box-shadow:var(--shadow);text-align:center}
-.kpi .val{font-size:34px;font-weight:800;color:var(--blue);line-height:1.1}
-.kpi .lbl{font-size:11px;color:var(--text2);margin-top:5px;font-weight:500}
-.kpi .sub{font-size:10px;color:var(--text2);margin-top:4px}
-
-.track-row{display:flex;gap:14px;margin-bottom:24px;flex-wrap:wrap}
-.track-pill{border-radius:50px;padding:12px 28px;color:#fff;font-weight:700;
-  font-size:14px;display:flex;align-items:center;gap:12px}
-.track-pill .cnt{font-size:26px;font-weight:800}
-.t-ci{background:linear-gradient(135deg,#ff9f0a,#ff6b00)}
-.t-cx{background:linear-gradient(135deg,#34c759,#28a846)}
-.t-cy{background:linear-gradient(135deg,#0071e3,#005ec4)}
-
-.g2{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
-.g2-half{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.card{background:var(--card);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow)}
-.card-title{font-size:13px;font-weight:600;margin-bottom:14px;color:var(--text)}
-
-.warn-box{border:1.5px solid var(--orange);border-radius:12px;padding:16px 20px;
-  margin-top:24px;background:#fff9f0}
-@media(prefers-color-scheme:dark){.warn-box{background:#2c2a1e}}
-.warn-box h3{font-size:13px;font-weight:700;color:#c07000;margin-bottom:10px}
-.warn-item{font-size:12.5px;padding:6px 0;border-bottom:1px solid #ffe5b0;color:var(--text)}
-.warn-item:last-child{border-bottom:none}
-
-footer{text-align:center;font-size:12px;color:var(--text2);
-  padding:20px;border-top:1px solid var(--border);margin-top:40px}
-
-@media(max-width:640px){
-  .kpi-grid{grid-template-columns:repeat(2,1fr)}
-  .g2,.g2-half{grid-template-columns:1fr}
-  .hdr-title{font-size:16px}
-}
+  :root {
+    --blue:#0071e3; --blue-light:#e8f2fd; --green:#28a846;
+    --orange:#c07000; --red:#c0392b; --gray1:#f5f5f7;
+    --gray2:#d2d2d7; --gray3:#6e6e73; --text:#1d1d1f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"SF Pro Text",sans-serif;background:#fff;color:var(--text)}
+  header{background:linear-gradient(135deg,#0a84ff,#005ec4);color:#fff;padding:36px 48px 28px}
+  header h1{font-size:26px;font-weight:700}
+  header p{font-size:13px;opacity:.8;margin-top:6px}
+  .wrap{max-width:980px;margin:0 auto;padding:32px 24px 60px}
+  h2{font-size:19px;font-weight:700;margin:36px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--gray2)}
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px}
+  .kpi{background:var(--gray1);border-radius:14px;padding:18px;text-align:center}
+  .kpi .num{font-size:34px;font-weight:800;color:var(--blue)}
+  .kpi .lbl{font-size:12px;color:var(--gray3);margin-top:4px}
+  .kpi .dlt{font-size:13px;margin-top:6px}
+  .track-row{display:flex;gap:14px;margin-top:14px;flex-wrap:wrap}
+  .track-pill{border-radius:50px;padding:12px 26px;font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:12px}
+  .track-pill .cnt{font-size:26px}
+  .track-pill .sub{font-size:12px;opacity:.85}
+  .t-c1{background:linear-gradient(135deg,#ff9f0a,#ff6b00)}
+  .t-c2{background:linear-gradient(135deg,#34c759,#28a846)}
+  .t-c3{background:linear-gradient(135deg,#0071e3,#005ec4)}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
+  th{background:var(--gray1);text-align:left;padding:9px 12px;font-weight:600;color:var(--gray3);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+  td{padding:9px 12px;border-bottom:1px solid var(--gray2);vertical-align:middle}
+  tr:hover td{background:var(--blue-light)}
+  .rank{color:var(--gray3);font-size:12px;width:30px}
+  .school-name{font-weight:600}
+  .num-cell{font-weight:700;color:var(--blue);text-align:right;width:52px}
+  .sub-num{color:var(--gray3);font-size:12px;text-align:right;white-space:nowrap}
+  .teacher-cnt{color:var(--gray3);font-size:11px;margin-left:3px}
+  .delta-cell{width:70px;text-align:center;font-size:12px;font-weight:600}
+  .up{color:var(--green)}.dn{color:var(--red)}
+  .bar-wrap{display:flex;align-items:center;gap:6px;font-size:12px}
+  .bar{height:7px;border-radius:3px;min-width:4px}
+  .bar-c1{background:#ff9f0a}.bar-c2{background:#34c759}.bar-c3{background:#0071e3}
+  .prev-note{font-size:12px;color:var(--gray3);margin:6px 0 10px;background:var(--gray1);padding:6px 12px;border-radius:6px;display:inline-block}
+  .warn-box{border:1.5px solid #ff9f0a;border-radius:10px;padding:14px 18px;margin-top:32px;background:#fff9f0}
+  .warn-box h3{font-size:14px;font-weight:700;color:#c07000;margin-bottom:8px}
+  .warn-item{font-size:13px;padding:4px 0;border-bottom:1px solid #ffe5b0;color:var(--text)}
+  .warn-item:last-child{border-bottom:none}
+  .kpi-note{font-size:11px;color:var(--gray3);margin-top:4px}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--gray3);margin-bottom:6px}
+  .dot{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:3px;vertical-align:middle}
+  footer{text-align:center;font-size:12px;color:var(--gray3);padding:20px;border-top:1px solid var(--gray2);margin-top:32px}
+  @media print{header{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style>
 </head>
 <body>
-
 <header>
-  <div class="hdr-left">
-    <div class="hdr-icon">📊</div>
-    <div>
-      <div class="hdr-title">MAIC 報名周報分析</div>
-      <div class="hdr-sub" id="hdr-date">資料截至 2026-04-28</div>
-    </div>
-  </div>
-  <a class="back-btn" href="./portal.html">← Hub</a>
-</header>
+  <h1>📊 MAIC 報名週報</h1>
+  <p>資料更新：2026-04-28 &nbsp;｜&nbsp; 尚無上週資料可比較</p>
 
+  <div style="margin-top:18px">
+    <a href="./portal.html" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.2);color:#fff;text-decoration:none;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:600;">← 返回 Hub</a>
+  </div>
+</header>
 <div class="wrap">
 
-  <h2>📋 整體概況</h2>
+  <h2>整體概況</h2>
   <div class="kpi-grid">
     <div class="kpi">
-      <div class="val" id="kpi-teams">224</div>
+      <div class="num">224</div>
       <div class="lbl">報名組數</div>
+      <div class="dlt"><span style="color:var(--gray3)">—</span></div>
     </div>
     <div class="kpi">
-      <div class="val" id="kpi-students">326</div>
+      <div class="num">326</div>
       <div class="lbl">參賽學生人數</div>
-      <div class="sub" id="kpi-total-note">總記錄 481 筆（含老師 155 人）</div>
+      <div class="dlt"><span style="color:var(--gray3)">—</span></div>
+      <div class="kpi-note">總記錄 481 筆（含指導老師 155 人）</div>
     </div>
     <div class="kpi">
-      <div class="val" id="kpi-schools">16</div>
+      <div class="num">16</div>
       <div class="lbl">參與學校</div>
+      <div class="dlt"><span style="color:var(--gray3)">—</span></div>
     </div>
     <div class="kpi">
-      <div class="val">3</div>
+      <div class="num">3</div>
       <div class="lbl">競賽賽道</div>
+      <div class="dlt">—</div>
     </div>
   </div>
 
-  <h2>🏁 賽道分布</h2>
+  <h2>賽道分布</h2>
   <div class="track-row">
-    <div class="track-pill t-ci"><div><div class="cnt" id="trk-ci">118</div><div>🟠 創意賽道</div></div></div>
-    <div class="track-pill t-cx"><div><div class="cnt" id="trk-cx">70</div><div>🟢 創新賽道</div></div></div>
-    <div class="track-pill t-cy"><div><div class="cnt" id="trk-cy">36</div><div>🔵 創業賽道</div></div></div>
-  </div>
-
-  <h2>🏫 各校報名分析</h2>
-  <div class="g2">
-    <div class="card">
-      <div class="card-title">各校報名組數（賽道分解）</div>
-      <div style="position:relative;height:280px"><canvas id="schoolChart"></canvas></div>
+    <div class="track-pill t-c1">
+      <div><div class="cnt">118</div><div>創意賽道</div></div>
+      <div class="sub"></div>
     </div>
-    <div class="card">
-      <div class="card-title">賽道比例</div>
-      <div style="position:relative;height:280px"><canvas id="trackChart"></canvas></div>
+    <div class="track-pill t-c2">
+      <div><div class="cnt">70</div><div>創新賽道</div></div>
+      <div class="sub"></div>
+    </div>
+    <div class="track-pill t-c3">
+      <div><div class="cnt">36</div><div>創業賽道</div></div>
+      <div class="sub"></div>
     </div>
   </div>
 
-  <h2>📚 科系排行 &amp; 各校賽道組成</h2>
-  <div class="g2-half">
-    <div class="card">
-      <div class="card-title">科系報名組數 Top 15</div>
-      <div style="position:relative;height:360px"><canvas id="deptChart"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">各校賽道組成（%）</div>
-      <div style="position:relative;height:360px"><canvas id="schoolTrackChart"></canvas></div>
-    </div>
+  <h2>各校組數排行</h2>
+  <div class="prev-note">▲▼ 與上週比較：尚無上週資料可比較</div>
+  <div class="legend">
+    <span><span class="dot" style="background:#ff9f0a"></span>創意</span>
+    <span><span class="dot" style="background:#34c759"></span>創新</span>
+    <span><span class="dot" style="background:#0071e3"></span>創業</span>
   </div>
+  <table>
+    <thead><tr>
+      <th>#</th><th>學校</th><th style="text-align:right">組數</th><th style="text-align:center">週比較</th>
+      <th>創意</th><th>創新</th><th>創業</th><th style="text-align:right">人數</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="rank">1</td>
+        <td class="school-name">國立臺灣大學</td>
+        <td class="num-cell">61</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+        <td><div class="bar-wrap"><div class="bar bar-c1" style="width:52px"></div><span>13</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c2" style="width:104px"></div><span>26</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c3" style="width:88px"></div><span>22</span></div></td>
+        <td class="sub-num">121 人<span class="teacher-cnt">＋0 師</span></td>
+      </tr>
 
-  <div class="warn-box" id="warn-box">
-    <h3>⚠️ 資料缺漏警示</h3>
-    <div id="warn-items"></div>
-  </div>
+      <tr>
+        <td class="rank">2</td>
+        <td class="school-name">逢甲大學</td>
+        <td class="num-cell">47</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+        <td><div class="bar-wrap"><div class="bar bar-c1" style="width:172px"></div><span>43</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c2" style="width:12px"></div><span>3</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>1</span></div></td>
+        <td class="sub-num">51 人<span class="teacher-cnt">＋40 師</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">3</td>
+        <td class="school-name">國立政治大學</td>
+        <td class="num-cell">40</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+        <td><div class="bar-wrap"><div class="bar bar-c1" style="width:144px"></div><span>36</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>1</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c3" style="width:12px"></div><span>3</span></div></td>
+        <td class="sub-num">64 人<span class="teacher-cnt">＋40 師</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">4</td>
+        <td class="school-name">國立臺中教育大學</td>
+        <td class="num-cell">23</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+        <td><div class="bar-wrap"><div class="bar bar-c1" style="width:32px"></div><span>8</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c2" style="width:60px"></div><span>15</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>0</span></div></td>
+        <td class="sub-num">22 人<span class="teacher-cnt">＋22 師</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">5</td>
+        <td class="school-name">國立高雄科技大學</td>
+        <td class="num-cell">20</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+        <td><div class="bar-wrap"><div class="bar bar-c1" style="width:24px"></div><span>6</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c2" style="width:56px"></div><span>14</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>0</span></div></td>
+        <td class="sub-num">20 人<span class="teacher-cnt">＋20 師</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">6</td>
+        <td class="school-name">國立清華大學</td>
+        <td class="num-cell">15</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+        <td><div class="bar-wrap"><div class="bar bar-c1" style="width:12px"></div><span>3</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c2" style="width:24px"></div><span>6</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c3" style="width:24px"></div><span>6</span></div></td>
+        <td class="sub-num">18 人<span class="teacher-cnt">＋14 師</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">7</td>
+        <td class="school-name">東海大學</td>
+        <td class="num-cell">10</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+        <td><div class="bar-wrap"><div class="bar bar-c1" style="width:28px"></div><span>7</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c2" style="width:12px"></div><span>3</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>0</span></div></td>
+        <td class="sub-num">10 人<span class="teacher-cnt">＋10 師</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">8</td>
+        <td class="school-name">國立陽明交通大學</td>
+        <td class="num-cell">7</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+        <td><div class="bar-wrap"><div class="bar bar-c1" style="width:8px"></div><span>2</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c2" style="width:12px"></div><span>3</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c3" style="width:8px"></div><span>2</span></div></td>
+        <td class="sub-num">8 人<span class="teacher-cnt">＋6 師</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">9</td>
+        <td class="school-name">臺北醫學大學</td>
+        <td class="num-cell">1</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+        <td><div class="bar-wrap"><div class="bar bar-c1" style="width:4px"></div><span>0</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>0</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>1</span></div></td>
+        <td class="sub-num">1 人<span class="teacher-cnt">＋0 師</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">10</td>
+        <td class="school-name">國立臺北教育大學</td>
+        <td class="num-cell">1</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+        <td><div class="bar-wrap"><div class="bar bar-c1" style="width:4px"></div><span>1</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>0</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>0</span></div></td>
+        <td class="sub-num">1 人<span class="teacher-cnt">＋0 師</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">11</td>
+        <td class="school-name">慈濟學校財團法人慈濟科技大學</td>
+        <td class="num-cell">1</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+        <td><div class="bar-wrap"><div class="bar bar-c1" style="width:4px"></div><span>1</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>0</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>0</span></div></td>
+        <td class="sub-num">2 人<span class="teacher-cnt">＋1 師</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">12</td>
+        <td class="school-name">國立臺北科技大學</td>
+        <td class="num-cell">1</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+        <td><div class="bar-wrap"><div class="bar bar-c1" style="width:4px"></div><span>0</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>1</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>0</span></div></td>
+        <td class="sub-num">1 人<span class="teacher-cnt">＋0 師</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">13</td>
+        <td class="school-name">輔仁大學</td>
+        <td class="num-cell">1</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+        <td><div class="bar-wrap"><div class="bar bar-c1" style="width:4px"></div><span>0</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>0</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>1</span></div></td>
+        <td class="sub-num">1 人<span class="teacher-cnt">＋0 師</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">14</td>
+        <td class="school-name">銘傳大學</td>
+        <td class="num-cell">1</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+        <td><div class="bar-wrap"><div class="bar bar-c1" style="width:4px"></div><span>0</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>1</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>0</span></div></td>
+        <td class="sub-num">3 人<span class="teacher-cnt">＋1 師</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">15</td>
+        <td class="school-name">國立臺南大學</td>
+        <td class="num-cell">1</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+        <td><div class="bar-wrap"><div class="bar bar-c1" style="width:4px"></div><span>0</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>0</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>1</span></div></td>
+        <td class="sub-num">3 人<span class="teacher-cnt">＋0 師</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">16</td>
+        <td class="school-name">靜宜大學</td>
+        <td class="num-cell">1</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+        <td><div class="bar-wrap"><div class="bar bar-c1" style="width:4px"></div><span>1</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>0</span></div></td>
+        <td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>0</span></div></td>
+        <td class="sub-num">0 人<span class="teacher-cnt">＋1 師</span></td>
+      </tr></tbody>
+  </table>
+
+  <h2>各科系報名組數（前 25）</h2>
+  <div class="prev-note">▲▼ 與上週比較：尚無上週資料可比較</div>
+  <table>
+    <thead><tr>
+      <th>#</th><th>科系 / 所</th><th style="text-align:right">組數</th><th style="text-align:center">週比較</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="rank">1</td>
+        <td>教育學系</td>
+        <td class="num-cell">40</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">2</td>
+        <td>資訊工程學系</td>
+        <td class="num-cell">15</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">3</td>
+        <td>室內設計進修學士班</td>
+        <td class="num-cell">9</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">4</td>
+        <td>外國語文學系</td>
+        <td class="num-cell">8</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">5</td>
+        <td>合作經濟暨社會事業經營學系</td>
+        <td class="num-cell">7</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">6</td>
+        <td>會計學系</td>
+        <td class="num-cell">6</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">7</td>
+        <td>中國文學系</td>
+        <td class="num-cell">6</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">8</td>
+        <td>經濟學系</td>
+        <td class="num-cell">5</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">9</td>
+        <td>電機工程學系</td>
+        <td class="num-cell">4</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">10</td>
+        <td>財務金融學系</td>
+        <td class="num-cell">4</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">11</td>
+        <td>公共事務研究所</td>
+        <td class="num-cell">4</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">12</td>
+        <td>哲學系</td>
+        <td class="num-cell">4</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">13</td>
+        <td>特殊教育學系</td>
+        <td class="num-cell">3</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">14</td>
+        <td>物理學系</td>
+        <td class="num-cell">3</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">15</td>
+        <td>生命科學系</td>
+        <td class="num-cell">3</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">16</td>
+        <td>昆蟲學系</td>
+        <td class="num-cell">3</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">17</td>
+        <td>華語教學碩士學位學程</td>
+        <td class="num-cell">3</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">18</td>
+        <td>國際企業學系</td>
+        <td class="num-cell">3</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">19</td>
+        <td>文化與社會創新碩士學位學程</td>
+        <td class="num-cell">3</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">20</td>
+        <td>教育與學習科技學系</td>
+        <td class="num-cell">2</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">21</td>
+        <td>行銷與流通管理系</td>
+        <td class="num-cell">2</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">22</td>
+        <td>國際經營與貿易學系</td>
+        <td class="num-cell">2</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">23</td>
+        <td>心理學系</td>
+        <td class="num-cell">2</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">24</td>
+        <td>植物科學研究所</td>
+        <td class="num-cell">2</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr>
+
+      <tr>
+        <td class="rank">25</td>
+        <td>教育研究所</td>
+        <td class="num-cell">2</td>
+        <td class="delta-cell"><span style="color:var(--gray3)">—</span></td>
+      </tr></tbody>
+  </table>
 
 </div>
-<footer>MAIC 行動應用創新賽 · 報名周報分析 · <span id="footer-date">2026-04-28</span></footer>
-
-<script>
-// ══════════════════════════════════════════
-//  每週只需更新這個 DATA 物件
-// ══════════════════════════════════════════
-var DATA = {
-  updatedAt  : '2026-04-28',
-  totalTeams : 224,
-  students   : 326,
-  teachers   : 155,
-  schools    : 16,
-  tracks     : { ci:118, cx:70, cy:36 },
-  schoolData : [
-    { name:'國立臺灣大學',     ci:13, cx:26, cy:22 },
-    { name:'逢甲大學',         ci:43, cx:3,  cy:1  },
-    { name:'國立政治大學',     ci:36, cx:1,  cy:3  },
-    { name:'國立臺中教育大學', ci:8,  cx:15, cy:0  },
-    { name:'國立高雄科技大學', ci:6,  cx:14, cy:0  },
-    { name:'國立清華大學',     ci:3,  cx:6,  cy:6  },
-    { name:'東海大學',         ci:7,  cx:3,  cy:0  },
-    { name:'國立陽明交通大學', ci:2,  cx:3,  cy:2  },
-  ],
-  deptData : [
-    { name:'教育學系',           n:40 },
-    { name:'資訊工程學系',       n:15 },
-    { name:'室內設計進修學士班', n:9  },
-    { name:'外國語文學系',       n:8  },
-    { name:'合作經濟暨社會事業', n:7  },
-    { name:'會計學系',           n:6  },
-    { name:'中國文學系',         n:6  },
-    { name:'經濟學系',           n:5  },
-    { name:'電機工程學系',       n:4  },
-    { name:'財務金融學系',       n:4  },
-    { name:'公共事務研究所',     n:4  },
-    { name:'哲學系',             n:4  },
-    { name:'特殊教育學系',       n:3  },
-    { name:'物理學系',           n:3  },
-    { name:'生命科學系',         n:3  },
-  ],
-  noLeader : [
-    { id:'086',  name:'無界之徑',  school:'國立清華大學', track:'創業' },
-    { id:'098',  name:'介面鑄造師',school:'國立清華大學', track:'創新' },
-    { id:'0294', name:'逼逼啦不',  school:'逢甲大學',     track:'創意' },
-  ]
-};
-
-var C={ci:'#ff9f0a',cx:'#34c759',cy:'#0071e3',
-  pal:['#0071e3','#ff9f0a','#34c759','#ff3b30','#af52de','#5ac8fa','#ff2d55','#ff6b00','#a855f7','#ec4899']};
-
-document.getElementById('hdr-date').textContent     = '資料截至 '+DATA.updatedAt;
-document.getElementById('footer-date').textContent  = DATA.updatedAt;
-document.getElementById('kpi-teams').textContent    = DATA.totalTeams;
-document.getElementById('kpi-students').textContent = DATA.students;
-document.getElementById('kpi-schools').textContent  = DATA.schools;
-document.getElementById('kpi-total-note').textContent =
-  '總記錄 '+(DATA.students+DATA.teachers)+' 筆（含老師 '+DATA.teachers+' 人）';
-document.getElementById('trk-ci').textContent = DATA.tracks.ci;
-document.getElementById('trk-cx').textContent = DATA.tracks.cx;
-document.getElementById('trk-cy').textContent = DATA.tracks.cy;
-
-var wb=document.getElementById('warn-box');
-if(!DATA.noLeader.length){ wb.style.display='none'; }
-else{
-  document.querySelector('.warn-box h3').textContent=
-    '⚠️ 資料缺漏：以下 '+DATA.noLeader.length+' 組無隊長記錄，請追蹤補填';
-  document.getElementById('warn-items').innerHTML=DATA.noLeader.map(function(t){
-    return '<div class="warn-item">'+t.id+' <b>'+t.name+'</b>（'+t.school+'・'+t.track+'）</div>';
-  }).join('');
-}
-
-function sn(n){return n.replace('國立','').replace('學校財團法人','');}
-
-new Chart(document.getElementById('schoolChart'),{
-  type:'bar',
-  data:{
-    labels:DATA.schoolData.map(function(s){return sn(s.name);}),
-    datasets:[
-      {label:'創意',data:DATA.schoolData.map(function(s){return s.ci;}),backgroundColor:C.ci,borderRadius:4},
-      {label:'創新',data:DATA.schoolData.map(function(s){return s.cx;}),backgroundColor:C.cx,borderRadius:4},
-      {label:'創業',data:DATA.schoolData.map(function(s){return s.cy;}),backgroundColor:C.cy,borderRadius:4},
-    ]
-  },
-  options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{position:'top',labels:{font:{size:11}}}},
-    scales:{x:{stacked:true,ticks:{font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}}}
-});
-
-new Chart(document.getElementById('trackChart'),{
-  type:'doughnut',
-  data:{
-    labels:['🟠 創意','🟢 創新','🔵 創業'],
-    datasets:[{data:[DATA.tracks.ci,DATA.tracks.cx,DATA.tracks.cy],
-      backgroundColor:[C.ci,C.cx,C.cy],borderWidth:2}]
-  },
-  options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{position:'bottom',labels:{font:{size:12},padding:14}},
-      tooltip:{callbacks:{label:function(ctx){
-        var t=ctx.dataset.data.reduce(function(a,b){return a+b;},0);
-        return ctx.label+': '+ctx.raw+' 組 ('+Math.round(ctx.raw/t*100)+'%)';
-      }}}}}
-});
-
-new Chart(document.getElementById('deptChart'),{
-  type:'bar',
-  data:{
-    labels:DATA.deptData.map(function(d){return d.name;}),
-    datasets:[{label:'組數',data:DATA.deptData.map(function(d){return d.n;}),
-      backgroundColor:DATA.deptData.map(function(_,i){return C.pal[i%C.pal.length]+'cc';}),borderRadius:4}]
-  },
-  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false}},
-    scales:{x:{ticks:{font:{size:10}}},y:{ticks:{font:{size:10}}}}}
-});
-
-var t6=DATA.schoolData.slice(0,6);
-new Chart(document.getElementById('schoolTrackChart'),{
-  type:'bar',
-  data:{
-    labels:t6.map(function(s){return sn(s.name);}),
-    datasets:[
-      {label:'創意',data:t6.map(function(s){var t=s.ci+s.cx+s.cy;return Math.round(s.ci/t*100);}),backgroundColor:C.ci,borderRadius:4},
-      {label:'創新',data:t6.map(function(s){var t=s.ci+s.cx+s.cy;return Math.round(s.cx/t*100);}),backgroundColor:C.cx,borderRadius:4},
-      {label:'創業',data:t6.map(function(s){var t=s.ci+s.cx+s.cy;return Math.round(s.cy/t*100);}),backgroundColor:C.cy,borderRadius:4},
-    ]
-  },
-  options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{position:'top',labels:{font:{size:11}}},
-      tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.raw+'%';}}}},
-    scales:{x:{stacked:true,ticks:{font:{size:10}}},
-      y:{stacked:true,max:100,ticks:{callback:function(v){return v+'%';},font:{size:10}}}}}
-});
-</script>
+<footer>MAIC 行動應用創新賽 週報 · 2026-04-28 · 由 maic_weekly.py 自動產出</footer>
 </body>
 </html>
