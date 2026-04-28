@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MAIC 報名周報分析</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f2f2f7;--card:#fff;--text:#1d1d1f;--text2:#6e6e73;
+  --blue:#0071e3;--green:#34c759;--orange:#ff9f0a;--red:#ff3b30;
+  --border:#d2d2d7;--shadow:0 2px 14px rgba(0,0,0,.07);
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#1c1c1e;--card:#2c2c2e;--text:#f5f5f7;--text2:#98989d;--border:#3a3a3c}
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'SF Pro Display',sans-serif;background:var(--bg);color:var(--text)}
+
+header{
+  background:linear-gradient(135deg,#0071e3,#5ac8fa);
+  color:#fff;padding:28px 32px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+.hdr-left{display:flex;align-items:center;gap:14px}
+.hdr-icon{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.hdr-title{font-size:20px;font-weight:800;letter-spacing:-.3px}
+.hdr-sub{font-size:12px;opacity:.8;margin-top:3px}
+.back-btn{
+  background:rgba(255,255,255,.2);border:none;color:#fff;
+  border-radius:20px;padding:7px 16px;font-size:13px;font-weight:600;
+  cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:5px;
+  transition:background .2s;
+}
+.back-btn:hover{background:rgba(255,255,255,.3)}
+
+.wrap{max-width:980px;margin:0 auto;padding:28px 24px 60px}
+h2{font-size:16px;font-weight:700;margin:32px 0 14px;padding-bottom:8px;
+  border-bottom:2px solid var(--border);display:flex;align-items:center;gap:8px}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.kpi{background:var(--card);border-radius:14px;padding:18px 20px;
+  box-shadow:var(--shadow);text-align:center}
+.kpi .val{font-size:34px;font-weight:800;color:var(--blue);line-height:1.1}
+.kpi .lbl{font-size:11px;color:var(--text2);margin-top:5px;font-weight:500}
+.kpi .sub{font-size:10px;color:var(--text2);margin-top:4px}
+
+.track-row{display:flex;gap:14px;margin-bottom:24px;flex-wrap:wrap}
+.track-pill{border-radius:50px;padding:12px 28px;color:#fff;font-weight:700;
+  font-size:14px;display:flex;align-items:center;gap:12px}
+.track-pill .cnt{font-size:26px;font-weight:800}
+.t-ci{background:linear-gradient(135deg,#ff9f0a,#ff6b00)}
+.t-cx{background:linear-gradient(135deg,#34c759,#28a846)}
+.t-cy{background:linear-gradient(135deg,#0071e3,#005ec4)}
+
+.g2{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+.g2-half{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.card{background:var(--card);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow)}
+.card-title{font-size:13px;font-weight:600;margin-bottom:14px;color:var(--text)}
+
+.warn-box{border:1.5px solid var(--orange);border-radius:12px;padding:16px 20px;
+  margin-top:24px;background:#fff9f0}
+@media(prefers-color-scheme:dark){.warn-box{background:#2c2a1e}}
+.warn-box h3{font-size:13px;font-weight:700;color:#c07000;margin-bottom:10px}
+.warn-item{font-size:12.5px;padding:6px 0;border-bottom:1px solid #ffe5b0;color:var(--text)}
+.warn-item:last-child{border-bottom:none}
+
+footer{text-align:center;font-size:12px;color:var(--text2);
+  padding:20px;border-top:1px solid var(--border);margin-top:40px}
+
+@media(max-width:640px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .g2,.g2-half{grid-template-columns:1fr}
+  .hdr-title{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-left">
+    <div class="hdr-icon">📊</div>
+    <div>
+      <div class="hdr-title">MAIC 報名周報分析</div>
+      <div class="hdr-sub" id="hdr-date">資料截至 2026-04-28</div>
+    </div>
+  </div>
+  <a class="back-btn" href="./portal.html">← Hub</a>
+</header>
+
+<div class="wrap">
+
+  <h2>📋 整體概況</h2>
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="val" id="kpi-teams">224</div>
+      <div class="lbl">報名組數</div>
+    </div>
+    <div class="kpi">
+      <div class="val" id="kpi-students">326</div>
+      <div class="lbl">參賽學生人數</div>
+      <div class="sub" id="kpi-total-note">總記錄 481 筆（含老師 155 人）</div>
+    </div>
+    <div class="kpi">
+      <div class="val" id="kpi-schools">16</div>
+      <div class="lbl">參與學校</div>
+    </div>
+    <div class="kpi">
+      <div class="val">3</div>
+      <div class="lbl">競賽賽道</div>
+    </div>
+  </div>
+
+  <h2>🏁 賽道分布</h2>
+  <div class="track-row">
+    <div class="track-pill t-ci"><div><div class="cnt" id="trk-ci">118</div><div>🟠 創意賽道</div></div></div>
+    <div class="track-pill t-cx"><div><div class="cnt" id="trk-cx">70</div><div>🟢 創新賽道</div></div></div>
+    <div class="track-pill t-cy"><div><div class="cnt" id="trk-cy">36</div><div>🔵 創業賽道</div></div></div>
+  </div>
+
+  <h2>🏫 各校報名分析</h2>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">各校報名組數（賽道分解）</div>
+      <div style="position:relative;height:280px"><canvas id="schoolChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">賽道比例</div>
+      <div style="position:relative;height:280px"><canvas id="trackChart"></canvas></div>
+    </div>
+  </div>
+
+  <h2>📚 科系排行 &amp; 各校賽道組成</h2>
+  <div class="g2-half">
+    <div class="card">
+      <div class="card-title">科系報名組數 Top 15</div>
+      <div style="position:relative;height:360px"><canvas id="deptChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">各校賽道組成（%）</div>
+      <div style="position:relative;height:360px"><canvas id="schoolTrackChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="warn-box" id="warn-box">
+    <h3>⚠️ 資料缺漏警示</h3>
+    <div id="warn-items"></div>
+  </div>
+
+</div>
+<footer>MAIC 行動應用創新賽 · 報名周報分析 · <span id="footer-date">2026-04-28</span></footer>
+
+<script>
+// ══════════════════════════════════════════
+//  每週只需更新這個 DATA 物件
+// ══════════════════════════════════════════
+var DATA = {
+  updatedAt  : '2026-04-28',
+  totalTeams : 224,
+  students   : 326,
+  teachers   : 155,
+  schools    : 16,
+  tracks     : { ci:118, cx:70, cy:36 },
+  schoolData : [
+    { name:'國立臺灣大學',     ci:13, cx:26, cy:22 },
+    { name:'逢甲大學',         ci:43, cx:3,  cy:1  },
+    { name:'國立政治大學',     ci:36, cx:1,  cy:3  },
+    { name:'國立臺中教育大學', ci:8,  cx:15, cy:0  },
+    { name:'國立高雄科技大學', ci:6,  cx:14, cy:0  },
+    { name:'國立清華大學',     ci:3,  cx:6,  cy:6  },
+    { name:'東海大學',         ci:7,  cx:3,  cy:0  },
+    { name:'國立陽明交通大學', ci:2,  cx:3,  cy:2  },
+  ],
+  deptData : [
+    { name:'教育學系',           n:40 },
+    { name:'資訊工程學系',       n:15 },
+    { name:'室內設計進修學士班', n:9  },
+    { name:'外國語文學系',       n:8  },
+    { name:'合作經濟暨社會事業', n:7  },
+    { name:'會計學系',           n:6  },
+    { name:'中國文學系',         n:6  },
+    { name:'經濟學系',           n:5  },
+    { name:'電機工程學系',       n:4  },
+    { name:'財務金融學系',       n:4  },
+    { name:'公共事務研究所',     n:4  },
+    { name:'哲學系',             n:4  },
+    { name:'特殊教育學系',       n:3  },
+    { name:'物理學系',           n:3  },
+    { name:'生命科學系',         n:3  },
+  ],
+  noLeader : [
+    { id:'086',  name:'無界之徑',  school:'國立清華大學', track:'創業' },
+    { id:'098',  name:'介面鑄造師',school:'國立清華大學', track:'創新' },
+    { id:'0294', name:'逼逼啦不',  school:'逢甲大學',     track:'創意' },
+  ]
+};
+
+var C={ci:'#ff9f0a',cx:'#34c759',cy:'#0071e3',
+  pal:['#0071e3','#ff9f0a','#34c759','#ff3b30','#af52de','#5ac8fa','#ff2d55','#ff6b00','#a855f7','#ec4899']};
+
+document.getElementById('hdr-date').textContent     = '資料截至 '+DATA.updatedAt;
+document.getElementById('footer-date').textContent  = DATA.updatedAt;
+document.getElementById('kpi-teams').textContent    = DATA.totalTeams;
+document.getElementById('kpi-students').textContent = DATA.students;
+document.getElementById('kpi-schools').textContent  = DATA.schools;
+document.getElementById('kpi-total-note').textContent =
+  '總記錄 '+(DATA.students+DATA.teachers)+' 筆（含老師 '+DATA.teachers+' 人）';
+document.getElementById('trk-ci').textContent = DATA.tracks.ci;
+document.getElementById('trk-cx').textContent = DATA.tracks.cx;
+document.getElementById('trk-cy').textContent = DATA.tracks.cy;
+
+var wb=document.getElementById('warn-box');
+if(!DATA.noLeader.length){ wb.style.display='none'; }
+else{
+  document.querySelector('.warn-box h3').textContent=
+    '⚠️ 資料缺漏：以下 '+DATA.noLeader.length+' 組無隊長記錄，請追蹤補填';
+  document.getElementById('warn-items').innerHTML=DATA.noLeader.map(function(t){
+    return '<div class="warn-item">'+t.id+' <b>'+t.name+'</b>（'+t.school+'・'+t.track+'）</div>';
+  }).join('');
+}
+
+function sn(n){return n.replace('國立','').replace('學校財團法人','');}
+
+new Chart(document.getElementById('schoolChart'),{
+  type:'bar',
+  data:{
+    labels:DATA.schoolData.map(function(s){return sn(s.name);}),
+    datasets:[
+      {label:'創意',data:DATA.schoolData.map(function(s){return s.ci;}),backgroundColor:C.ci,borderRadius:4},
+      {label:'創新',data:DATA.schoolData.map(function(s){return s.cx;}),backgroundColor:C.cx,borderRadius:4},
+      {label:'創業',data:DATA.schoolData.map(function(s){return s.cy;}),backgroundColor:C.cy,borderRadius:4},
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{font:{size:11}}}},
+    scales:{x:{stacked:true,ticks:{font:{size:10}}},y:{stacked:true,ticks:{font:{size:10}}}}}
+});
+
+new Chart(document.getElementById('trackChart'),{
+  type:'doughnut',
+  data:{
+    labels:['🟠 創意','🟢 創新','🔵 創業'],
+    datasets:[{data:[DATA.tracks.ci,DATA.tracks.cx,DATA.tracks.cy],
+      backgroundColor:[C.ci,C.cx,C.cy],borderWidth:2}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{font:{size:12},padding:14}},
+      tooltip:{callbacks:{label:function(ctx){
+        var t=ctx.dataset.data.reduce(function(a,b){return a+b;},0);
+        return ctx.label+': '+ctx.raw+' 組 ('+Math.round(ctx.raw/t*100)+'%)';
+      }}}}}
+});
+
+new Chart(document.getElementById('deptChart'),{
+  type:'bar',
+  data:{
+    labels:DATA.deptData.map(function(d){return d.name;}),
+    datasets:[{label:'組數',data:DATA.deptData.map(function(d){return d.n;}),
+      backgroundColor:DATA.deptData.map(function(_,i){return C.pal[i%C.pal.length]+'cc';}),borderRadius:4}]
+  },
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{x:{ticks:{font:{size:10}}},y:{ticks:{font:{size:10}}}}}
+});
+
+var t6=DATA.schoolData.slice(0,6);
+new Chart(document.getElementById('schoolTrackChart'),{
+  type:'bar',
+  data:{
+    labels:t6.map(function(s){return sn(s.name);}),
+    datasets:[
+      {label:'創意',data:t6.map(function(s){var t=s.ci+s.cx+s.cy;return Math.round(s.ci/t*100);}),backgroundColor:C.ci,borderRadius:4},
+      {label:'創新',data:t6.map(function(s){var t=s.ci+s.cx+s.cy;return Math.round(s.cx/t*100);}),backgroundColor:C.cx,borderRadius:4},
+      {label:'創業',data:t6.map(function(s){var t=s.ci+s.cx+s.cy;return Math.round(s.cy/t*100);}),backgroundColor:C.cy,borderRadius:4},
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{font:{size:11}}},
+      tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.raw+'%';}}}},
+    scales:{x:{stacked:true,ticks:{font:{size:10}}},
+      y:{stacked:true,max:100,ticks:{callback:function(v){return v+'%';},font:{size:10}}}}}
+});
+</script>
+</body>
+</html>
