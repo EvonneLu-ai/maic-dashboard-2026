@@ -107,6 +107,25 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
 .tab.dc .dot{background:var(--red)}
 .tab.dc.active{color:var(--red);border-color:var(--red)}
 .pill-dc{background:#fee2e2;color:#991b1b}
+.tab.rp .dot{background:#5ac8fa}.tab.rp.active{color:#0071e3;border-color:#5ac8fa}
+.pill-rp{background:#e0f2fe;color:#0369a1}
+/* ── 報名周報分析頁 ── */
+#page-report .rpt-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+#page-report .rpt-kpi{background:var(--card);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);text-align:center}
+#page-report .rpt-kpi .val{font-size:32px;font-weight:800;color:var(--blue);line-height:1.1}
+#page-report .rpt-kpi .lbl{font-size:11px;color:var(--text2);margin-top:5px}
+#page-report .rpt-kpi .sub{font-size:10px;color:var(--text2);margin-top:3px}
+#page-report .rpt-track-row{display:flex;gap:14px;margin-bottom:20px}
+#page-report .rpt-track{border-radius:50px;padding:12px 28px;color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;gap:12px}
+#page-report .rpt-track .cnt{font-size:26px;font-weight:800}
+#page-report .t-ci{background:linear-gradient(135deg,#ff9f0a,#ff6b00)}
+#page-report .t-cx{background:linear-gradient(135deg,#34c759,#28a846)}
+#page-report .t-cy{background:linear-gradient(135deg,#0071e3,#005ec4)}
+#page-report .rpt-warn{border:1.5px solid #ff9f0a;border-radius:10px;padding:14px 18px;margin-top:20px;background:#fff9f0}
+#page-report .rpt-warn h3{font-size:13px;font-weight:700;color:#c07000;margin-bottom:8px}
+#page-report .rpt-warn-item{font-size:12px;padding:4px 0;border-bottom:1px solid #ffe5b0}
+#page-report .rpt-warn-item:last-child{border-bottom:none}
+#page-report .date-label{font-size:12px;color:var(--text2);font-weight:400;margin-left:8px}
 
 /* ── 決議卡片 ── */
 .dec-item{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:10px;background:var(--bg);margin-bottom:8px;border-left:3px solid var(--border);transition:opacity .2s}
@@ -254,6 +273,7 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
     <button class="tab mk" onclick="switchTab('marketing')"><span class="dot"></span>Marketing</button>
     <button class="tab tr" onclick="switchTab('training')"><span class="dot"></span>Training</button>
     <button class="tab dc" onclick="switchTab('decision')"><span class="dot"></span>決議追蹤</button>
+    <button class="tab rp" onclick="switchTab('report')"><span class="dot"></span>MAIC報名周報分析</button>
   </div>
 </header>
 
@@ -2178,6 +2198,160 @@ function downloadPDF() {
   link.click();
   document.body.removeChild(link);
 }
+</script>
+
+<script>
+// ════════════ MAIC 報名周報分析 圖表 ════════════
+(function initReportCharts() {
+
+  // ── 資料（每週跑 maic_weekly.py 後手動更新這裡）──────────────
+  var RPT = {
+    updatedAt : '2026-04-28',
+    totalTeams: 224,
+    students  : 326,
+    teachers  : 155,
+    schools   : 16,
+    tracks    : { '創意': 118, '創新': 70, '創業': 36 },
+    schoolData: [
+      { name:'國立臺灣大學',    teams:61, ci:13, cx:26, cy:22 },
+      { name:'逢甲大學',        teams:47, ci:43, cx:3,  cy:1  },
+      { name:'國立政治大學',    teams:40, ci:36, cx:1,  cy:3  },
+      { name:'國立臺中教育大學',teams:23, ci:8,  cx:15, cy:0  },
+      { name:'國立高雄科技大學',teams:20, ci:6,  cx:14, cy:0  },
+      { name:'國立清華大學',    teams:15, ci:3,  cx:6,  cy:6  },
+      { name:'東海大學',        teams:10, ci:7,  cx:3,  cy:0  },
+      { name:'國立陽明交通大學',teams:7,  ci:2,  cx:3,  cy:2  },
+    ],
+    deptData: [
+      { name:'教育學系',        teams:40 },
+      { name:'資訊工程學系',    teams:15 },
+      { name:'室內設計進修學士班', teams:9 },
+      { name:'外國語文學系',    teams:8  },
+      { name:'合作經濟暨社會事業', teams:7 },
+      { name:'會計學系',        teams:6  },
+      { name:'中國文學系',      teams:6  },
+      { name:'經濟學系',        teams:5  },
+      { name:'電機工程學系',    teams:4  },
+      { name:'財務金融學系',    teams:4  },
+      { name:'公共事務研究所',  teams:4  },
+      { name:'哲學系',          teams:4  },
+      { name:'特殊教育學系',    teams:3  },
+      { name:'物理學系',        teams:3  },
+      { name:'生命科學系',      teams:3  },
+    ],
+    noLeader: [
+      { id:'086',  name:'無界之徑',  school:'國立清華大學', track:'創業' },
+      { id:'098',  name:'介面鑄造師',school:'國立清華大學', track:'創新' },
+      { id:'0294', name:'逼逼啦不',  school:'逢甲大學',     track:'創意' },
+    ]
+  };
+
+  // 更新 KPI 文字
+  document.getElementById('rpt-date-label').textContent = '資料截至 ' + RPT.updatedAt;
+  document.getElementById('rpt-total-teams').textContent = RPT.totalTeams;
+  document.getElementById('rpt-students').textContent    = RPT.students;
+  document.getElementById('rpt-schools').textContent     = RPT.schools;
+  document.getElementById('rpt-total-records').textContent =
+    '總記錄 '+(RPT.students+RPT.teachers)+' 筆（含指導老師 '+RPT.teachers+' 人）';
+  document.getElementById('rpt-ci').textContent = RPT.tracks['創意'];
+  document.getElementById('rpt-cx').textContent = RPT.tracks['創新'];
+  document.getElementById('rpt-cy').textContent = RPT.tracks['創業'];
+
+  // 更新警示區（動態）
+  var warnBox = document.querySelector('#page-report .rpt-warn');
+  if (RPT.noLeader.length === 0) {
+    warnBox.style.display = 'none';
+  } else {
+    var items = RPT.noLeader.map(function(t){
+      return '<div class="rpt-warn-item">'+t.id+' '+t.name+'（'+t.school+'・'+t.track+'）</div>';
+    }).join('');
+    warnBox.innerHTML = '<h3>⚠️ 資料缺漏：以下 '+RPT.noLeader.length+' 組無隊長記錄，請追蹤補填</h3>' + items;
+  }
+
+  var C = {
+    ci:'#ff9f0a', cx:'#34c759', cy:'#0071e3',
+    palette:['#0071e3','#ff9f0a','#34c759','#ff3b30','#af52de','#5ac8fa','#ff2d55','#ff6b00']
+  };
+
+  // ── 各校橫條圖 ──
+  new Chart(document.getElementById('rptSchoolChart'), {
+    type: 'bar',
+    data: {
+      labels: RPT.schoolData.map(function(s){ return s.name.replace('國立','').replace('學校財團法人',''); }),
+      datasets: [
+        { label:'創意', data: RPT.schoolData.map(function(s){return s.ci;}), backgroundColor: C.ci, borderRadius:4 },
+        { label:'創新', data: RPT.schoolData.map(function(s){return s.cx;}), backgroundColor: C.cx, borderRadius:4 },
+        { label:'創業', data: RPT.schoolData.map(function(s){return s.cy;}), backgroundColor: C.cy, borderRadius:4 },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'top', labels:{ font:{size:11} } } },
+      scales:{ x:{ stacked:true, ticks:{font:{size:10}} }, y:{ stacked:true, ticks:{font:{size:10}} } }
+    }
+  });
+
+  // ── 賽道圓餅圖 ──
+  new Chart(document.getElementById('rptTrackChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['🟠 創意','🟢 創新','🔵 創業'],
+      datasets:[{ data:[RPT.tracks['創意'],RPT.tracks['創新'],RPT.tracks['創業']],
+        backgroundColor:[C.ci, C.cx, C.cy], borderWidth:2 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{ position:'bottom', labels:{ font:{size:12}, padding:14 } },
+        tooltip:{ callbacks:{ label:function(ctx){
+          var total=ctx.dataset.data.reduce(function(a,b){return a+b;},0);
+          return ctx.label+': '+ctx.raw+' 組 ('+Math.round(ctx.raw/total*100)+'%)';
+        }}}
+      }
+    }
+  });
+
+  // ── 科系橫條圖 ──
+  new Chart(document.getElementById('rptDeptChart'), {
+    type: 'bar',
+    data: {
+      labels: RPT.deptData.map(function(d){return d.name;}),
+      datasets:[{ label:'組數',
+        data: RPT.deptData.map(function(d){return d.teams;}),
+        backgroundColor: RPT.deptData.map(function(_,i){return C.palette[i%C.palette.length]+'cc';}),
+        borderRadius:4 }]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{ x:{ ticks:{font:{size:10}} }, y:{ ticks:{font:{size:10}} } }
+    }
+  });
+
+  // ── 各校賽道百分比堆疊圖 ──
+  var top6 = RPT.schoolData.slice(0,6);
+  new Chart(document.getElementById('rptSchoolTrackChart'), {
+    type:'bar',
+    data:{
+      labels: top6.map(function(s){return s.name.replace('國立','');}),
+      datasets:[
+        { label:'創意', data: top6.map(function(s){return Math.round(s.ci/s.teams*100);}), backgroundColor:C.ci, borderRadius:4 },
+        { label:'創新', data: top6.map(function(s){return Math.round(s.cx/s.teams*100);}), backgroundColor:C.cx, borderRadius:4 },
+        { label:'創業', data: top6.map(function(s){return Math.round(s.cy/s.teams*100);}), backgroundColor:C.cy, borderRadius:4 },
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'top', labels:{font:{size:11}} },
+        tooltip:{ callbacks:{ label:function(ctx){ return ctx.dataset.label+': '+ctx.raw+'%'; }}}},
+      scales:{
+        x:{ stacked:true, ticks:{font:{size:10}} },
+        y:{ stacked:true, max:100, ticks:{ callback:function(v){return v+'%';}, font:{size:10} } }
+      }
+    }
+  });
+
+})();
 </script>
 </body>
 </html>
