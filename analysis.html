@@ -405,6 +405,41 @@ function pill(text, cls) { return `<span class="pill ${cls||'p-gray'}">${text}</
 function ins(icon, text, cls) {
   return `<div class="ins ${cls||'ins-blue'}"><span class="ins-icon">${icon}</span><span>${text}</span></div>`;
 }
+function insBlock(title, items) {
+  return `<div class="card" style="margin-top:14px">
+    <div class="card-title" style="color:var(--blue);font-size:13px;margin-bottom:10px">${title}</div>
+    ${items.join('')}
+  </div>`;
+}
+// Dynamic insights based on current filtered data
+function genInsights(t) {
+  const total = t.length;
+  if(!total) return '';
+  const bySchool = countBy(t,'school');
+  const byTrack  = countBy(t,'track');
+  const byRegion = countBy(t,'region');
+  const byDeptCat= countBy(t,'deptCat');
+  const topSchool= Object.entries(bySchool).sort((a,b)=>b[1]-a[1])[0];
+  const topDept  = Object.entries(byDeptCat).sort((a,b)=>b[1]-a[1])[0];
+  const edPct    = Math.round((byDeptCat['教育']||0)/total*100);
+  const southPct = Math.round((byRegion['南部']||0)/total*100);
+  const obs=[], rec=[];
+
+  // Observations
+  if(topSchool) obs.push(ins('🏆',`最多隊伍來自 <b>${topSchool[0].replace('國立','')}</b>，共 ${topSchool[1]} 隊（${Math.round(topSchool[1]/total*100)}%）`,'ins-blue'));
+  if(byTrack['創業']) obs.push(ins('🏁',`創業組 ${byTrack['創業']||0} 隊（${Math.round((byTrack['創業']||0)/total*100)}%）、創新組 ${byTrack['創新']||0} 隊（${Math.round((byTrack['創新']||0)/total*100)}%）、創意組 ${byTrack['創意']||0} 隊（${Math.round((byTrack['創意']||0)/total*100)}%）`,'ins-blue'));
+  if(edPct>30) obs.push(ins('⚠️',`教育學系佔比 ${edPct}%，科系分佈過度集中，缺乏資工/設計背景的隊伍`,'ins-orange'));
+  if(southPct<15 && !FS.region) obs.push(ins('🗺️',`南部隊伍僅佔 ${southPct}%，地區分佈嚴重偏北部/中部`,'ins-orange'));
+  if(topDept) obs.push(ins('🎓',`最多見科系類別為 <b>${topDept[0]}</b>（${topDept[1]} 隊），次多為 <b>${Object.entries(byDeptCat).sort((a,b)=>b[1]-a[1])[1]?.[0]||''}</b>`,'ins-blue'));
+
+  // Recommendations
+  if(edPct>50) rec.push(ins('💡','政大教育學系大量集體報名，建議審查是否為課堂指定作業。可設定「企畫書上傳」為強制資格確認機制。','ins-red'));
+  if((byRegion['南部']||0)<15 && !FS.region) rec.push(ins('🎯','南部滲透率不足：成大、中山等頂尖校完全缺席。明年應優先安排南部說明會，並邀請高雄科大現有老師擴大推廣。','ins-green'));
+  if((byTrack['創業']||0)/total<0.2) rec.push(ins('📋','創業組比例偏低，建議在說明會中提供「創業企畫書模板」與「商業邏輯工作坊」降低門檻。','ins-purple'));
+  if(!rec.length) rec.push(ins('✅','當前篩選條件下各維度分佈相對均衡。','ins-green'));
+
+  return insBlock('🔍 特別觀察', obs) + insBlock('🎯 決策建議', rec);
+}
 function countBy(arr, key) {
   const r={};arr.forEach(t=>{ r[t[key]]=(r[t[key]]||0)+1; }); return r;
 }
@@ -418,25 +453,53 @@ function statBox(num, lbl, color) {
   return `<div class="stat-box"><div class="stat-num" style="color:${color||'var(--blue)'}">${num}</div><div class="stat-lbl">${lbl}</div></div>`;
 }
 
-// ── Common filter bar builder ──
+// ── Dynamic filter bar builder ──
+// 動態篩選：根據已選條件，篩選出還有資料的選項
+function dynOpts(key, labelAll, labelFn, preFilter) {
+  // preFilter: filtered() but ignoring the current key's own filter
+  const fsBackup = FS[key];
+  FS[key] = 'all';
+  const base = preFilter || filtered();
+  FS[key] = fsBackup;
+  const vals = [...new Set(base.map(t=>t[key]).filter(Boolean))].sort();
+  return ['all',...vals].map(v=>`<option value="${v}"${FS[key]===v?' selected':''}>${v==='all'?labelAll:labelFn(v)}</option>`).join('');
+}
 function buildFilterBar(opts) {
   opts = opts || {};
-  // opts: {school, region, track, deptCat, nameCat, search, onChange}
-  const schoolOpts = ['all',...ALL_SCHOOLS].map(s=>`<option value="${s}"${FS.school===s?' selected':''}>${s==='all'?'全部學校':s.replace('國立','')}</option>`).join('');
-  const regionOpts = ['all',...ALL_REGIONS].map(r=>`<option value="${r}"${FS.region===r?' selected':''}>${r==='all'?'全部地區':r}</option>`).join('');
-  const trackOpts = ['all',...ALL_TRACKS].map(t=>`<option value="${t}"${FS.track===t?' selected':''}>${t==='all'?'全部賽道':t}</option>`).join('');
-  const deptOpts = ['all',...ALL_DEPTCATS].map(d=>`<option value="${d}"${FS.deptCat===d?' selected':''}>${d==='all'?'全部科系類別':d}</option>`).join('');
-  const nameOpts = ['all',...ALL_NAMECATS].map(n=>`<option value="${n}"${FS.nameCat===n?' selected':''}>${n==='all'?'全部組名類型':n}</option>`).join('');
+  const cb = opts.cb || '';
 
-  const show = opts||{school:true,region:true,track:true,deptCat:true,nameCat:true,search:true};
+  // Build base pool (without each filter applied to itself) for dynamic options
+  // School options: ignore school filter, apply region+track+deptCat+nameCat
+  function baseIgnoring(key) {
+    const bk = FS[key]; FS[key]='all';
+    const r = filtered();
+    FS[key] = bk;
+    return r;
+  }
+  const schoolOpts = ['all',...[...new Set(baseIgnoring('school').map(t=>t.school))].sort()]
+    .map(s=>`<option value="${s}"${FS.school===s?' selected':''}>${s==='all'?'全部學校':s.replace('國立','')}</option>`).join('');
+  const regionOpts = ['all',...[...new Set(baseIgnoring('region').map(t=>t.region))].sort()]
+    .map(r=>`<option value="${r}"${FS.region===r?' selected':''}>${r==='all'?'全部地區':r}</option>`).join('');
+  const trackOpts = ['all',...[...new Set(baseIgnoring('track').map(t=>t.track))].sort()]
+    .map(t=>`<option value="${t}"${FS.track===t?' selected':''}>${t==='all'?'全部賽道':t}</option>`).join('');
+  const deptOpts = ['all',...[...new Set(baseIgnoring('deptCat').map(t=>t.deptCat))].sort()]
+    .map(d=>`<option value="${d}"${FS.deptCat===d?' selected':''}>${d==='all'?'全部科系類別':d}</option>`).join('');
+  const nameOpts = ['all',...[...new Set(baseIgnoring('nameCat').map(t=>t.nameCat))].sort()]
+    .map(n=>`<option value="${n}"${FS.nameCat===n?' selected':''}>${n==='all'?'全部組名類型':n}</option>`).join('');
+
+  const show = opts;
   let html = `<div class="filter-bar">`;
-  if(show.track)   html += `<div class="filter-group"><div class="filter-label">賽道</div><select onchange="FS.track=this.value;${opts.cb||''}()">${trackOpts}</select></div>`;
-  if(show.region)  html += `<div class="filter-group"><div class="filter-label">地區</div><select onchange="FS.region=this.value;${opts.cb||''}()">${regionOpts}</select></div>`;
-  if(show.school)  html += `<div class="filter-group"><div class="filter-label">學校</div><select onchange="FS.school=this.value;${opts.cb||''}()">${schoolOpts}</select></div>`;
-  if(show.deptCat) html += `<div class="filter-group"><div class="filter-label">科系類別</div><select onchange="FS.deptCat=this.value;${opts.cb||''}()">${deptOpts}</select></div>`;
-  if(show.nameCat) html += `<div class="filter-group"><div class="filter-label">組名類型</div><select onchange="FS.nameCat=this.value;${opts.cb||''}()">${nameOpts}</select></div>`;
-  if(show.search)  html += `<div class="filter-group" style="flex:1;min-width:160px"><div class="filter-label">搜尋（組名/學校/科系）</div><input class="search-box" type="text" placeholder="輸入關鍵字..." value="${FS.search}" oninput="FS.search=this.value;${opts.cb||''}()"></div>`;
-  html += `<div style="display:flex;align-items:flex-end"><button class="chip" onclick="Object.assign(FS,{track:'all',school:'all',region:'all',deptCat:'all',nameCat:'all',search:''});${opts.cb||''}()">✕ 清除篩選</button></div>`;
+  if(show.track)   html += `<div class="filter-group"><div class="filter-label">🏁 賽道</div><select onchange="FS.track=this.value;${cb}()">${trackOpts}</select></div>`;
+  if(show.region)  html += `<div class="filter-group"><div class="filter-label">🗺️ 地區</div><select onchange="FS.region=this.value;${cb}()">${regionOpts}</select></div>`;
+  if(show.school)  html += `<div class="filter-group"><div class="filter-label">🏫 學校</div><select onchange="FS.school=this.value;${cb}()">${schoolOpts}</select></div>`;
+  if(show.deptCat) html += `<div class="filter-group"><div class="filter-label">🎓 科系類別</div><select onchange="FS.deptCat=this.value;${cb}()">${deptOpts}</select></div>`;
+  if(show.nameCat) html += `<div class="filter-group"><div class="filter-label">💬 組名類型</div><select onchange="FS.nameCat=this.value;${cb}()">${nameOpts}</select></div>`;
+  if(show.search)  html += `<div class="filter-group" style="flex:1;min-width:160px"><div class="filter-label">🔍 搜尋（組名/學校/科系）</div><input class="search-box" type="text" placeholder="輸入關鍵字..." value="${FS.search}" oninput="FS.search=this.value;${cb}()"></div>`;
+  const cur = filtered();
+  html += `<div style="display:flex;align-items:flex-end;gap:8px">
+    <span style="font-size:11px;color:var(--text2)">符合 <b style="color:var(--blue)">${cur.length}</b> 隊</span>
+    <button class="chip" onclick="Object.assign(FS,{track:'all',school:'all',region:'all',deptCat:'all',nameCat:'all',search:''});${cb}()">✕ 清除</button>
+  </div>`;
   html += `</div>`;
   return html;
 }
@@ -501,6 +564,7 @@ function buildOverview() {
     </div>
   </div>
   <div class="card"><div class="card-title">組名類型分佈</div><canvas id="c-ov-name" height="120"></canvas></div>`;
+  w.innerHTML += genInsights(t);
 
   setTimeout(()=>{
     mkChart('c-ov-track',{type:'doughnut',data:{labels:ALL_TRACKS.map(tr=>tr+' '+(byTrack[tr]||0)),datasets:[{data:ALL_TRACKS.map(tr=>byTrack[tr]||0),backgroundColor:ALL_TRACKS.map(tr=>TRACK_COLORS[tr]),borderWidth:2}]},options:{plugins:{legend:{position:'right',labels:{font:{size:12}}}},cutout:'65%'}});
@@ -554,6 +618,7 @@ function buildTrack() {
       ${teamTable(sub)}
     </div>`;
   }).join('')}`;
+  w.innerHTML += genInsights(t);
 
   setTimeout(()=>{
     const top8schools = Object.entries(countBy(t,'school')).sort((a,b)=>b[1]-a[1]).slice(0,8).map(x=>x[0]);
@@ -611,6 +676,7 @@ function buildSchool() {
     <div class="card-title">篩選結果隊伍列表</div>
     ${teamTable(t)}
   </div>`;
+  w.innerHTML += genInsights(t);
 
   setTimeout(()=>{
     mkChart('c-sc-region',{type:'doughnut',data:{labels:ALL_REGIONS.map(r=>r+' '+(byRegion[r]||0)),datasets:[{data:ALL_REGIONS.map(r=>byRegion[r]||0),backgroundColor:ALL_REGIONS.map(r=>REGION_COLORS[r]),borderWidth:2}]},options:{plugins:{legend:{position:'right',labels:{font:{size:12}}}},cutout:'60%'}});
@@ -660,6 +726,7 @@ function buildDept() {
       ${teamTable(sub)}
     </div>`;
   }).join('')}`;
+  w.innerHTML += genInsights(t);
 
   setTimeout(()=>{
     const dcVals=ALL_DEPTCATS.map(d=>byDeptCat[d]||0);
@@ -697,6 +764,7 @@ function buildName() {
       ${teamTable(sub)}
     </div>`;
   }).join('')}`;
+  w.innerHTML += genInsights(t);
 
   setTimeout(()=>{
     const ncVals=ALL_NAMECATS.map(n=>byNameCat[n]||0);
