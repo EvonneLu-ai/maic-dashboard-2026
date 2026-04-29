@@ -419,7 +419,8 @@ function statBox(num, lbl, color) {
 }
 
 // ── Common filter bar builder ──
-function buildFilterBar(containerId, opts) {
+function buildFilterBar(opts) {
+  opts = opts || {};
   // opts: {school, region, track, deptCat, nameCat, search, onChange}
   const schoolOpts = ['all',...ALL_SCHOOLS].map(s=>`<option value="${s}"${FS.school===s?' selected':''}>${s==='all'?'全部學校':s.replace('國立','')}</option>`).join('');
   const regionOpts = ['all',...ALL_REGIONS].map(r=>`<option value="${r}"${FS.region===r?' selected':''}>${r==='all'?'全部地區':r}</option>`).join('');
