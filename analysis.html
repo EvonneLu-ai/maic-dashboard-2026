@@ -6,594 +6,789 @@
 <title>MAIC 報名分析中心</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-  :root {
-    --blue:#0071e3; --teal:#5ac8fa; --green:#34c759; --orange:#ff9500;
-    --red:#ff3b30;  --purple:#af52de; --bg:#f5f5f7; --card:#ffffff;
-    --border:#e5e5ea; --text:#1d1d1f; --text2:#6e6e73;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,"SF Pro Text","PingFang TC",sans-serif;background:var(--bg);color:var(--text)}
-
-  /* ── HEADER ── */
-  header{background:#fff;border-bottom:1px solid var(--border);padding:22px 40px 0;position:sticky;top:0;z-index:100}
-  .header-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
-  .header-left h1{font-size:22px;font-weight:700;letter-spacing:-.3px}
-  .header-left p{font-size:12px;color:var(--text2);margin-top:4px}
-  .back-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(0,113,227,.08);color:#0071e3;
-    text-decoration:none;border-radius:20px;padding:7px 16px;font-size:12px;font-weight:600;
-    border:1px solid rgba(0,113,227,.15);white-space:nowrap;margin-top:2px}
-  .back-btn:hover{background:rgba(0,113,227,.14)}
-
-  /* ── DIM FILTER BAR ── */
-  .dim-bar{display:flex;gap:6px;flex-wrap:wrap;padding:10px 0 0;align-items:center}
-  .dim-label{font-size:12px;font-weight:700;color:var(--text2);margin-right:4px}
-  .dim-btn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);
-    cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);transition:all .15s;white-space:nowrap}
-  .dim-btn:hover{border-color:var(--blue);color:var(--blue)}
-  .dim-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
-
-  /* ── PANEL ── */
-  .panel{display:none}
-  .panel.active{display:block}
-  .wrap{max-width:1040px;margin:0 auto;padding:28px 24px 80px}
-
-  /* ── SECTION TITLE ── */
-  .stitle{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
-    color:var(--text2);margin:22px 0 10px;border-left:3px solid var(--blue);padding-left:8px}
-
-  /* ── KPI GRID ── */
-  .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
-  .kpi4{grid-template-columns:repeat(4,1fr)}
-  .kpi5{grid-template-columns:repeat(5,1fr)}
-  .kpi3{grid-template-columns:repeat(3,1fr)}
-  .kpi-box{background:var(--card);border-radius:10px;padding:14px 16px;border:1px solid var(--border)}
-  .kpi-lbl{font-size:11px;color:var(--text2);margin-bottom:4px}
-  .kpi-val{font-size:26px;font-weight:800;line-height:1}
-  .kpi-sub{font-size:11px;color:var(--text2);margin-top:4px}
-
-  /* ── CARD ── */
-  .card{background:var(--card);border-radius:12px;padding:16px;border:1px solid var(--border);margin-bottom:14px}
-  .card-title{font-size:12px;font-weight:700;margin-bottom:12px;color:var(--text)}
-  .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-
-  /* ── TABLE ── */
-  table{width:100%;border-collapse:collapse;font-size:12px}
-  th{background:var(--bg);text-align:left;padding:8px 10px;font-weight:600;color:var(--text2);
-    font-size:11px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid var(--border)}
-  td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
-  tr:hover td{background:rgba(0,113,227,.04)}
-  tr:nth-child(even) td{background:rgba(0,0,0,.01)}
-  .tc{text-align:center}.tr{text-align:right}
-  .fw{font-weight:700}.tblue{color:var(--blue)}.tgreen{color:var(--green)}
-  .torange{color:var(--orange)}.tred{color:var(--red)}.tgray{color:var(--text2)}
-
-  /* ── INSIGHT BOX ── */
-  .insight{display:flex;gap:10px;padding:10px 14px;border-radius:9px;margin-bottom:8px}
-  .insight-icon{font-size:16px;flex-shrink:0;margin-top:1px}
-  .insight-text{font-size:12px;line-height:1.65;color:var(--text)}
-  .ins-blue{background:rgba(0,113,227,.07);border-left:3px solid var(--blue)}
-  .ins-green{background:rgba(52,199,89,.07);border-left:3px solid var(--green)}
-  .ins-orange{background:rgba(255,149,0,.07);border-left:3px solid var(--orange)}
-  .ins-red{background:rgba(255,59,48,.07);border-left:3px solid var(--red)}
-  .ins-purple{background:rgba(175,82,222,.07);border-left:3px solid var(--purple)}
-
-  /* ── PILL BADGE ── */
-  .pill{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:600;margin:1px}
-  .p-blue{background:rgba(0,113,227,.12);color:var(--blue)}
-  .p-green{background:rgba(52,199,89,.12);color:var(--green)}
-  .p-orange{background:rgba(255,149,0,.12);color:var(--orange)}
-  .p-red{background:rgba(255,59,48,.12);color:var(--red)}
-  .p-purple{background:rgba(175,82,222,.12);color:var(--purple)}
-  .p-gray{background:rgba(0,0,0,.07);color:var(--text2)}
-
-  /* ── MINI BAR ── */
-  .mbar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
-  .mbar-lbl{font-size:12px;min-width:95px}
-  .mbar-track{flex:1;height:13px;background:var(--bg);border-radius:6px;overflow:hidden}
-  .mbar-fill{height:100%;border-radius:6px;background:var(--blue)}
-  .mbar-val{font-size:11px;font-weight:700;min-width:44px;text-align:right;color:var(--text)}
-
-  /* ── FUNNEL ── */
-  .funnel-step{border-radius:7px;padding:11px;text-align:center;font-size:12px;font-weight:700;color:#fff;margin-bottom:4px}
-  .funnel-arrow{text-align:center;font-size:16px;color:var(--text2);margin:2px 0}
-
-  /* ── FOOTER ── */
-  footer{text-align:center;font-size:11px;color:var(--text2);padding:20px;border-top:1px solid var(--border);margin-top:16px}
+:root{--blue:#0071e3;--teal:#5ac8fa;--green:#34c759;--orange:#ff9500;--red:#ff3b30;--purple:#af52de;--bg:#f5f5f7;--card:#fff;--border:#e5e5ea;--text:#1d1d1f;--text2:#6e6e73}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"SF Pro Text","PingFang TC",sans-serif;background:var(--bg);color:var(--text);font-size:13px}
+header{background:#fff;border-bottom:1px solid var(--border);padding:18px 36px 0;position:sticky;top:0;z-index:200}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.header-left h1{font-size:20px;font-weight:700}
+.header-left p{font-size:11px;color:var(--text2);margin-top:3px}
+.back-btn{display:inline-flex;align-items:center;gap:5px;background:rgba(0,113,227,.08);color:#0071e3;text-decoration:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;border:1px solid rgba(0,113,227,.15)}
+.back-btn:hover{background:rgba(0,113,227,.14)}
+/* DIM TABS */
+.dim-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-top:4px}
+.dim-tab{padding:9px 20px;font-size:12.5px;font-weight:500;border:none;background:none;cursor:pointer;color:var(--text2);border-bottom:2.5px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap}
+.dim-tab:hover{color:var(--text)}
+.dim-tab.active{color:var(--blue);border-color:var(--blue);font-weight:600}
+/* PANELS */
+.panel{display:none}.panel.active{display:block}
+.wrap{max-width:1080px;margin:0 auto;padding:22px 24px 80px}
+/* SUB-FILTER BAR */
+.filter-bar{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
+.filter-group{display:flex;flex-direction:column;gap:4px;min-width:120px}
+.filter-label{font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.4px;text-transform:uppercase}
+.filter-group select,.filter-group input{padding:5px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;background:#fff;color:var(--text);outline:none;min-width:130px}
+.filter-group select:focus,.filter-group input:focus{border-color:var(--blue)}
+.filter-chips{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.chip{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid var(--border);background:#fff;cursor:pointer;color:var(--text2);transition:all .12s;white-space:nowrap}
+.chip:hover{border-color:var(--blue);color:var(--blue)}
+.chip.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.chip.active-green{background:var(--green);color:#fff;border-color:var(--green)}
+.chip.active-orange{background:var(--orange);color:#fff;border-color:var(--orange)}
+.chip.active-purple{background:var(--purple);color:#fff;border-color:var(--purple)}
+.chip.active-red{background:var(--red);color:#fff;border-color:var(--red)}
+/* STATS ROW */
+.stats-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.stat-box{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 16px;text-align:center;min-width:100px;flex:1}
+.stat-num{font-size:24px;font-weight:800;line-height:1}
+.stat-lbl{font-size:10px;color:var(--text2);margin-top:3px}
+/* CARDS */
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
+.card-title{font-size:12px;font-weight:700;margin-bottom:10px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+/* TABLE */
+.tbl-wrap{overflow-x:auto;max-height:480px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:#f5f5f7;padding:8px 10px;text-align:left;font-weight:600;color:var(--text2);font-size:11px;letter-spacing:.3px;position:sticky;top:0;z-index:1;border-bottom:1.5px solid var(--border)}
+td{padding:7px 10px;border-bottom:1px solid #f0f0f5;vertical-align:middle}
+tr:hover td{background:rgba(0,113,227,.04)}
+.tc{text-align:center}.tr{text-align:right}
+.fw{font-weight:700}.tblue{color:var(--blue)}.tgreen{color:var(--green)}.torange{color:var(--orange)}.tred{color:var(--red)}.tgray{color:var(--text2)}
+/* PILLS */
+.pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap}
+.p-blue{background:rgba(0,113,227,.12);color:var(--blue)}
+.p-green{background:rgba(52,199,89,.12);color:var(--green)}
+.p-orange{background:rgba(255,149,0,.12);color:var(--orange)}
+.p-red{background:rgba(255,59,48,.12);color:var(--red)}
+.p-purple{background:rgba(175,82,222,.12);color:var(--purple)}
+.p-gray{background:rgba(0,0,0,.07);color:var(--text2)}
+.p-teal{background:rgba(90,200,250,.15);color:#007aab}
+/* INSIGHT */
+.ins{display:flex;gap:9px;padding:9px 12px;border-radius:8px;margin-bottom:7px;font-size:12px;line-height:1.6}
+.ins-icon{font-size:15px;flex-shrink:0}
+.ins-blue{background:rgba(0,113,227,.07);border-left:3px solid var(--blue)}
+.ins-green{background:rgba(52,199,89,.07);border-left:3px solid var(--green)}
+.ins-orange{background:rgba(255,149,0,.07);border-left:3px solid var(--orange)}
+.ins-red{background:rgba(255,59,48,.07);border-left:3px solid var(--red)}
+/* RESULT COUNT */
+.result-count{font-size:12px;color:var(--text2);margin-bottom:8px}
+.result-count b{color:var(--blue)}
+/* BAR */
+.mbar{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.mbar-l{font-size:11.5px;min-width:110px}
+.mbar-t{flex:1;height:12px;background:var(--bg);border-radius:6px;overflow:hidden}
+.mbar-f{height:100%;border-radius:6px}
+.mbar-v{font-size:11px;font-weight:700;min-width:32px;text-align:right}
+/* SEARCH */
+.search-box{width:100%;padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;outline:none}
+.search-box:focus{border-color:var(--blue)}
+footer{text-align:center;font-size:11px;color:var(--text2);padding:16px;border-top:1px solid var(--border)}
 </style>
 </head>
 <body>
-
 <header>
   <div class="header-top">
     <div class="header-left">
       <h1>📊 MAIC 報名分析中心</h1>
-      <p>行動應用創新賽 2026 ｜ 資料截至 2026/04/29 ｜ 225 支隊伍 × 13 所學校</p>
+      <p>行動應用創新賽 2026 ｜ 225 支隊伍 × 13 所學校 ｜ 資料截至 2026/04/29</p>
     </div>
     <a href="./portal.html" class="back-btn">← 返回 Hub</a>
   </div>
-  <div class="dim-bar" id="dim-bar">
-    <span class="dim-label">篩選維度：</span>
-    <button class="dim-btn active" onclick="setDim('all')">📊 全部總覽</button>
-    <button class="dim-btn" onclick="setDim('track')">🏁 賽道分析</button>
-    <button class="dim-btn" onclick="setDim('region')">🗺️ 地區 / 學校</button>
-    <button class="dim-btn" onclick="setDim('dept')">🔀 跨域組隊</button>
-    <button class="dim-btn" onclick="setDim('grade')">🎓 年級分佈</button>
-    <button class="dim-btn" onclick="setDim('funnel')">📅 報名時程</button>
+  <div class="dim-tabs">
+    <button class="dim-tab active" onclick="showDim('overview')">📊 總覽</button>
+    <button class="dim-tab" onclick="showDim('track')">🏁 賽道</button>
+    <button class="dim-tab" onclick="showDim('school')">🏫 學校 / 地區</button>
+    <button class="dim-tab" onclick="showDim('dept')">🎓 科系 / 跨域</button>
+    <button class="dim-tab" onclick="showDim('name')">💬 組名分析</button>
+    <button class="dim-tab" onclick="showDim('timeline')">📅 時程 / 漏斗</button>
+    <button class="dim-tab" onclick="showDim('teams')">📋 完整隊伍表</button>
   </div>
 </header>
 
-<div class="panel active" id="panel-all"><div class="wrap" id="wrap-all"></div></div>
-<div class="panel" id="panel-track"><div class="wrap" id="wrap-track"></div></div>
-<div class="panel" id="panel-region"><div class="wrap" id="wrap-region"></div></div>
-<div class="panel" id="panel-dept"><div class="wrap" id="wrap-dept"></div></div>
-<div class="panel" id="panel-grade"><div class="wrap" id="wrap-grade"></div></div>
-<div class="panel" id="panel-funnel"><div class="wrap" id="wrap-funnel"></div></div>
+<div id="p-overview" class="panel active"><div class="wrap" id="w-overview"></div></div>
+<div id="p-track"    class="panel"><div class="wrap" id="w-track"></div></div>
+<div id="p-school"   class="panel"><div class="wrap" id="w-school"></div></div>
+<div id="p-dept"     class="panel"><div class="wrap" id="w-dept"></div></div>
+<div id="p-name"     class="panel"><div class="wrap" id="w-name"></div></div>
+<div id="p-timeline" class="panel"><div class="wrap" id="w-timeline"></div></div>
+<div id="p-teams"    class="panel"><div class="wrap" id="w-teams"></div></div>
 
 <script>
-// ══════════════════════════════════════════════
-//  資料定義
-// ══════════════════════════════════════════════
-const AN = {
-  totalTeams: 225,
-  tracks: [
-    { label:'創意', count:118, color:'#0071e3' },
-    { label:'創新', count:70,  color:'#5ac8fa' },
-    { label:'創業', count:37,  color:'#af52de' }
-  ],
-  schools: [
-    { name:'國立臺灣大學',     short:'台大',     teams:60, region:'北部', deptCount:36, hasDuty:true,  note:'36系所；昆蟲、農藝、哲學等非典型大量參與' },
-    { name:'逢甲大學',         short:'逢甲',     teams:47, region:'中部', deptCount:18, hasDuty:true,  note:'兩波報名；商管+室內設計為主；4/22後分工品質提升' },
-    { name:'國立政治大學',     short:'政大',     teams:36, region:'北部', deptCount:2,  hasDuty:false, note:'教育學系佔90%+；疑似課堂集體報名' },
-    { name:'國立臺中教育大學', short:'臺中教大', teams:22, region:'中部', deptCount:21, hasDuty:false, note:'4/15單日批量湧入22隊；教育類20+系所但無資工' },
-    { name:'國立高雄科技大學', short:'高科大',   teams:20, region:'南部', deptCount:16, hasDuty:false, note:'南部最大來源；清一色商管學院；分工全空' },
-    { name:'國立清華大學',     short:'清大',     teams:15, region:'北部', deptCount:11, hasDuty:true,  note:'種子最強；含sloppylabs(國際生)、夜行式(回流)' },
-    { name:'東海大學',         short:'東海',     teams:10, region:'中部', deptCount:1,  hasDuty:true,  note:'全為資工系；老師各帶2隊；技術強缺PM' },
-    { name:'國立陽明交通大學', short:'陽交大',   teams:7,  region:'北部', deptCount:6,  hasDuty:false, note:'理工跨域；多單人隊；組隊完整度待加強' },
-    { name:'銘傳大學',         short:'銘傳',     teams:1,  region:'北部', deptCount:1,  hasDuty:true,  note:'分工三者齊備，填寫最完整' },
-    { name:'國立臺南大學',     short:'臺南大',   teams:1,  region:'南部', deptCount:1,  hasDuty:true,  note:'南部首次出現；數位學習科技系' },
-    { name:'國立臺北教育大學', short:'臺北教大', teams:1,  region:'北部', deptCount:1,  hasDuty:true,  note:'設計系唯一代表；填寫齊全' },
-    { name:'臺北醫學大學',     short:'北醫',     teams:1,  region:'北部', deptCount:1,  hasDuty:true,  note:'最早報名(3/7)；醫學系高度跨域' },
-    { name:'輔仁大學',         short:'輔仁',     teams:1,  region:'北部', deptCount:1,  hasDuty:false, note:'法律系參賽，LegalTech潛力' },
-    { name:'慈濟科技大學',     short:'慈濟',     teams:1,  region:'其他', deptCount:1,  hasDuty:true,  note:'行銷系，分工齊備' }
-  ],
-  regions:[
-    { label:'北部', count:123, color:'#0071e3' },
-    { label:'中部', count:80,  color:'#ff9500' },
-    { label:'南部', count:21,  color:'#34c759' },
-    { label:'其他', count:1,   color:'#aeaeb2' }
-  ],
-  grades:[
-    { label:'大一', count:17, color:'#ff9f0a' },
-    { label:'大二', count:32, color:'#0071e3' },
-    { label:'大三', count:41, color:'#5ac8fa' },
-    { label:'大四', count:30, color:'#34c759' },
-    { label:'碩士生',count:11, color:'#af52de' }
-  ],
-  duties:[
-    { label:'程式開發', count:87, color:'#0071e3' },
-    { label:'上台簡報', count:94, color:'#34c759' },
-    { label:'介面設計', count:52, color:'#ff9500' },
-    { label:'三者齊備', count:34, color:'#5ac8fa' }
-  ],
-  timeline:[
-    { date:'3月初 (3/7-3/29)', count:4,  event:'早鳥報名',       color:'#aeaeb2' },
-    { date:'4/5',              count:1,  event:'',                color:'#aeaeb2' },
-    { date:'4/10 🔥',         count:57, event:'說明會後大爆發',  color:'#0071e3' },
-    { date:'4/11',             count:28, event:'',                color:'#5ac8fa' },
-    { date:'4/12–13',          count:38, event:'政大/逢甲擴散',  color:'#5ac8fa' },
-    { date:'4/15',             count:27, event:'臺中教大批次',   color:'#5ac8fa' },
-    { date:'4/22–23 🔥',      count:36, event:'第二波爆發',     color:'#0071e3' },
-    { date:'4/24–27',          count:4,  event:'收尾',            color:'#aeaeb2' }
-  ],
-  nameTopics:[
-    { label:'科技/程式梗', count:24, ex:'修個Bug過好年、進度條失蹤案、產品經理說得對', color:'#0071e3' },
-    { label:'食物/飲料',   count:22, ex:'焦急麻油雞、痛快烤鴨、車輪餅好吃',           color:'#ff9500' },
-    { label:'動物類',      count:18, ex:'狐狸、青蛙、草泥馬、小野貓',                 color:'#34c759' },
-    { label:'幽默/自嘲',   count:14, ex:'躺平的信徒、腦細胞公墓、薪水小偷防禦系統',   color:'#ff3b30' },
-    { label:'像素系列',    count:4,  ex:'像素先鋒×2、像素大食客、像素移動公司',       color:'#5ac8fa' },
-    { label:'統一系列',    count:3,  ex:'統一魔法門、統一天下、全球統一',              color:'#af52de' }
-  ],
-  crossSchool:[
-    { id:'034',  name:'夜行式',      track:'創新', combo:'清大 × 台大',  type:'教育科技 + 電機工程', star:2,  note:'全場唯一真正跨校跨域種子隊，回流成員' },
-    { id:'0138', name:'貓咪',        track:'創意', combo:'臺中教大 × 政大', type:'英語 + 語文 + 教育', star:1, note:'跨北中地區，私人友誼組隊' },
-    { id:'0353', name:'sloppylabs', track:'創新', combo:'清大跨院系',    type:'電資 + 科管 + 國際生', star:1, note:'含馬來西亞籍國際生2名，最具國際視野' }
-  ],
-  duplicates:[
-    { name:'戴修茂', teams:'痛快烤鴨(0156) + 愉快君子(0159)', note:'台大哲學/華語碩士，系所不同疑同一人' },
-    { name:'何天旭', teams:'痛快烤鴨(0156) + 焦急麻油雞(0158)', note:'台大哲學/生命科學，疑同一人' },
-    { name:'袁鬆裕', teams:'脫線運動員(0150) + 沒品韭菜盒子(0151)', note:'台大工管/數學，幫朋友湊隊' },
-    { name:'古千惠', teams:'All money back(0340) + 全球統一(0343)', note:'台大資管/國發所，跨隊跨系' }
-  ]
+// ════════════════════════════════════════════════
+//  完整隊伍資料集（225 隊）
+//  欄位：[id, name, track, school, region, dept, deptCat, nameCat]
+//  deptCat: 資工電機|商管|教育|設計藝術|語文人文|理工科學|法律醫療|其他
+//  nameCat: 科技梗|食物飲料|動物|幽默自嘲|英文混搭|自然意象|日常生活|戰鬥冒險|其他
+// ════════════════════════════════════════════════
+const TEAMS = [
+{id:'016',  name:'Innovative!!',           track:'創業',  school:'臺北醫學大學',     region:'北部', dept:'醫學系',                     deptCat:'法律醫療', nameCat:'英文混搭'},
+{id:'019',  name:'Rookie',                 track:'創意',  school:'國立臺北教育大學', region:'北部', dept:'數位科技設計學系',             deptCat:'設計藝術', nameCat:'英文混搭'},
+{id:'034',  name:'夜行式',                 track:'創新',  school:'國立清華大學',     region:'北部', dept:'教育與學習科技學系',           deptCat:'教育',     nameCat:'自然意象'},
+{id:'037',  name:'每個人都想成為我的豎笛', track:'創業',  school:'逢甲大學',         region:'中部', dept:'資訊工程學系',                 deptCat:'資工電機', nameCat:'其他'},
+{id:'042',  name:'語你同行',               track:'創意',  school:'慈濟科技大學',     region:'其他', dept:'行銷與流通管理系',             deptCat:'商管',     nameCat:'日常生活'},
+{id:'045',  name:'夜空軒',                 track:'創意',  school:'東海大學',         region:'中部', dept:'資訊工程學系',                 deptCat:'資工電機', nameCat:'自然意象'},
+{id:'046',  name:'愉景聖光',               track:'創新',  school:'東海大學',         region:'中部', dept:'資訊工程學系',                 deptCat:'資工電機', nameCat:'自然意象'},
+{id:'047',  name:'高士德城',               track:'創意',  school:'東海大學',         region:'中部', dept:'資訊工程學系',                 deptCat:'資工電機', nameCat:'戰鬥冒險'},
+{id:'048',  name:'追月深淵',               track:'創意',  school:'東海大學',         region:'中部', dept:'資訊工程學系',                 deptCat:'資工電機', nameCat:'自然意象'},
+{id:'049',  name:'櫻花情緣',               track:'創意',  school:'東海大學',         region:'中部', dept:'資訊工程學系',                 deptCat:'資工電機', nameCat:'自然意象'},
+{id:'050',  name:'哈德之城',               track:'創新',  school:'東海大學',         region:'中部', dept:'資訊工程學系',                 deptCat:'資工電機', nameCat:'戰鬥冒險'},
+{id:'051',  name:'千古之心',               track:'創新',  school:'東海大學',         region:'中部', dept:'資訊工程學系',                 deptCat:'資工電機', nameCat:'戰鬥冒險'},
+{id:'052',  name:'星綻後緩隊',             track:'創意',  school:'東海大學',         region:'中部', dept:'資訊工程學系',                 deptCat:'資工電機', nameCat:'自然意象'},
+{id:'053',  name:'南灣之星',               track:'創意',  school:'東海大學',         region:'中部', dept:'資訊工程學系',                 deptCat:'資工電機', nameCat:'自然意象'},
+{id:'054',  name:'極限星域',               track:'創意',  school:'東海大學',         region:'中部', dept:'資訊工程學系',                 deptCat:'資工電機', nameCat:'科技梗'},
+{id:'055',  name:'哈囉你好嗎',             track:'創意',  school:'逢甲大學',         region:'中部', dept:'財務金融學系',                 deptCat:'商管',     nameCat:'日常生活'},
+{id:'056',  name:'狐狸',                   track:'創新',  school:'逢甲大學',         region:'中部', dept:'室內設計進修學士班',           deptCat:'設計藝術', nameCat:'動物'},
+{id:'060',  name:'青蛙',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'財務金融學系',                 deptCat:'商管',     nameCat:'動物'},
+{id:'062',  name:'維度跳躍者',             track:'創業',  school:'國立清華大學',     region:'北部', dept:'科技藝術研究所',               deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'063',  name:'像素先鋒',               track:'創新',  school:'國立臺北科技大學', region:'北部', dept:'技術及職業教育研究所',         deptCat:'教育',     nameCat:'科技梗'},
+{id:'064',  name:'邏輯原點',               track:'創業',  school:'國立清華大學',     region:'北部', dept:'經濟學系',                     deptCat:'商管',     nameCat:'科技梗'},
+{id:'067',  name:'明日視界',               track:'創業',  school:'國立清華大學',     region:'北部', dept:'外國語文學系',                 deptCat:'語文人文', nameCat:'科技梗'},
+{id:'068',  name:'拉亞漢堡',               track:'創意',  school:'逢甲大學',         region:'中部', dept:'國際經營與貿易學系',           deptCat:'商管',     nameCat:'食物飲料'},
+{id:'075',  name:'蟾蜍',                   track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'動物'},
+{id:'078',  name:'米熊',                   track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'動物'},
+{id:'084',  name:'靈感共振',               track:'創業',  school:'國立清華大學',     region:'北部', dept:'科技管理研究所',               deptCat:'商管',     nameCat:'自然意象'},
+{id:'086',  name:'無界之徑',               track:'創業',  school:'國立清華大學',     region:'北部', dept:'數理教育研究所',               deptCat:'教育',     nameCat:'自然意象'},
+{id:'089',  name:'大展鴻圖',               track:'創意',  school:'逢甲大學',         region:'中部', dept:'會計學系',                     deptCat:'商管',     nameCat:'其他'},
+{id:'091',  name:'光影疊代',               track:'創業',  school:'國立清華大學',     region:'北部', dept:'電機工程學系',                 deptCat:'資工電機', nameCat:'科技梗'},
+{id:'094',  name:'我炸了',                 track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'幽默自嘲'},
+{id:'095',  name:'微秒交互',               track:'創新',  school:'國立清華大學',     region:'北部', dept:'物理學系',                     deptCat:'理工科學', nameCat:'科技梗'},
+{id:'096',  name:'般若波羅蜜多',           track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'其他'},
+{id:'098',  name:'介面鑄造師',             track:'創新',  school:'國立清華大學',     region:'北部', dept:'藝術與設計學系',               deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'099',  name:'咖啡因轉化爐',           track:'創新',  school:'國立清華大學',     region:'北部', dept:'工業工程與工程管理學系',       deptCat:'理工科學', nameCat:'食物飲料'},
+{id:'0100', name:'銀龍魚',                 track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'動物'},
+{id:'0101', name:'我要哀鳳',               track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'幽默自嘲'},
+{id:'0102', name:'薪水小偷防禦系統',       track:'創意',  school:'國立清華大學',     region:'北部', dept:'教育心理與諮商學系',           deptCat:'教育',     nameCat:'幽默自嘲'},
+{id:'0103', name:'真善美',                 track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'其他'},
+{id:'0106', name:'彩色乖乖實驗室',         track:'創新',  school:'國立陽明交通大學', region:'北部', dept:'傳播研究所',                   deptCat:'語文人文', nameCat:'其他'},
+{id:'0107', name:'旁門左道',               track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'心理學系/資訊工程學系',         deptCat:'理工科學', nameCat:'其他'},
+{id:'0108', name:'統一魔法門',             track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'化學工程學系',                 deptCat:'理工科學', nameCat:'戰鬥冒險'},
+{id:'0110', name:'靈光閃到腰果',           track:'創意',  school:'國立陽明交通大學', region:'北部', dept:'電子物理學系',                 deptCat:'理工科學', nameCat:'幽默自嘲'},
+{id:'0111', name:'雷拉斯猛禽隊',           track:'創意',  school:'國立臺灣大學',     region:'北部', dept:'生命科學系',                   deptCat:'理工科學', nameCat:'動物'},
+{id:'0112', name:'狂野爭霸',               track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'應用物理學研究所',             deptCat:'理工科學', nameCat:'戰鬥冒險'},
+{id:'0113', name:'統一天下',               track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'植物科學研究所',               deptCat:'理工科學', nameCat:'戰鬥冒險'},
+{id:'0114', name:'像素大食客',             track:'創新',  school:'國立陽明交通大學', region:'北部', dept:'生物科技學系',                 deptCat:'理工科學', nameCat:'科技梗'},
+{id:'0117', name:'註解都是騙人的',         track:'創業',  school:'國立陽明交通大學', region:'北部', dept:'管理科學系',                   deptCat:'商管',     nameCat:'科技梗'},
+{id:'0118', name:'藍底白字俱樂部',         track:'創新',  school:'國立陽明交通大學', region:'北部', dept:'外國語文學系',                 deptCat:'語文人文', nameCat:'科技梗'},
+{id:'0119', name:'幻夜先鋒隊',             track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'戲劇學系',                     deptCat:'語文人文', nameCat:'自然意象'},
+{id:'0120', name:'進度條失蹤案',           track:'創意',  school:'國立陽明交通大學', region:'北部', dept:'教育研究所',                   deptCat:'教育',     nameCat:'科技梗'},
+{id:'0121', name:'武力體育會',             track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'人類學系',                     deptCat:'語文人文', nameCat:'戰鬥冒險'},
+{id:'0122', name:'武力時空',               track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'公共事務研究所',               deptCat:'語文人文', nameCat:'戰鬥冒險'},
+{id:'0123', name:'焰火教',                 track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'化學系',                       deptCat:'理工科學', nameCat:'自然意象'},
+{id:'0124', name:'大阪皇都',               track:'創意',  school:'國立臺灣大學',     region:'北部', dept:'法律學系',                     deptCat:'法律醫療', nameCat:'其他'},
+{id:'0125', name:'夢境之戀',               track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'植物科學研究所',               deptCat:'理工科學', nameCat:'自然意象'},
+{id:'0126', name:'神話時空',               track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'昆蟲學系',                     deptCat:'理工科學', nameCat:'戰鬥冒險'},
+{id:'0127', name:'火箭地獄',               track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'華語教學碩士學位學程',         deptCat:'語文人文', nameCat:'戰鬥冒險'},
+{id:'0128', name:'基馬猛禽隊',             track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'圖書資訊學系',                 deptCat:'語文人文', nameCat:'動物'},
+{id:'0129', name:'KBS',                    track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'昆蟲學系',                     deptCat:'理工科學', nameCat:'英文混搭'},
+{id:'0130', name:'Enigma Explorers',       track:'創意',  school:'國立臺灣大學',     region:'北部', dept:'生化科學研究所',               deptCat:'理工科學', nameCat:'英文混搭'},
+{id:'0131', name:'Sky Swoosh',             track:'創意',  school:'國立臺灣大學',     region:'北部', dept:'哲學系',                       deptCat:'語文人文', nameCat:'英文混搭'},
+{id:'0133', name:'天空',                   track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'哲學系',                       deptCat:'語文人文', nameCat:'自然意象'},
+{id:'0134', name:'台北血脈',               track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'社會學系',                     deptCat:'語文人文', nameCat:'其他'},
+{id:'0138', name:'貓咪',                   track:'創意',  school:'國立臺中教育大學', region:'中部', dept:'英語學系(跨校)',               deptCat:'語文人文', nameCat:'動物'},
+{id:'0139', name:'你好',                   track:'創業',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'日常生活'},
+{id:'0140', name:'早安',                   track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'日常生活'},
+{id:'0143', name:'平安喜樂',               track:'創意',  school:'逢甲大學',         region:'中部', dept:'室內設計進修學士班',           deptCat:'設計藝術', nameCat:'日常生活'},
+{id:'0144', name:'愛到卡慘死',             track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'幽默自嘲'},
+{id:'0145', name:'腳趾頭',                 track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'幽默自嘲'},
+{id:'0146', name:'長洲帝國',               track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'政治學系',                     deptCat:'語文人文', nameCat:'戰鬥冒險'},
+{id:'0147', name:'乖寶寶',                 track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'生化科學研究所',               deptCat:'理工科學', nameCat:'日常生活'},
+{id:'0148', name:'OTT',                    track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'公共事務研究所',               deptCat:'語文人文', nameCat:'英文混搭'},
+{id:'0149', name:'Tw_One',                 track:'創意',  school:'國立臺灣大學',     region:'北部', dept:'日本語文學系',                 deptCat:'語文人文', nameCat:'英文混搭'},
+{id:'0150', name:'脫線運動員',             track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'工商管理學系',                 deptCat:'商管',     nameCat:'幽默自嘲'},
+{id:'0151', name:'沒品韭菜盒子',           track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'數學系',                       deptCat:'理工科學', nameCat:'幽默自嘲'},
+{id:'0152', name:'非死不可的阿土伯',       track:'創意',  school:'國立臺灣大學',     region:'北部', dept:'社會學系',                     deptCat:'語文人文', nameCat:'幽默自嘲'},
+{id:'0153', name:'羞澀女王',               track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'國際企業學系',                 deptCat:'商管',     nameCat:'幽默自嘲'},
+{id:'0154', name:'優雅蟹黃包',             track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'中國文學系',                   deptCat:'語文人文', nameCat:'食物飲料'},
+{id:'0155', name:'幽默胖虎',               track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'物理學系',                     deptCat:'理工科學', nameCat:'動物'},
+{id:'0156', name:'痛快烤鴨',               track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'哲學系',                       deptCat:'語文人文', nameCat:'食物飲料'},
+{id:'0157', name:'與神同行魯肉飯',         track:'創意',  school:'國立臺灣大學',     region:'北部', dept:'社會工作學系',                 deptCat:'語文人文', nameCat:'食物飲料'},
+{id:'0158', name:'焦急麻油雞',             track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'生命科學系',                   deptCat:'理工科學', nameCat:'食物飲料'},
+{id:'0159', name:'愉快君子',               track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'華語教學碩士學位學程',         deptCat:'語文人文', nameCat:'其他'},
+{id:'0160', name:'陌生雞排',               track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'大氣科學系',                   deptCat:'理工科學', nameCat:'食物飲料'},
+{id:'0161', name:'痛苦熱狗',               track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'電機工程學系',                 deptCat:'資工電機', nameCat:'食物飲料'},
+{id:'0162', name:'躺平的信徒',             track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'資訊工程學系',                 deptCat:'資工電機', nameCat:'幽默自嘲'},
+{id:'0163', name:'痛心糖葫蘆',             track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'外國語文學系',                 deptCat:'語文人文', nameCat:'食物飲料'},
+{id:'0164', name:'不靠譜燒賣',             track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'物理學系',                     deptCat:'理工科學', nameCat:'食物飲料'},
+{id:'0165', name:'獨孤求敗法師',           track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'資訊管理學系',                 deptCat:'資工電機', nameCat:'戰鬥冒險'},
+{id:'0166', name:'發狂咬人貓',             track:'創意',  school:'國立臺灣大學',     region:'北部', dept:'電機工程學系',                 deptCat:'資工電機', nameCat:'動物'},
+{id:'0167', name:'大蟀哥',                 track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'動物'},
+{id:'0168', name:'鳳梨',                   track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'食物飲料'},
+{id:'0170', name:'轟隆隆',                 track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'其他'},
+{id:'0171', name:'我愛吃蘋果',             track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'食物飲料'},
+{id:'0172', name:'泰迪熊',                 track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'動物'},
+{id:'0173', name:'紅鼻子',                 track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'其他'},
+{id:'0174', name:'大冰美',                 track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'日常生活'},
+{id:'0175', name:'大哥大',                 track:'創業',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'其他'},
+{id:'0176', name:'草泥馬',                 track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'動物'},
+{id:'0177', name:'方向盤',                 track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'日常生活'},
+{id:'0178', name:'小熱美',                 track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'日常生活'},
+{id:'0179', name:'你看這樣對不隊',         track:'創業',  school:'輔仁大學',         region:'北部', dept:'法律學系',                     deptCat:'法律醫療', nameCat:'幽默自嘲'},
+{id:'0180', name:'榕樹',                   track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'自然意象'},
+{id:'0181', name:'亞洲家庭',               track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'日常生活'},
+{id:'0182', name:'好熱',                   track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'日常生活'},
+{id:'0183', name:'萬歲',                   track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'日常生活'},
+{id:'0184', name:'薯條',                   track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'食物飲料'},
+{id:'0185', name:'大吉大利',               track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'其他'},
+{id:'0186', name:'紅包拿來',               track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'日常生活'},
+{id:'0188', name:'亞洲家長',               track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'日常生活'},
+{id:'0189', name:'玉米鬚',                 track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'食物飲料'},
+{id:'0190', name:'美國',                   track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'其他'},
+{id:'0191', name:'圓環',                   track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'日常生活'},
+{id:'0192', name:'名牌',                   track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'日常生活'},
+{id:'0193', name:'三角形',                 track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'日常生活'},
+{id:'0194', name:'排水孔',                 track:'創意',  school:'國立政治大學',     region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'日常生活'},
+{id:'0205', name:'大帥哥',                 track:'創意',  school:'逢甲大學',         region:'中部', dept:'室內設計進修學士班',           deptCat:'設計藝術', nameCat:'日常生活'},
+{id:'0207', name:'桌子',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'室內設計進修學士班',           deptCat:'設計藝術', nameCat:'日常生活'},
+{id:'0211', name:'除草機',                 track:'創意',  school:'逢甲大學',         region:'中部', dept:'室內設計進修學士班',           deptCat:'設計藝術', nameCat:'日常生活'},
+{id:'0212', name:'數學',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'室內設計進修學士班',           deptCat:'設計藝術', nameCat:'日常生活'},
+{id:'0214', name:'尖頭拉瑞',               track:'創意',  school:'逢甲大學',         region:'中部', dept:'室內設計進修學士班',           deptCat:'設計藝術', nameCat:'其他'},
+{id:'0216', name:'板凳',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'中國文學系',                   deptCat:'語文人文', nameCat:'日常生活'},
+{id:'0218', name:'蘋果派',                 track:'創意',  school:'逢甲大學',         region:'中部', dept:'室內設計進修學士班',           deptCat:'設計藝術', nameCat:'食物飲料'},
+{id:'0219', name:'晚安',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'合作經濟暨社會事業經營學系',   deptCat:'商管',     nameCat:'日常生活'},
+{id:'0220', name:'影印機',                 track:'創意',  school:'逢甲大學',         region:'中部', dept:'企業管理學系',                 deptCat:'商管',     nameCat:'科技梗'},
+{id:'0223', name:'純粹',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'中國文學系',                   deptCat:'語文人文', nameCat:'其他'},
+{id:'0225', name:'馬到成功',               track:'創意',  school:'逢甲大學',         region:'中部', dept:'土地管理學系',                 deptCat:'商管',     nameCat:'其他'},
+{id:'0226', name:'時間',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'文化與社會創新碩士學位學程',   deptCat:'語文人文', nameCat:'日常生活'},
+{id:'0227', name:'電腦包',                 track:'創意',  school:'逢甲大學',         region:'中部', dept:'經濟學系',                     deptCat:'商管',     nameCat:'科技梗'},
+{id:'0228', name:'筆記本',                 track:'創意',  school:'逢甲大學',         region:'中部', dept:'金融博士學位學程',             deptCat:'商管',     nameCat:'日常生活'},
+{id:'0229', name:'牡蠣',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'財稅學系',                     deptCat:'商管',     nameCat:'食物飲料'},
+{id:'0230', name:'指甲',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'會計學系',                     deptCat:'商管',     nameCat:'日常生活'},
+{id:'0231', name:'哈哈哈',                 track:'創意',  school:'逢甲大學',         region:'中部', dept:'會計學系',                     deptCat:'商管',     nameCat:'幽默自嘲'},
+{id:'0232', name:'圖書館',                 track:'創意',  school:'逢甲大學',         region:'中部', dept:'應用數學系',                   deptCat:'理工科學', nameCat:'日常生活'},
+{id:'0234', name:'救救我啊我救我',         track:'創新',  school:'銘傳大學',         region:'北部', dept:'資訊科技應用與管理學士學位學程', deptCat:'資工電機', nameCat:'幽默自嘲'},
+{id:'0235', name:'腦細胞公墓',             track:'創意',  school:'國立臺中教育大學', region:'中部', dept:'美術學系',                     deptCat:'設計藝術', nameCat:'幽默自嘲'},
+{id:'0236', name:'數位煉金術士',           track:'創新',  school:'國立臺中教育大學', region:'中部', dept:'資訊工程學系',                 deptCat:'資工電機', nameCat:'科技梗'},
+{id:'0237', name:'鍵盤毀滅者',             track:'創意',  school:'國立臺中教育大學', region:'中部', dept:'音樂學系',                     deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'0238', name:'靈感像大雨滂沱',         track:'創新',  school:'國立臺中教育大學', region:'中部', dept:'教師專業碩士學位學程',         deptCat:'教育',     nameCat:'自然意象'},
+{id:'0239', name:'像素移動公司',           track:'創意',  school:'國立臺中教育大學', region:'中部', dept:'特殊教育學系',                 deptCat:'教育',     nameCat:'科技梗'},
+{id:'0240', name:'WiFi訊號追逐者',         track:'創新',  school:'國立臺中教育大學', region:'中部', dept:'高等教育經營管理碩士學位學程', deptCat:'教育',     nameCat:'科技梗'},
+{id:'0241', name:'功能多到塞不下',         track:'創新',  school:'國立臺中教育大學', region:'中部', dept:'幼兒教育學系',                 deptCat:'教育',     nameCat:'科技梗'},
+{id:'0242', name:'冷氣房裡的開拓者',       track:'創意',  school:'國立臺中教育大學', region:'中部', dept:'數學教育學系',                 deptCat:'教育',     nameCat:'幽默自嘲'},
+{id:'0243', name:'測試人員的噩夢',         track:'創新',  school:'國立臺中教育大學', region:'中部', dept:'臺灣語文學系',                 deptCat:'語文人文', nameCat:'科技梗'},
+{id:'0244', name:'口袋裡的魔法師',         track:'創新',  school:'國立臺中教育大學', region:'中部', dept:'語文教育學系',                 deptCat:'教育',     nameCat:'戰鬥冒險'},
+{id:'0245', name:'五香乖乖特攻隊',         track:'創新',  school:'國立臺中教育大學', region:'中部', dept:'文化創意產業設計與營運學系',   deptCat:'設計藝術', nameCat:'食物飲料'},
+{id:'0246', name:'重開機解決一切',         track:'創意',  school:'國立臺中教育大學', region:'中部', dept:'數位內容科技學系',             deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'0247', name:'昨晚沒睡覺',             track:'創新',  school:'國立臺中教育大學', region:'中部', dept:'英語學系',                     deptCat:'語文人文', nameCat:'幽默自嘲'},
+{id:'0248', name:'我的機台會發光',         track:'創新',  school:'國立臺中教育大學', region:'中部', dept:'諮商與應用心理學系',           deptCat:'教育',     nameCat:'科技梗'},
+{id:'0249', name:'註解寫在心裡',           track:'創新',  school:'國立臺中教育大學', region:'中部', dept:'國際企業學系',                 deptCat:'商管',     nameCat:'科技梗'},
+{id:'0250', name:'編譯成功的滋味',         track:'創意',  school:'國立臺中教育大學', region:'中部', dept:'管理學院國際經營管理碩士在職專班', deptCat:'商管',  nameCat:'科技梗'},
+{id:'0251', name:'在我的電腦是好的',       track:'創新',  school:'國立臺中教育大學', region:'中部', dept:'區域與社會發展學系',           deptCat:'語文人文', nameCat:'科技梗'},
+{id:'0252', name:'最後一戰',               track:'創意',  school:'國立臺中教育大學', region:'中部', dept:'科學教育與應用學系',           deptCat:'教育',     nameCat:'戰鬥冒險'},
+{id:'0253', name:'熱血伺服器',             track:'創新',  school:'國立臺中教育大學', region:'中部', dept:'永續觀光暨遊憩管理碩士學位學程', deptCat:'商管',   nameCat:'科技梗'},
+{id:'0254', name:'按鈕點擊強迫症',         track:'創新',  school:'國立臺中教育大學', region:'中部', dept:'體育學系',                     deptCat:'其他',     nameCat:'科技梗'},
+{id:'0255', name:'機不可失',               track:'創新',  school:'國立臺中教育大學', region:'中部', dept:'臺灣語文學系',                 deptCat:'語文人文', nameCat:'科技梗'},
+{id:'0256', name:'螢火蟲之墓',             track:'創意',  school:'國立清華大學',     region:'北部', dept:'教育與學習科技學系',           deptCat:'教育',     nameCat:'自然意象'},
+{id:'0257', name:'產品經理說得對',         track:'創新',  school:'國立清華大學',     region:'北部', dept:'竹師教育學院學士班',           deptCat:'教育',     nameCat:'科技梗'},
+{id:'0258', name:'修個Bug過好年',          track:'創意',  school:'國立清華大學',     region:'北部', dept:'特殊教育學系',                 deptCat:'教育',     nameCat:'科技梗'},
+{id:'0260', name:'聲映初晨',               track:'創業',  school:'未知',             region:'其他', dept:'未知',                         deptCat:'其他',     nameCat:'自然意象'},
+{id:'0265', name:'台南大學數位',           track:'創業',  school:'國立臺南大學',     region:'南部', dept:'數位學習科技學系',             deptCat:'資工電機', nameCat:'其他'},
+{id:'0286', name:'台中硬隆',               track:'創意',  school:'逢甲大學',         region:'中部', dept:'合作經濟暨社會事業經營學系',   deptCat:'商管',     nameCat:'其他'},
+{id:'0287', name:'車輪餅好吃',             track:'創意',  school:'逢甲大學',         region:'中部', dept:'經濟學系',                     deptCat:'商管',     nameCat:'食物飲料'},
+{id:'0288', name:'蜜香烏龍',               track:'創意',  school:'逢甲大學',         region:'中部', dept:'財稅學系',                     deptCat:'商管',     nameCat:'食物飲料'},
+{id:'0289', name:'茉莉花',                 track:'創意',  school:'逢甲大學',         region:'中部', dept:'財務金融學系',                 deptCat:'商管',     nameCat:'自然意象'},
+{id:'0290', name:'我想吃鮭魚肚',           track:'創意',  school:'逢甲大學',         region:'中部', dept:'國際經營與貿易學系',           deptCat:'商管',     nameCat:'食物飲料'},
+{id:'0291', name:'好熱喔喔喔喔喔痾',       track:'創意',  school:'逢甲大學',         region:'中部', dept:'行銷學系',                     deptCat:'商管',     nameCat:'幽默自嘲'},
+{id:'0292', name:'我要吃提拉米蘇',         track:'創意',  school:'逢甲大學',         region:'中部', dept:'材料科學與工程學系',           deptCat:'理工科學', nameCat:'食物飲料'},
+{id:'0293', name:'地毯',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'企業管理學系',                 deptCat:'商管',     nameCat:'日常生活'},
+{id:'0294', name:'逼逼啦不',               track:'創意',  school:'逢甲大學',         region:'中部', dept:'土地管理學系',                 deptCat:'商管',     nameCat:'幽默自嘲'},
+{id:'0295', name:'豬肝紅',                 track:'創意',  school:'逢甲大學',         region:'中部', dept:'統計學系',                     deptCat:'理工科學', nameCat:'食物飲料'},
+{id:'0296', name:'猴子',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'財務工程與精算學士學位學程',   deptCat:'商管',     nameCat:'動物'},
+{id:'0297', name:'蚊子',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'文化與社會創新碩士學位學程',   deptCat:'語文人文', nameCat:'動物'},
+{id:'0298', name:'包包',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'合作經濟暨社會事業經營學系',   deptCat:'商管',     nameCat:'日常生活'},
+{id:'0299', name:'信箱',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'會計學系',                     deptCat:'商管',     nameCat:'日常生活'},
+{id:'0300', name:'聯絡人',                 track:'創意',  school:'逢甲大學',         region:'中部', dept:'合作經濟暨社會事業經營學系',   deptCat:'商管',     nameCat:'日常生活'},
+{id:'0301', name:'電源',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'外國語文學系',                 deptCat:'語文人文', nameCat:'科技梗'},
+{id:'0302', name:'自動',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'外國語文學系',                 deptCat:'語文人文', nameCat:'科技梗'},
+{id:'0303', name:'返回',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'中國文學系',                   deptCat:'語文人文', nameCat:'科技梗'},
+{id:'0304', name:'六樓',                   track:'創意',  school:'逢甲大學',         region:'中部', dept:'會計學系',                     deptCat:'商管',     nameCat:'日常生活'},
+{id:'0305', name:'Gg',                     track:'創意',  school:'逢甲大學',         region:'中部', dept:'金融博士學位學程',             deptCat:'商管',     nameCat:'英文混搭'},
+{id:'0306', name:'寓意開發者如同藝術家',   track:'創意',  school:'國立高雄科技大學', region:'南部', dept:'文化創意產業系',               deptCat:'設計藝術', nameCat:'其他'},
+{id:'0307', name:'邏輯迴路',               track:'創新',  school:'國立高雄科技大學', region:'南部', dept:'工業設計系',                   deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'0308', name:'像素先鋒',               track:'創意',  school:'國立高雄科技大學', region:'南部', dept:'應用英語系',                   deptCat:'語文人文', nameCat:'科技梗'},
+{id:'0309', name:'絕對零度',               track:'創新',  school:'國立高雄科技大學', region:'南部', dept:'應用德語系',                   deptCat:'語文人文', nameCat:'科技梗'},
+{id:'0310', name:'迅捷方案',               track:'創新',  school:'國立高雄科技大學', region:'南部', dept:'應用日語系',                   deptCat:'語文人文', nameCat:'科技梗'},
+{id:'0311', name:'未來鍛造者',             track:'創意',  school:'國立高雄科技大學', region:'南部', dept:'會計資訊系',                   deptCat:'商管',     nameCat:'科技梗'},
+{id:'0312', name:'新星節點',               track:'創新',  school:'國立高雄科技大學', region:'南部', dept:'金融資訊系',                   deptCat:'商管',     nameCat:'科技梗'},
+{id:'0313', name:'視野前瞻者',             track:'創新',  school:'國立高雄科技大學', region:'南部', dept:'財務管理系',                   deptCat:'商管',     nameCat:'其他'},
+{id:'0314', name:'無限介面',               track:'創意',  school:'國立高雄科技大學', region:'南部', dept:'金融系',                       deptCat:'商管',     nameCat:'科技梗'},
+{id:'0315', name:'星火工作室',             track:'創新',  school:'國立高雄科技大學', region:'南部', dept:'財政稅務系',                   deptCat:'商管',     nameCat:'自然意象'},
+{id:'0316', name:'起源X',                  track:'創新',  school:'國立高雄科技大學', region:'南部', dept:'風險管理與保險系',             deptCat:'商管',     nameCat:'科技梗'},
+{id:'0317', name:'向量氛圍',               track:'創新',  school:'國立高雄科技大學', region:'南部', dept:'國際管理碩士學位學程',         deptCat:'商管',     nameCat:'科技梗'},
+{id:'0318', name:'核心概念',               track:'創意',  school:'國立高雄科技大學', region:'南部', dept:'創業管理碩士學位學程',         deptCat:'商管',     nameCat:'科技梗'},
+{id:'0319', name:'頂尖應用',               track:'創新',  school:'國立高雄科技大學', region:'南部', dept:'企業管理系',                   deptCat:'商管',     nameCat:'科技梗'},
+{id:'0320', name:'頂級原型',               track:'創新',  school:'國立高雄科技大學', region:'南部', dept:'管理學院企業管理碩士在職專班', deptCat:'商管',     nameCat:'科技梗'},
+{id:'0321', name:'除蟲特攻隊',             track:'創意',  school:'國立高雄科技大學', region:'南部', dept:'供應鏈管理系',                 deptCat:'商管',     nameCat:'科技梗'},
+{id:'0322', name:'死線夢想家',             track:'創新',  school:'國立高雄科技大學', region:'南部', dept:'行銷與流通管理系',             deptCat:'商管',     nameCat:'幽默自嘲'},
+{id:'0323', name:'點擊對話',               track:'創新',  school:'國立高雄科技大學', region:'南部', dept:'運籌管理系',                   deptCat:'商管',     nameCat:'科技梗'},
+{id:'0324', name:'智慧捷徑',               track:'創新',  school:'國立高雄科技大學', region:'南部', dept:'國際企業系',                   deptCat:'商管',     nameCat:'科技梗'},
+{id:'0325', name:'創意點火',               track:'創新',  school:'國立高雄科技大學', region:'南部', dept:'人力資源發展系',               deptCat:'商管',     nameCat:'其他'},
+{id:'0330', name:'黑羽之音',               track:'創意',  school:'國立臺灣大學',     region:'北部', dept:'昆蟲學系',                     deptCat:'理工科學', nameCat:'動物'},
+{id:'0331', name:'天天玩樂',               track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'會計學系',                     deptCat:'商管',     nameCat:'日常生活'},
+{id:'0333', name:'心晴不定',               track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'新聞研究所',                   deptCat:'語文人文', nameCat:'自然意象'},
+{id:'0335', name:'就讓它去',               track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'日本語文學系',                 deptCat:'語文人文', nameCat:'日常生活'},
+{id:'0336', name:'台灣紅不讓',             track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'工商管理學系',                 deptCat:'商管',     nameCat:'其他'},
+{id:'0337', name:'Y2KK2Y',                 track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'生命科學系',                   deptCat:'理工科學', nameCat:'英文混搭'},
+{id:'0338', name:'今天雨不停',             track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'心理學系',                     deptCat:'語文人文', nameCat:'自然意象'},
+{id:'0339', name:'白日一山徑',             track:'創意',  school:'國立臺灣大學',     region:'北部', dept:'公共事務研究所',               deptCat:'語文人文', nameCat:'自然意象'},
+{id:'0340', name:'All money back me home', track:'創業',  school:'國立臺灣大學',     region:'北部', dept:'資訊管理學系',                 deptCat:'資工電機', nameCat:'英文混搭'},
+{id:'0341', name:'天才是不真實的',         track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'公共衛生學系',                 deptCat:'法律醫療', nameCat:'幽默自嘲'},
+{id:'0342', name:'全包總裁',               track:'創意',  school:'國立臺灣大學',     region:'北部', dept:'生醫電子與資訊學研究所',       deptCat:'資工電機', nameCat:'幽默自嘲'},
+{id:'0343', name:'全球統一',               track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'國家發展研究所',               deptCat:'語文人文', nameCat:'戰鬥冒險'},
+{id:'0344', name:'愛要即時',               track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'農藝學系',                     deptCat:'理工科學', nameCat:'日常生活'},
+{id:'0345', name:'宅男陸戰隊',             track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'華語教學碩士學位學程',         deptCat:'語文人文', nameCat:'幽默自嘲'},
+{id:'0346', name:'積極向上進取',           track:'創意',  school:'國立臺灣大學',     region:'北部', dept:'哲學系',                       deptCat:'語文人文', nameCat:'日常生活'},
+{id:'0347', name:'台式義大利麵',           track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'外國語文學系',                 deptCat:'語文人文', nameCat:'食物飲料'},
+{id:'0348', name:'Money is Power',         track:'創意',  school:'國立臺灣大學',     region:'北部', dept:'人類學系',                     deptCat:'語文人文', nameCat:'英文混搭'},
+{id:'0349', name:'小野貓',                 track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'國際企業學系',                 deptCat:'商管',     nameCat:'動物'},
+{id:'0350', name:'生命的盡頭是起源',       track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'電子工程學研究所',             deptCat:'資工電機', nameCat:'自然意象'},
+{id:'0351', name:'能量棒來一隻',           track:'創新',  school:'國立臺灣大學',     region:'北部', dept:'公共事務研究所',               deptCat:'語文人文', nameCat:'食物飲料'},
+{id:'0353', name:'sloppylabs',             track:'創新',  school:'國立清華大學',     region:'北部', dept:'電機資訊/科技管理(跨院)',       deptCat:'資工電機', nameCat:'英文混搭'},
+{id:'0355', name:'早安(NYCU)',             track:'創業',  school:'國立陽明交通大學', region:'北部', dept:'教育研究所',                   deptCat:'教育',     nameCat:'日常生活'},
+{id:'0356', name:'我要第一名',             track:'創新',  school:'逢甲大學',         region:'中部', dept:'室內設計進修學士班',           deptCat:'設計藝術', nameCat:'幽默自嘲'},
+{id:'0357', name:'真愛逢甲',               track:'創新',  school:'逢甲大學',         region:'中部', dept:'經濟學系',                     deptCat:'商管',     nameCat:'其他'},
+];
+
+// ════════════════════════════════════════════════
+//  全域篩選狀態
+// ════════════════════════════════════════════════
+const FS = {
+  track: 'all',
+  school: 'all',
+  region: 'all',
+  deptCat: 'all',
+  nameCat: 'all',
+  search: ''
 };
 
-// ══════════════════════════════════════════════
-//  Chart 管理
-// ══════════════════════════════════════════════
-const CHARTS = {};
+function filtered(overrides) {
+  const f = Object.assign({}, FS, overrides||{});
+  return TEAMS.filter(t =>
+    (f.track==='all'   || t.track===f.track) &&
+    (f.school==='all'  || t.school===f.school) &&
+    (f.region==='all'  || t.region===f.region) &&
+    (f.deptCat==='all' || t.deptCat===f.deptCat) &&
+    (f.nameCat==='all' || t.nameCat===f.nameCat) &&
+    (f.search===''     || t.name.includes(f.search) || t.school.includes(f.search) || t.dept.includes(f.search))
+  );
+}
+
+// ════════════════════════════════════════════════
+//  Unique values helpers
+// ════════════════════════════════════════════════
+const uniq = key => [...new Set(TEAMS.map(t=>t[key]).filter(Boolean))].sort();
+const ALL_SCHOOLS = uniq('school');
+const ALL_REGIONS = ['北部','中部','南部','其他'];
+const ALL_DEPTCATS = ['資工電機','商管','教育','設計藝術','語文人文','理工科學','法律醫療','其他'];
+const ALL_NAMECATS = ['科技梗','食物飲料','動物','幽默自嘲','英文混搭','自然意象','日常生活','戰鬥冒險','其他'];
+const ALL_TRACKS = ['創意','創新','創業'];
+
+const REGION_COLORS = {'北部':'#0071e3','中部':'#ff9500','南部':'#34c759','其他':'#aeaeb2'};
+const TRACK_COLORS = {'創意':'#0071e3','創新':'#5ac8fa','創業':'#af52de'};
+const DEPTCAT_COLORS = {'資工電機':'#0071e3','商管':'#ff9500','教育':'#34c759','設計藝術':'#af52de','語文人文':'#5ac8fa','理工科學':'#ff9f0a','法律醫療':'#ff3b30','其他':'#aeaeb2'};
+const NAMECAT_COLORS = {'科技梗':'#0071e3','食物飲料':'#ff9500','動物':'#34c759','幽默自嘲':'#ff3b30','英文混搭':'#5ac8fa','自然意象':'#af52de','日常生活':'#ff9f0a','戰鬥冒險':'#e85d04','其他':'#aeaeb2'};
+
+// ════════════════════════════════════════════════
+//  Chart helpers
+// ════════════════════════════════════════════════
+const CJ = {};
 function mkChart(id, cfg) {
-  if (CHARTS[id]) { CHARTS[id].destroy(); delete CHARTS[id]; }
+  if (CJ[id]) { CJ[id].destroy(); delete CJ[id]; }
   const el = document.getElementById(id);
-  if (el) CHARTS[id] = new Chart(el, cfg);
+  if (el) CJ[id] = new Chart(el, cfg);
 }
 
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════
 //  UI helpers
-// ══════════════════════════════════════════════
-const ST = t => `<div class="stitle">${t}</div>`;
-function kpi(lbl, val, sub, color) {
-  return `<div class="kpi-box"><div class="kpi-lbl">${lbl}</div>
-    <div class="kpi-val" style="color:${color||'var(--blue)'}">${val}</div>
-    ${sub?`<div class="kpi-sub">${sub}</div>`:''}
-  </div>`;
-}
+// ════════════════════════════════════════════════
+function pill(text, cls) { return `<span class="pill ${cls||'p-gray'}">${text}</span>`; }
 function ins(icon, text, cls) {
-  return `<div class="insight ${cls||'ins-blue'}"><span class="insight-icon">${icon}</span><span class="insight-text">${text}</span></div>`;
+  return `<div class="ins ${cls||'ins-blue'}"><span class="ins-icon">${icon}</span><span>${text}</span></div>`;
 }
-function mbar(label, count, max, color) {
-  const w = Math.max(2, Math.round(count/max*100));
-  return `<div class="mbar-row">
-    <div class="mbar-lbl">${label}</div>
-    <div class="mbar-track"><div class="mbar-fill" style="width:${w}%;background:${color||'var(--blue)'}"></div></div>
-    <div class="mbar-val">${count}</div>
-  </div>`;
+function countBy(arr, key) {
+  const r={};arr.forEach(t=>{ r[t[key]]=(r[t[key]]||0)+1; }); return r;
+}
+function mbar(label, count, max, color, extra) {
+  const w=Math.max(2,Math.round(count/max*100));
+  return `<div class="mbar"><div class="mbar-l">${label}</div>
+    <div class="mbar-t"><div class="mbar-f" style="width:${w}%;background:${color||'var(--blue)'}"></div></div>
+    <div class="mbar-v">${count}</div>${extra||''}</div>`;
+}
+function statBox(num, lbl, color) {
+  return `<div class="stat-box"><div class="stat-num" style="color:${color||'var(--blue)'}">${num}</div><div class="stat-lbl">${lbl}</div></div>`;
 }
 
-// ══════════════════════════════════════════════
+// ── Common filter bar builder ──
+function buildFilterBar(containerId, opts) {
+  // opts: {school, region, track, deptCat, nameCat, search, onChange}
+  const schoolOpts = ['all',...ALL_SCHOOLS].map(s=>`<option value="${s}"${FS.school===s?' selected':''}>${s==='all'?'全部學校':s.replace('國立','')}</option>`).join('');
+  const regionOpts = ['all',...ALL_REGIONS].map(r=>`<option value="${r}"${FS.region===r?' selected':''}>${r==='all'?'全部地區':r}</option>`).join('');
+  const trackOpts = ['all',...ALL_TRACKS].map(t=>`<option value="${t}"${FS.track===t?' selected':''}>${t==='all'?'全部賽道':t}</option>`).join('');
+  const deptOpts = ['all',...ALL_DEPTCATS].map(d=>`<option value="${d}"${FS.deptCat===d?' selected':''}>${d==='all'?'全部科系類別':d}</option>`).join('');
+  const nameOpts = ['all',...ALL_NAMECATS].map(n=>`<option value="${n}"${FS.nameCat===n?' selected':''}>${n==='all'?'全部組名類型':n}</option>`).join('');
+
+  const show = opts||{school:true,region:true,track:true,deptCat:true,nameCat:true,search:true};
+  let html = `<div class="filter-bar">`;
+  if(show.track)   html += `<div class="filter-group"><div class="filter-label">賽道</div><select onchange="FS.track=this.value;${opts.cb||''}()">${trackOpts}</select></div>`;
+  if(show.region)  html += `<div class="filter-group"><div class="filter-label">地區</div><select onchange="FS.region=this.value;${opts.cb||''}()">${regionOpts}</select></div>`;
+  if(show.school)  html += `<div class="filter-group"><div class="filter-label">學校</div><select onchange="FS.school=this.value;${opts.cb||''}()">${schoolOpts}</select></div>`;
+  if(show.deptCat) html += `<div class="filter-group"><div class="filter-label">科系類別</div><select onchange="FS.deptCat=this.value;${opts.cb||''}()">${deptOpts}</select></div>`;
+  if(show.nameCat) html += `<div class="filter-group"><div class="filter-label">組名類型</div><select onchange="FS.nameCat=this.value;${opts.cb||''}()">${nameOpts}</select></div>`;
+  if(show.search)  html += `<div class="filter-group" style="flex:1;min-width:160px"><div class="filter-label">搜尋（組名/學校/科系）</div><input class="search-box" type="text" placeholder="輸入關鍵字..." value="${FS.search}" oninput="FS.search=this.value;${opts.cb||''}()"></div>`;
+  html += `<div style="display:flex;align-items:flex-end"><button class="chip" onclick="Object.assign(FS,{track:'all',school:'all',region:'all',deptCat:'all',nameCat:'all',search:''});${opts.cb||''}()">✕ 清除篩選</button></div>`;
+  html += `</div>`;
+  return html;
+}
+
+// ── Team table ──
+function teamTable(teams, extra) {
+  if(!teams.length) return `<div class="result-count">無符合條件的隊伍</div>`;
+  const header = extra
+    ? `<tr><th>#</th><th>組名</th><th>賽道</th><th>學校</th><th>科系</th><th>地區</th><th>科系類別</th><th>組名類型</th></tr>`
+    : `<tr><th>#</th><th>組名</th><th>賽道</th><th>學校</th><th>科系</th><th>組名類型</th></tr>`;
+  const rows = teams.map((t,i)=>{
+    const tc=TRACK_COLORS[t.track]||'#aaa';
+    const nc=NAMECAT_COLORS[t.nameCat]||'#aaa';
+    return extra
+      ? `<tr><td class="tgray">${t.id}</td><td class="fw">${t.name}</td>
+          <td>${pill(t.track,`pill p-${t.track==='創意'?'blue':t.track==='創新'?'teal':'purple'}`)}</td>
+          <td>${t.school.replace('國立','')}</td><td style="font-size:11px;color:var(--text2)">${t.dept}</td>
+          <td><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${REGION_COLORS[t.region]}22;color:${REGION_COLORS[t.region]};font-weight:600">${t.region}</span></td>
+          <td><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${DEPTCAT_COLORS[t.deptCat]}22;color:${DEPTCAT_COLORS[t.deptCat]};font-weight:600">${t.deptCat}</span></td>
+          <td><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${nc}22;color:${nc};font-weight:600">${t.nameCat}</span></td></tr>`
+      : `<tr><td class="tgray">${t.id}</td><td class="fw">${t.name}</td>
+          <td>${pill(t.track,`pill p-${t.track==='創意'?'blue':t.track==='創新'?'teal':'purple'}`)}</td>
+          <td>${t.school.replace('國立','')}</td><td style="font-size:11px;color:var(--text2)">${t.dept}</td>
+          <td><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${nc}22;color:${nc};font-weight:600">${t.nameCat}</span></td></tr>`;
+  }).join('');
+  return `<div class="result-count">共 <b>${teams.length}</b> 支隊伍</div>
+    <div class="tbl-wrap"><table><thead>${header}</thead><tbody>${rows}</tbody></table></div>`;
+}
+
+// ════════════════════════════════════════════════
 //  Panel builders
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════
 
-// ── 全部總覽 ──────────────────────────────────
-function buildAll() {
-  document.getElementById('wrap-all').innerHTML = `
-  ${ST('📊 總覽 KPI')}
-  <div class="kpi-grid kpi5">
-    ${kpi('總報名隊伍','225','資料截至 2026/04/29','#0071e3')}
-    ${kpi('涵蓋學校數','13','橫跨北中南三區','#5ac8fa')}
-    ${kpi('企畫書上傳','1 隊','上傳率 &lt;1%','#ff3b30')}
-    ${kpi('回流種子隊','2 隊','夜行式 / 豎笛隊','#af52de')}
-    ${kpi('跨校組隊率','4.4%','91隊有效樣本','#34c759')}
+// ── 總覽 ──────────────────────────────────────────────────────────
+function buildOverview() {
+  const w = document.getElementById('w-overview');
+  const t = filtered();
+  const byTrack = countBy(t,'track'), byRegion = countBy(t,'region'), bySchool = countBy(t,'school');
+  const topSchools = Object.entries(bySchool).sort((a,b)=>b[1]-a[1]).slice(0,7);
+  const byDeptCat = countBy(t,'deptCat'), byNameCat = countBy(t,'nameCat');
+
+  w.innerHTML = buildFilterBar({cb:'buildOverview',school:true,region:true,track:true,deptCat:true,nameCat:false,search:false})
+  + `<div class="stats-row">
+    ${statBox(t.length,'篩選後隊伍','#0071e3')}
+    ${statBox(Object.keys(bySchool).length,'涵蓋學校數','#5ac8fa')}
+    ${statBox(byTrack['創意']||0,'創意組','#0071e3')}
+    ${statBox(byTrack['創新']||0,'創新組','#5ac8fa')}
+    ${statBox(byTrack['創業']||0,'創業組','#af52de')}
   </div>
   <div class="g2">
-    <div class="card"><div class="card-title">🏁 賽道分佈</div><canvas id="c-all-track" height="160"></canvas></div>
-    <div class="card"><div class="card-title">🗺️ 地區分佈</div><canvas id="c-all-region" height="160"></canvas></div>
+    <div class="card"><div class="card-title">賽道分佈</div><canvas id="c-ov-track" height="160"></canvas></div>
+    <div class="card"><div class="card-title">地區分佈</div><canvas id="c-ov-region" height="160"></canvas></div>
   </div>
   <div class="g2">
-    <div class="card"><div class="card-title">🏫 學校報名 Top 7</div><canvas id="c-all-school" height="200"></canvas></div>
     <div class="card">
-      <div class="card-title">⚙️ 分工覆蓋率（106隊有分工資料）</div>
-      <canvas id="c-all-duty" height="200"></canvas>
-      <div style="font-size:11px;color:var(--orange);margin-top:8px">⚠️ 介面設計嚴重缺乏（51%隊伍未填），建議5月說明會補強</div>
+      <div class="card-title">學校 Top 7</div>
+      ${topSchools.map(([s,c])=>mbar(s.replace('國立',''),c,topSchools[0][1],REGION_COLORS[t.find(x=>x.school===s)?.region]||'#aaa')).join('')}
+    </div>
+    <div class="card">
+      <div class="card-title">科系類別分佈</div>
+      ${ALL_DEPTCATS.map(d=>mbar(d,byDeptCat[d]||0,Math.max(...Object.values(byDeptCat)),DEPTCAT_COLORS[d])).join('')}
     </div>
   </div>
-  ${ST('🔑 十大關鍵決策建議')}
+  <div class="card"><div class="card-title">組名類型分佈</div><canvas id="c-ov-name" height="120"></canvas></div>`;
+
+  setTimeout(()=>{
+    mkChart('c-ov-track',{type:'doughnut',data:{labels:ALL_TRACKS.map(tr=>tr+' '+(byTrack[tr]||0)),datasets:[{data:ALL_TRACKS.map(tr=>byTrack[tr]||0),backgroundColor:ALL_TRACKS.map(tr=>TRACK_COLORS[tr]),borderWidth:2}]},options:{plugins:{legend:{position:'right',labels:{font:{size:12}}}},cutout:'65%'}});
+    mkChart('c-ov-region',{type:'doughnut',data:{labels:ALL_REGIONS.map(r=>r+' '+(byRegion[r]||0)),datasets:[{data:ALL_REGIONS.map(r=>byRegion[r]||0),backgroundColor:ALL_REGIONS.map(r=>REGION_COLORS[r]),borderWidth:2}]},options:{plugins:{legend:{position:'right',labels:{font:{size:12}}}},cutout:'65%'}});
+    const ncVals=ALL_NAMECATS.map(n=>byNameCat[n]||0);
+    mkChart('c-ov-name',{type:'bar',data:{labels:ALL_NAMECATS,datasets:[{data:ncVals,backgroundColor:ALL_NAMECATS.map(n=>NAMECAT_COLORS[n]),borderRadius:5}]},options:{plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(0,0,0,0.04)'}}}}});
+  },50);
+}
+
+// ── 賽道 ──────────────────────────────────────────────────────────
+function buildTrack() {
+  const w = document.getElementById('w-track');
+  const t = filtered();
+  const byTrack = countBy(t,'track');
+
+  // Per-track school breakdown
+  const trackSchool = {};
+  ALL_TRACKS.forEach(tr=>{
+    const sub = t.filter(x=>x.track===tr);
+    trackSchool[tr] = countBy(sub,'school');
+  });
+
+  w.innerHTML = buildFilterBar({cb:'buildTrack',school:true,region:true,track:true,deptCat:true,nameCat:true,search:false})
+  + `<div class="stats-row">
+    ${ALL_TRACKS.map(tr=>`<div class="stat-box" style="border-top:3px solid ${TRACK_COLORS[tr]}">
+      <div class="stat-num" style="color:${TRACK_COLORS[tr]};font-size:32px">${byTrack[tr]||0}</div>
+      <div class="stat-lbl" style="font-size:12px;font-weight:700">${tr}組</div>
+      <div class="stat-lbl">${t.length?((byTrack[tr]||0)/t.length*100).toFixed(1):0}%</div>
+    </div>`).join('')}
+  </div>
   <div class="g2">
-    <div>
-      ${ins('🏁','創意組佔52%，創業組僅16%。5月說明會應提供「創業企畫模板」降低門檻。','ins-purple')}
-      ${ins('⚠️','企畫書上傳率僅0.4%（1/225）。截止前7天應發送個人化補填提醒。','ins-red')}
-      ${ins('🗺️','南部僅佔9%，成大/中山等頂尖校完全缺席。明年優先安排南部說明會。','ins-green')}
-      ${ins('🔍','政大36隊中90%以上為教育學系，推廣嚴重偏頗，資管/法律等院系未出現。','ins-orange')}
-      ${ins('⚙️','介面設計角色覆蓋率僅49%，是最大分工缺口。應在說明會中強調UI/UX重要性。','ins-orange')}
+    <div class="card">
+      <div class="card-title">各賽道 × 各校分佈（堆疊）</div>
+      <canvas id="c-tr-school" height="220"></canvas>
     </div>
-    <div>
-      ${ins('🔀','跨校率僅4.4%，82%為同校同系組隊。建議設「最強跨域組合獎」激勵破圈。','ins-blue')}
-      ${ins('🌐','缺乏高潛力組合：資工×設計、法律×資工(LegalTech)、醫療×資工(HealthTech)。','ins-purple')}
-      ${ins('🎓','大三(31%)+大四(23%)是主力，大一僅13%。應在迎新活動提早觸及低年級。','ins-blue')}
-      ${ins('📅','4/10單日57隊為最大爆發點。應追查觸發管道，作為明年預算分配依據。','ins-blue')}
-      ${ins('📝','80%以上年級欄位空白。下次報名表應將年級設為必填，支援精準分析。','ins-red')}
+    <div class="card">
+      <div class="card-title">各賽道 × 科系類別</div>
+      <canvas id="c-tr-dept" height="220"></canvas>
     </div>
+  </div>
+  ${ALL_TRACKS.map(tr=>{
+    const sub = t.filter(x=>x.track===tr);
+    const byS = countBy(sub,'school');
+    const top5 = Object.entries(byS).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    return `<div class="card">
+      <div class="card-title">${tr}組 — ${sub.length} 隊詳細</div>
+      <div class="g2" style="margin-bottom:10px">
+        <div>${top5.map(([s,c])=>mbar(s.replace('國立',''),c,top5[0]?.[1]||1,TRACK_COLORS[tr])).join('')}</div>
+        <div>${ALL_DEPTCATS.slice(0,4).map(d=>{const c=sub.filter(x=>x.deptCat===d).length;return mbar(d,c,sub.length||1,DEPTCAT_COLORS[d]);}).join('')}</div>
+      </div>
+      ${teamTable(sub)}
+    </div>`;
+  }).join('')}`;
+
+  setTimeout(()=>{
+    const top8schools = Object.entries(countBy(t,'school')).sort((a,b)=>b[1]-a[1]).slice(0,8).map(x=>x[0]);
+    mkChart('c-tr-school',{type:'bar',data:{labels:top8schools.map(s=>s.replace('國立','')),datasets:ALL_TRACKS.map(tr=>({label:tr,data:top8schools.map(s=>t.filter(x=>x.track===tr&&x.school===s).length),backgroundColor:TRACK_COLORS[tr],borderRadius:3}))},options:{indexAxis:'y',plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{x:{stacked:true},y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'}}}}});
+    mkChart('c-tr-dept',{type:'bar',data:{labels:ALL_DEPTCATS,datasets:ALL_TRACKS.map(tr=>({label:tr,data:ALL_DEPTCATS.map(d=>t.filter(x=>x.track===tr&&x.deptCat===d).length),backgroundColor:TRACK_COLORS[tr],borderRadius:3}))},options:{plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{x:{stacked:true},y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'}}}}});
+  },50);
+}
+
+// ── 學校 / 地區 ──────────────────────────────────────────────────────
+function buildSchool() {
+  const w = document.getElementById('w-school');
+  const t = filtered();
+  const bySchool = countBy(t,'school');
+  const byRegion = countBy(t,'region');
+
+  w.innerHTML = buildFilterBar({cb:'buildSchool',school:true,region:true,track:true,deptCat:true,nameCat:false,search:true})
+  + `<div class="stats-row">
+    ${ALL_REGIONS.map(r=>`<div class="stat-box" style="border-top:3px solid ${REGION_COLORS[r]}">
+      <div class="stat-num" style="color:${REGION_COLORS[r]}">${byRegion[r]||0}</div>
+      <div class="stat-lbl" style="font-weight:700">${r}</div>
+      <div class="stat-lbl">${t.length?((byRegion[r]||0)/t.length*100).toFixed(1):0}%</div>
+    </div>`).join('')}
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-title">地區佔比</div><canvas id="c-sc-region" height="180"></canvas></div>
+    <div class="card">
+      <div class="card-title">各校隊數（依地區著色）</div>
+      <canvas id="c-sc-school" height="180"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">各校細項比較</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>學校</th><th class="tc">地區</th><th class="tc">隊數</th><th class="tc">創意</th><th class="tc">創新</th><th class="tc">創業</th><th class="tc">科系多樣性</th></tr></thead>
+      <tbody>
+      ${Object.entries(bySchool).sort((a,b)=>b[1]-a[1]).map(([s,total])=>{
+        const sub=t.filter(x=>x.school===s);
+        const ri=sub[0]?.region||'其他';
+        const rc=REGION_COLORS[ri];
+        const depts=new Set(sub.map(x=>x.dept)).size;
+        return `<tr>
+          <td class="fw">${s.replace('國立','')}</td>
+          <td class="tc"><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${rc}22;color:${rc};font-weight:600">${ri}</span></td>
+          <td class="tc fw tblue">${total}</td>
+          <td class="tc">${sub.filter(x=>x.track==='創意').length||'-'}</td>
+          <td class="tc">${sub.filter(x=>x.track==='創新').length||'-'}</td>
+          <td class="tc">${sub.filter(x=>x.track==='創業').length||'-'}</td>
+          <td class="tc">${depts} 系</td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table></div>
+  </div>
+  <div class="card">
+    <div class="card-title">篩選結果隊伍列表</div>
+    ${teamTable(t)}
   </div>`;
 
   setTimeout(()=>{
-    mkChart('c-all-track',{type:'doughnut',data:{labels:AN.tracks.map(t=>t.label+' '+t.count+'隊'),datasets:[{data:AN.tracks.map(t=>t.count),backgroundColor:AN.tracks.map(t=>t.color),borderWidth:2}]},options:{plugins:{legend:{position:'right',labels:{font:{size:12}}}},cutout:'65%'}});
-    mkChart('c-all-region',{type:'doughnut',data:{labels:AN.regions.map(r=>r.label+' '+r.count+'隊'),datasets:[{data:AN.regions.map(r=>r.count),backgroundColor:AN.regions.map(r=>r.color),borderWidth:2}]},options:{plugins:{legend:{position:'right',labels:{font:{size:12}}}},cutout:'65%'}});
-    const t7=AN.schools.slice(0,7);
-    mkChart('c-all-school',{type:'bar',data:{labels:t7.map(s=>s.short),datasets:[{label:'隊數',data:t7.map(s=>s.teams),backgroundColor:'#0071e3',borderRadius:5}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'}}}}});
-    mkChart('c-all-duty',{type:'bar',data:{labels:AN.duties.map(d=>d.label),datasets:[{label:'隊數',data:AN.duties.map(d=>d.count),backgroundColor:AN.duties.map(d=>d.color),borderRadius:5}]},options:{plugins:{legend:{display:false}},scales:{y:{max:106,grid:{color:'rgba(0,0,0,0.04)'}}}}});
+    mkChart('c-sc-region',{type:'doughnut',data:{labels:ALL_REGIONS.map(r=>r+' '+(byRegion[r]||0)),datasets:[{data:ALL_REGIONS.map(r=>byRegion[r]||0),backgroundColor:ALL_REGIONS.map(r=>REGION_COLORS[r]),borderWidth:2}]},options:{plugins:{legend:{position:'right',labels:{font:{size:12}}}},cutout:'60%'}});
+    const schools=Object.entries(bySchool).sort((a,b)=>b[1]-a[1]).slice(0,12);
+    mkChart('c-sc-school',{type:'bar',data:{labels:schools.map(([s])=>s.replace('國立','')),datasets:[{data:schools.map(([,c])=>c),backgroundColor:schools.map(([s])=>REGION_COLORS[t.find(x=>x.school===s)?.region]||'#aaa'),borderRadius:5}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'}}}}});
   },50);
 }
 
-// ── 賽道分析 ──────────────────────────────────
-function buildTrack() {
-  const schoolTrack={'國立臺灣大學':[14,18,28],'逢甲大學':[43,4,0],'國立政治大學':[34,0,2],'國立臺中教育大學':[8,14,0],'國立高雄科技大學':[8,12,0],'國立清華大學':[1,9,5]};
-  document.getElementById('wrap-track').innerHTML = `
-  ${ST('賽道分佈概況')}
-  <div class="kpi-grid kpi3">
-    ${AN.tracks.map(t=>`<div class="kpi-box" style="border-top:3px solid ${t.color};text-align:center">
-      <div class="kpi-val" style="color:${t.color};font-size:40px">${t.count}</div>
-      <div class="kpi-lbl" style="font-size:13px;font-weight:700;margin-top:4px">${t.label}組</div>
-      <div class="kpi-sub">${(t.count/AN.totalTeams*100).toFixed(1)}%</div>
-    </div>`).join('')}
-  </div>
-  <div class="g2">
-    <div class="card"><div class="card-title">各賽道佔比</div><canvas id="c-tr-pie" height="200"></canvas></div>
-    <div class="card"><div class="card-title">各賽道 × 前6校分佈（堆疊）</div><canvas id="c-tr-school" height="200"></canvas></div>
-  </div>
-  ${ST('📝 組名趨勢語意分析')}
-  <div class="card">
-    <div class="card-title">組名熱門主題分類</div>
-    <canvas id="c-tr-names" height="130"></canvas>
-    <div style="margin-top:14px;display:flex;flex-direction:column;gap:6px">
-      ${AN.nameTopics.map(n=>`<div style="font-size:11.5px"><span style="font-weight:700;color:${n.color}">${n.label}（${n.count}隊）：</span><span style="color:var(--text2)">${n.ex}</span></div>`).join('')}
-    </div>
-  </div>
-  ${ST('🔑 賽道決策洞察')}
-  ${ins('🏁','創意組（52%）遠超創業組（16%）。5月說明會應提供「創業企畫書模板」與「商業邏輯工作坊」降低創業組門檻。','ins-purple')}
-  ${ins('⚠️','企畫書上傳率不足1%（225隊中僅1隊），大量隊伍停在「報名未提交」。建議截止前7天推送個人化提醒。','ins-red')}
-  ${ins('💡','台大28隊走創業賽道，但上傳率接近0。應追蹤這批創業組的真實意圖，考慮設定「提交初稿確認資格」機制。','ins-blue')}
-  ${ins('📝','「科技/程式梗」命名最多（24隊），反映參賽者對iOS開發文化的強認同感。評審可多邀產品/技術實務背景人士。','ins-blue')}`;
-
-  setTimeout(()=>{
-    mkChart('c-tr-pie',{type:'pie',data:{labels:AN.tracks.map(t=>t.label+'('+t.count+')'),datasets:[{data:AN.tracks.map(t=>t.count),backgroundColor:AN.tracks.map(t=>t.color),borderWidth:2}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:12}}}}}});
-    const t6=AN.schools.slice(0,6);
-    mkChart('c-tr-school',{type:'bar',data:{labels:t6.map(s=>s.short),datasets:[{label:'創意',data:t6.map(s=>(schoolTrack[s.name]||[0,0,0])[0]),backgroundColor:'#0071e3',borderRadius:3},{label:'創新',data:t6.map(s=>(schoolTrack[s.name]||[0,0,0])[1]),backgroundColor:'#5ac8fa',borderRadius:3},{label:'創業',data:t6.map(s=>(schoolTrack[s.name]||[0,0,0])[2]),backgroundColor:'#af52de',borderRadius:3}]},options:{indexAxis:'y',plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{x:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'}},y:{stacked:true}}}});
-    mkChart('c-tr-names',{type:'bar',data:{labels:AN.nameTopics.map(n=>n.label),datasets:[{label:'隊數',data:AN.nameTopics.map(n=>n.count),backgroundColor:AN.nameTopics.map(n=>n.color),borderRadius:5}]},options:{plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(0,0,0,0.04)'}}}}});
-  },50);
-}
-
-// ── 地區/學校 ─────────────────────────────────
-function buildRegion() {
-  document.getElementById('wrap-region').innerHTML = `
-  ${ST('地區板塊分析')}
-  <div class="kpi-grid kpi4">
-    ${AN.regions.map(r=>`<div class="kpi-box" style="border-top:3px solid ${r.color};text-align:center">
-      <div class="kpi-val" style="color:${r.color}">${r.count}</div>
-      <div class="kpi-lbl" style="font-size:13px;font-weight:700">${r.label}</div>
-      <div class="kpi-sub">${(r.count/AN.totalTeams*100).toFixed(1)}%</div>
-    </div>`).join('')}
-  </div>
-  <div class="g2">
-    <div class="card"><div class="card-title">地區佔比</div><canvas id="c-rg-pie" height="180"></canvas></div>
-    <div class="card"><div class="card-title">各校報名數（依地區著色）</div><canvas id="c-rg-school" height="180"></canvas></div>
-  </div>
-  ${ST('各校細項比較')}
-  <div class="card" style="overflow-x:auto">
-    <table>
-      <thead><tr>
-        <th>學校</th><th class="tc">地區</th><th class="tc">隊數</th>
-        <th class="tc">系所多樣性</th><th class="tc">分工資料</th><th>關鍵特色</th>
-      </tr></thead>
-      <tbody>
-        ${AN.schools.map((s,i)=>{
-          const rc=s.region==='北部'?'#0071e3':s.region==='中部'?'#ff9500':s.region==='南部'?'#34c759':'#aeaeb2';
-          const dl=s.deptCount>=20?'<span class="p-green">非常多元</span>':s.deptCount>=10?'<span class="p-blue">多元</span>':s.deptCount>=3?'<span class="p-orange">普通</span>':'<span class="p-red">單一</span>';
-          const duty=s.hasDuty?'<span class="p-green">✅ 有填</span>':'<span class="p-red">⚠️ 空白</span>';
-          return `<tr>
-            <td class="fw">${s.name.replace('國立','')}</td>
-            <td class="tc"><span style="padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:${rc}22;color:${rc}">${s.region}</span></td>
-            <td class="tc fw tblue">${s.teams}</td>
-            <td class="tc">${dl}（${s.deptCount}系）</td>
-            <td class="tc">${duty}</td>
-            <td style="font-size:11px;color:var(--text2)">${s.note}</td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table>
-  </div>
-  ${ST('🔑 地區決策洞察')}
-  ${ins('🗺️','南部僅佔9%（21隊），成大、中山、高雄大學等頂尖校完全缺席。明年應優先安排南部說明會，並邀請高雄科大現有老師擴大推廣。','ins-green')}
-  ${ins('🔍','政大36隊中90%以上來自教育學系。資管、傳播、法律等強勢科系完全未出現。建議聯絡政大iOS Club作為推廣窗口。','ins-red')}
-  ${ins('🏫','台大已形成自發性參賽生態（36系所），哲學、農藝、公衛均出現。此模式應複製至逢甲、政大非教育院系。','ins-blue')}
-  ${ins('⚠️','高雄科大20隊均為商管學院，年級與分工資料全空。這批隊伍的「殭屍隊」風險較高，建議設資料補填追蹤機制。','ins-orange')}`;
-
-  setTimeout(()=>{
-    mkChart('c-rg-pie',{type:'doughnut',data:{labels:AN.regions.map(r=>r.label+' '+r.count+'隊'),datasets:[{data:AN.regions.map(r=>r.count),backgroundColor:AN.regions.map(r=>r.color),borderWidth:2}]},options:{plugins:{legend:{position:'right',labels:{font:{size:12}}}},cutout:'60%'}});
-    const rc=AN.schools.slice(0,10).map(s=>s.region==='北部'?'#0071e3':s.region==='中部'?'#ff9500':'#34c759');
-    mkChart('c-rg-school',{type:'bar',data:{labels:AN.schools.slice(0,10).map(s=>s.short),datasets:[{label:'隊數',data:AN.schools.slice(0,10).map(s=>s.teams),backgroundColor:rc,borderRadius:5}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'}}}}});
-  },50);
-}
-
-// ── 跨域組隊 ──────────────────────────────────
+// ── 科系 / 跨域 ──────────────────────────────────────────────────────
 function buildDept() {
-  document.getElementById('wrap-dept').innerHTML = `
-  ${ST('跨域組隊總覽（91隊有多成員資料）')}
-  <div class="kpi-grid kpi4">
-    ${kpi('跨校組隊','4 隊 (4.4%)','清大×台大 等','#af52de')}
-    ${kpi('同校跨系','12 隊 (13%)','台大最多','#34c759')}
-    ${kpi('同校同系','75 隊 (82%)','主流模式','#ff9500')}
-    ${kpi('介面設計缺口','51%','106隊中54隊缺','#ff3b30')}
-  </div>
-  <div class="g2">
-    <div class="card"><div class="card-title">組隊類型佔比</div><canvas id="c-dp-pie" height="180"></canvas></div>
-    <div class="card">
-      <div class="card-title">分工角色覆蓋率（106隊）</div>
-      <canvas id="c-dp-duty" height="180"></canvas>
-    </div>
-  </div>
-  ${ST('⭐ 跨校組隊明細（4 隊）')}
-  <div class="g2">
-    ${AN.crossSchool.map(t=>`<div class="card" style="border-left:3px solid #af52de">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-        <span style="font-size:14px">${'⭐'.repeat(t.star)}</span>
-        <span style="font-weight:700;font-size:13px">[${t.id}] ${t.name}</span>
-        <span class="pill p-purple">${t.track}</span>
-      </div>
-      <div style="font-size:11.5px;line-height:1.9">
-        跨校組合：<strong>${t.combo}</strong><br>
-        跨域類型：<span style="color:var(--blue);font-weight:600">${t.type}</span><br>
-        <span style="color:var(--text2)">${t.note}</span>
-      </div>
-    </div>`).join('')}
-    <div class="card" style="border-left:3px solid #34c759">
-      <div style="font-weight:700;font-size:13px;margin-bottom:8px">🔀 同校跨系精選</div>
-      <div style="font-size:11.5px;line-height:2">
-        <strong>[0107] 旁門左道</strong>（台大）：心理學 × 資工<span class="pill p-blue" style="margin-left:4px">人文+理工</span><br>
-        <strong>[0353] sloppylabs</strong>（清大）：電機資訊 × 科技管理<span class="pill p-green" style="margin-left:4px">理工+管理</span><br>
-        <strong>[0138] 貓咪</strong>（政大側）：歐洲語文 × 教育<span class="pill p-gray" style="margin-left:4px">語文+教育</span><br>
-        <span style="color:var(--text2);font-size:11px">完整12隊詳見下方表格</span>
-      </div>
-    </div>
-  </div>
-  ${ST('⚠️ 同校同系高風險集群')}
-  <div class="card" style="overflow-x:auto">
-    <table>
-      <thead><tr><th>集群</th><th class="tc">隊數</th><th>描述</th><th class="tc">風險等級</th></tr></thead>
-      <tbody>
-        <tr><td class="fw">政大教育學系</td><td class="tc fw tred">~20隊</td><td style="font-size:11.5px">幾乎全為同系；組名疑似課堂作業（「你好」「早安」「萬歲」「排水孔」）；缺乏產品動機</td><td class="tc"><span class="pill p-red">🔴 高</span></td></tr>
-        <tr><td class="fw">東海資訊工程</td><td class="tc fw torange">10隊</td><td style="font-size:11.5px">清一色資工；4位老師各帶2隊；技術佳但缺PM/商業思維</td><td class="tc"><span class="pill p-orange">🟡 中</span></td></tr>
-        <tr><td class="fw">台大各系</td><td class="tc tblue fw">~35隊</td><td style="font-size:11.5px">雖同系但每隊系所各異（36系所），整體多元，問題較小</td><td class="tc"><span class="pill p-green">🟢 低</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-  ${ST('⚠️ 重複參賽者警示')}
-  <div class="card">
-    <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:10px">以下人員出現在多支隊伍，疑似人頭或湊隊員</div>
-    <table>
-      <thead><tr><th>姓名</th><th>出現隊伍</th><th>疑似情況</th></tr></thead>
-      <tbody>
-        ${AN.duplicates.map((d,i)=>`<tr><td class="fw">${d.name}</td><td style="font-size:11.5px">${d.teams}</td><td style="font-size:11.5px;color:var(--text2)">${d.note}</td></tr>`).join('')}
-      </tbody>
-    </table>
-  </div>
-  ${ST('🔑 跨域決策洞察')}
-  ${ins('🔀','跨校率僅4.4%，82%為同校同系，組隊幾乎完全依賴既有社交圈。建議設「最強跨域組合獎」，激勵主動尋找不同背景隊友。','ins-blue')}
-  ${ins('🌐','缺乏高潛力組合：資工×設計(DesignTech)、資工×行銷、法律×資工(LegalTech)、醫療×資工(HealthTech)。應在推廣中明確點名鼓勵。','ins-purple')}
-  ${ins('⭐','夜行式(034)是全場唯一真正跨校跨域隊（清大教育科技×台大電機+回流種子），應邀請為說明會標竿案例分享。','ins-green')}
-  ${ins('⚠️','建議報名系統加入信箱/電話去重機制，防止同一人以不同系所出現在多支隊伍，確保競賽公平性。','ins-red')}`;
+  const w = document.getElementById('w-dept');
+  const t = filtered();
+  const byDeptCat = countBy(t,'deptCat');
+  const maxDC = Math.max(...Object.values(byDeptCat),1);
 
-  setTimeout(()=>{
-    mkChart('c-dp-pie',{type:'doughnut',data:{labels:['同校同系 75','同校跨系 12','跨校 4'],datasets:[{data:[75,12,4],backgroundColor:['#ff9500','#34c759','#af52de'],borderWidth:2}]},options:{plugins:{legend:{position:'right',labels:{font:{size:12}}}},cutout:'60%'}});
-    mkChart('c-dp-duty',{type:'bar',data:{labels:AN.duties.map(d=>d.label),datasets:[{label:'覆蓋隊數',data:AN.duties.map(d=>d.count),backgroundColor:AN.duties.map(d=>d.color),borderRadius:5}]},options:{plugins:{legend:{display:false}},scales:{y:{max:106,grid:{color:'rgba(0,0,0,0.04)'}}}}});
-  },50);
-}
-
-// ── 年級分佈 ──────────────────────────────────
-function buildGrade() {
-  document.getElementById('wrap-grade').innerHTML = `
-  ${ST('年級分佈（有效樣本 131 人 / 總估計 650+ 人次）')}
-  <div class="kpi-grid kpi5">
-    ${AN.grades.map(g=>`<div class="kpi-box" style="border-top:3px solid ${g.color};text-align:center">
-      <div class="kpi-val" style="color:${g.color}">${g.count}</div>
-      <div class="kpi-lbl" style="font-size:13px;font-weight:700">${g.label}</div>
-      <div class="kpi-sub">${(g.count/131*100).toFixed(0)}%</div>
+  w.innerHTML = buildFilterBar({cb:'buildDept',school:true,region:true,track:true,deptCat:true,nameCat:false,search:true})
+  + `<div class="stats-row">
+    ${ALL_DEPTCATS.map(d=>`<div class="stat-box" style="border-top:3px solid ${DEPTCAT_COLORS[d]}">
+      <div class="stat-num" style="color:${DEPTCAT_COLORS[d]};font-size:20px">${byDeptCat[d]||0}</div>
+      <div class="stat-lbl">${d}</div>
     </div>`).join('')}
   </div>
   <div class="g2">
-    <div class="card"><div class="card-title">年級佔比（有效131人）</div><canvas id="c-gr-pie" height="200"></canvas></div>
+    <div class="card"><div class="card-title">科系類別佔比</div><canvas id="c-dp-pie" height="180"></canvas></div>
     <div class="card">
-      <div class="card-title">各校年級填寫完整度（堆疊）</div>
-      <canvas id="c-gr-school" height="200"></canvas>
-      <div style="font-size:11px;color:var(--red);margin-top:8px">⚠️ 超過75%成員年級欄位空白，嚴重影響分析精度</div>
+      <div class="card-title">科系類別 × 賽道</div>
+      <canvas id="c-dp-track" height="180"></canvas>
     </div>
   </div>
-  ${ST('各校年級細項')}
-  <div class="card" style="overflow-x:auto">
-    <table>
-      <thead><tr><th>學校</th><th class="tc">大一</th><th class="tc">大二</th><th class="tc" style="color:var(--blue)">大三</th><th class="tc">大四</th><th class="tc">碩士生</th><th class="tc">未知</th></tr></thead>
-      <tbody>
-        ${[
-          {n:'逢甲大學',        g1:2, g2:7,  g3:14, g4:11, gm:2, unk:60,  unkc:'#ff9500'},
-          {n:'東海大學',        g1:2, g2:3,  g3:4,  g4:1,  gm:0, unk:0,   unkc:'#34c759'},
-          {n:'政治大學',        g1:3, g2:3,  g3:6,  g4:3,  gm:0, unk:80,  unkc:'#ff3b30'},
-          {n:'清華大學',        g1:0, g2:4,  g3:2,  g4:0,  gm:2, unk:25,  unkc:'#ff9500'},
-          {n:'臺灣大學',        g1:1, g2:1,  g3:1,  g4:0,  gm:1, unk:120, unkc:'#ff3b30'},
-          {n:'臺中教大/高科大', g1:0, g2:0,  g3:0,  g4:0,  gm:0, unk:'全部', unkc:'#ff3b30'}
-        ].map(r=>`<tr>
-          <td class="fw">${r.n}</td>
-          <td class="tc">${r.g1||'-'}</td>
-          <td class="tc">${r.g2||'-'}</td>
-          <td class="tc fw tblue">${r.g3||'-'}</td>
-          <td class="tc">${r.g4||'-'}</td>
-          <td class="tc">${r.gm||'-'}</td>
-          <td class="tc fw" style="color:${r.unkc}">${r.unk}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
-  </div>
-  ${ST('🔑 年級決策洞察')}
-  ${ins('🎓','大三（31%）+大四（23%）合計54%為主力族群。說明會訴求應主打「履歷加值」與「畢業前作品集」，對高年級最有說服力。','ins-blue')}
-  ${ins('📊','大一僅佔13%，觸及率明顯偏低。建議在社團博覽會或大一迎新活動設攤，提早建立MAIC品牌認知。','ins-orange')}
-  ${ins('📝','80%以上年級欄位空白，報名表應設年級為必填，並改用下拉選單防止格式錯誤。','ins-red')}
-  ${ins('🎓','碩士生（8%）集中在清大（教育科技、學習科技），是技術+教育跨域的潛力族群，值得專項培育。','ins-purple')}`;
+  ${ALL_DEPTCATS.map(d=>{
+    const sub=t.filter(x=>x.deptCat===d);
+    if(!sub.length) return '';
+    const depts=countBy(sub,'dept');
+    const topDepts=Object.entries(depts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    return `<div class="card">
+      <div class="card-title" style="color:${DEPTCAT_COLORS[d]}">${d} — ${sub.length} 隊</div>
+      <div class="g2" style="margin-bottom:10px">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px">熱門科系 Top 6</div>
+          ${topDepts.map(([dp,c])=>mbar(dp,c,topDepts[0][1],DEPTCAT_COLORS[d])).join('')}
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px">學校分佈</div>
+          ${Object.entries(countBy(sub,'school')).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([s,c])=>mbar(s.replace('國立',''),c,sub.length,REGION_COLORS[sub.find(x=>x.school===s)?.region]||'#aaa')).join('')}
+        </div>
+      </div>
+      ${teamTable(sub)}
+    </div>`;
+  }).join('')}`;
 
   setTimeout(()=>{
-    mkChart('c-gr-pie',{type:'doughnut',data:{labels:AN.grades.map(g=>g.label+'('+g.count+')'),datasets:[{data:AN.grades.map(g=>g.count),backgroundColor:AN.grades.map(g=>g.color),borderWidth:2}]},options:{plugins:{legend:{position:'right',labels:{font:{size:12}}}},cutout:'60%'}});
-    mkChart('c-gr-school',{type:'bar',data:{labels:['逢甲','東海','政大','清大','台大'],datasets:[{label:'大一',data:[2,2,3,0,1],backgroundColor:'#ff9f0a',borderRadius:2},{label:'大二',data:[7,3,3,4,1],backgroundColor:'#0071e3',borderRadius:2},{label:'大三',data:[14,4,6,2,1],backgroundColor:'#5ac8fa',borderRadius:2},{label:'大四',data:[11,1,3,0,0],backgroundColor:'#34c759',borderRadius:2},{label:'碩士',data:[2,0,0,2,1],backgroundColor:'#af52de',borderRadius:2}]},options:{plugins:{legend:{position:'top',labels:{font:{size:10}}}},scales:{x:{stacked:true},y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'}}}}});
+    const dcVals=ALL_DEPTCATS.map(d=>byDeptCat[d]||0);
+    mkChart('c-dp-pie',{type:'doughnut',data:{labels:ALL_DEPTCATS.map((d,i)=>d+' '+(dcVals[i])),datasets:[{data:dcVals,backgroundColor:ALL_DEPTCATS.map(d=>DEPTCAT_COLORS[d]),borderWidth:2}]},options:{plugins:{legend:{position:'right',labels:{font:{size:11}}}},cutout:'60%'}});
+    mkChart('c-dp-track',{type:'bar',data:{labels:ALL_DEPTCATS,datasets:ALL_TRACKS.map(tr=>({label:tr,data:ALL_DEPTCATS.map(d=>t.filter(x=>x.deptCat===d&&x.track===tr).length),backgroundColor:TRACK_COLORS[tr],borderRadius:3}))},options:{plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{x:{stacked:true},y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'}}}}});
   },50);
 }
 
-// ── 報名時程 ──────────────────────────────────
-function buildFunnel() {
-  document.getElementById('wrap-funnel').innerHTML = `
-  ${ST('報名時程 — 浪潮分析')}
-  <div class="kpi-grid kpi4">
-    ${kpi('最大單日','57 隊','4/10 大爆發','#ff3b30')}
-    ${kpi('第一波','~85 隊','4/10–4/11','#0071e3')}
-    ${kpi('第二波','~36 隊','4/22–4/23','#5ac8fa')}
-    ${kpi('企畫書上傳','1 / 225','上傳率 &lt;1%','#ff9500')}
+// ── 組名分析 ──────────────────────────────────────────────────────
+function buildName() {
+  const w = document.getElementById('w-name');
+  const t = filtered();
+  const byNameCat = countBy(t,'nameCat');
+  const maxNC = Math.max(...Object.values(byNameCat),1);
+
+  w.innerHTML = buildFilterBar({cb:'buildName',school:true,region:true,track:true,deptCat:true,nameCat:true,search:true})
+  + `<div class="stats-row">
+    ${ALL_NAMECATS.map(n=>`<div class="stat-box" style="border-top:3px solid ${NAMECAT_COLORS[n]}">
+      <div class="stat-num" style="color:${NAMECAT_COLORS[n]};font-size:18px">${byNameCat[n]||0}</div>
+      <div class="stat-lbl" style="font-size:10px">${n}</div>
+    </div>`).join('')}
   </div>
+  <div class="g2">
+    <div class="card"><div class="card-title">組名類型分佈</div><canvas id="c-nm-bar" height="160"></canvas></div>
+    <div class="card"><div class="card-title">組名類型 × 賽道</div><canvas id="c-nm-track" height="160"></canvas></div>
+  </div>
+  ${ALL_NAMECATS.map(n=>{
+    const sub=t.filter(x=>x.nameCat===n);
+    if(!sub.length) return '';
+    return `<div class="card">
+      <div class="card-title" style="color:${NAMECAT_COLORS[n]}">💬 ${n} — ${sub.length} 隊</div>
+      <div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:4px">
+        ${sub.map(x=>`<span style="font-size:11.5px;padding:3px 9px;border-radius:20px;background:${NAMECAT_COLORS[n]}15;color:${NAMECAT_COLORS[n]};border:1px solid ${NAMECAT_COLORS[n]}30;font-weight:600">${x.name}</span>`).join('')}
+      </div>
+      ${teamTable(sub)}
+    </div>`;
+  }).join('')}`;
+
+  setTimeout(()=>{
+    const ncVals=ALL_NAMECATS.map(n=>byNameCat[n]||0);
+    mkChart('c-nm-bar',{type:'bar',data:{labels:ALL_NAMECATS,datasets:[{data:ncVals,backgroundColor:ALL_NAMECATS.map(n=>NAMECAT_COLORS[n]),borderRadius:5}]},options:{plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(0,0,0,0.04)'}}}}});
+    mkChart('c-nm-track',{type:'bar',data:{labels:ALL_NAMECATS,datasets:ALL_TRACKS.map(tr=>({label:tr,data:ALL_NAMECATS.map(n=>t.filter(x=>x.nameCat===n&&x.track===tr).length),backgroundColor:TRACK_COLORS[tr],borderRadius:3}))},options:{plugins:{legend:{position:'top',labels:{font:{size:10}}}},scales:{x:{stacked:true},y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'}}}}});
+  },50);
+}
+
+// ── 時程 / 漏斗 ──────────────────────────────────────────────────────
+const TL_DATA = [
+  {date:'3月初 (3/7-3/29)',count:4,  event:'早鳥報名',      color:'#aeaeb2'},
+  {date:'4/5',             count:1,  event:'',              color:'#aeaeb2'},
+  {date:'4/10 🔥',        count:57, event:'說明會後大爆發', color:'#0071e3'},
+  {date:'4/11',            count:28, event:'',              color:'#5ac8fa'},
+  {date:'4/12–13',         count:38, event:'政大/逢甲擴散', color:'#5ac8fa'},
+  {date:'4/15',            count:27, event:'臺中教大批次',  color:'#5ac8fa'},
+  {date:'4/22–23 🔥',     count:36, event:'第二波爆發',    color:'#0071e3'},
+  {date:'4/24–27',         count:4,  event:'收尾',          color:'#aeaeb2'},
+];
+function buildTimeline() {
+  const w = document.getElementById('w-timeline');
+  w.innerHTML = `
   <div class="card">
-    <div class="card-title">各日期區間報名隊數</div>
-    <canvas id="c-fn-bar" height="200"></canvas>
+    <div class="card-title">報名時程分佈</div>
+    <canvas id="c-tl-bar" height="200"></canvas>
   </div>
-  ${ST('時程詳細分析')}
   <div class="card" style="overflow-x:auto">
-    <table>
-      <thead><tr><th>日期區間</th><th class="tc">報名隊數</th><th class="tc">佔比</th><th>推測觸發事件</th></tr></thead>
-      <tbody>
-        ${AN.timeline.map((t,i)=>`<tr>
-          <td class="fw">${t.date}</td>
-          <td class="tc">
-            <div style="display:flex;align-items:center;gap:6px;justify-content:center">
-              <div style="width:${Math.round(t.count/57*72)}px;height:10px;border-radius:5px;background:${t.color};min-width:4px"></div>
-              <span class="fw" style="color:${t.color}">${t.count}</span>
-            </div>
-          </td>
-          <td class="tc tgray">${(t.count/195*100).toFixed(1)}%</td>
-          <td style="font-size:11.5px;color:var(--text2)">${t.event||'—'}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
+    <div class="card-title">各日期區間明細</div>
+    <table><thead><tr><th>日期區間</th><th class="tc">隊數</th><th class="tc">佔比</th><th>推測觸發事件</th></tr></thead>
+    <tbody>${TL_DATA.map(t=>`<tr>
+      <td class="fw">${t.date}</td>
+      <td class="tc"><div style="display:flex;align-items:center;gap:6px;justify-content:center">
+        <div style="width:${Math.round(t.count/57*72)}px;height:10px;border-radius:5px;background:${t.color};min-width:4px"></div>
+        <span class="fw" style="color:${t.color}">${t.count}</span>
+      </div></td>
+      <td class="tc tgray">${(t.count/195*100).toFixed(1)}%</td>
+      <td style="font-size:11.5px;color:var(--text2)">${t.event||'—'}</td>
+    </tr>`).join('')}</tbody></table>
   </div>
-  ${ST('📋 報名漏斗（Funnel）')}
-  <div class="card" style="max-width:600px;margin:0 auto 14px">
+  <div class="card" style="max-width:620px">
+    <div class="card-title">📋 報名轉換漏斗</div>
     ${[
-      {label:'已完成基本報名',count:225,color:'#0071e3',pct:100},
-      {label:'年級/系所填寫齊全',count:91,color:'#5ac8fa',pct:40},
-      {label:'分工欄位填寫',count:106,color:'#34c759',pct:47},
-      {label:'企畫書已上傳',count:1,color:'#ff3b30',pct:0.4}
+      {label:'已完成基本報名',count:225,pct:100,color:'#0071e3'},
+      {label:'年級/系所填寫齊全',count:91,pct:40,color:'#5ac8fa'},
+      {label:'分工欄位填寫',count:106,pct:47,color:'#34c759'},
+      {label:'企畫書已上傳',count:1,pct:0.4,color:'#ff3b30'},
     ].map((f,i,arr)=>`
-      <div class="funnel-step" style="background:${f.color};margin:0 ${i*18}px">${f.label}：${f.count} 隊 (${f.pct}%)</div>
-      ${i<arr.length-1?'<div class="funnel-arrow">▼</div>':''}`).join('')}
+      <div style="background:${f.color};color:#fff;border-radius:7px;padding:11px;text-align:center;font-size:12px;font-weight:700;margin:0 ${i*20}px">
+        ${f.label}：${f.count} 隊 (${f.pct}%)
+      </div>
+      ${i<arr.length-1?'<div style="text-align:center;font-size:16px;color:var(--text2);margin:3px 0">▼</div>':''}`).join('')}
   </div>
-  ${ST('🔑 時程與轉換決策洞察')}
-  ${ins('📅','4/10 單日57隊是全程最大爆發點（佔29%）。應深入追查當日觸發管道（說明會/老師群組/社群貼文），作為明年預算分配依據。','ins-blue')}
-  ${ins('🔄','兩波明顯浪潮（4/10 & 4/22）顯示學生報名高度受外部觸發驅動。應在說明會後24-48h內發送填報提醒，強化轉換效率。','ins-blue')}
-  ${ins('⚠️','企畫書上傳率僅0.4%（1/225），是最嚴重的轉換瓶頸。建議設「提交企畫書初稿才確認資格」門檻，並提供範本+線上工作坊。','ins-red')}
-  ${ins('💡','4/15的27隊為臺中教大批量湧入，但年級/分工資料幾乎全空。批次報名後的「資料補全追蹤」是下一個優化重點。','ins-orange')}`;
+  ${ins('📅','4/10 單日57隊（29%）是全程最大爆發點，應深入追查觸發管道作為明年預算依據。','ins-blue')}
+  ${ins('⚠️','企畫書上傳率僅0.4%（1/225），是最嚴重的轉換瓶頸。建議設「提交企畫書才確認資格」門檻。','ins-red')}
+  ${ins('🔄','兩波浪潮（4/10 & 4/22）顯示學生高度受外部觸發。應在說明會後24-48h內推送填報提醒。','ins-orange')}`;
 
   setTimeout(()=>{
-    mkChart('c-fn-bar',{type:'bar',data:{labels:AN.timeline.map(t=>t.date),datasets:[{label:'報名隊數',data:AN.timeline.map(t=>t.count),backgroundColor:AN.timeline.map(t=>t.color),borderRadius:6}]},options:{plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:ctx=>{const ev=AN.timeline[ctx.dataIndex].event;return ev?'→ '+ev:'';}}}},scales:{y:{grid:{color:'rgba(0,0,0,0.04)'}}}}});
+    mkChart('c-tl-bar',{type:'bar',data:{labels:TL_DATA.map(t=>t.date),datasets:[{label:'報名隊數',data:TL_DATA.map(t=>t.count),backgroundColor:TL_DATA.map(t=>t.color),borderRadius:6}]},options:{plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:ctx=>{const ev=TL_DATA[ctx.dataIndex].event;return ev?'→ '+ev:'';}}},},scales:{y:{grid:{color:'rgba(0,0,0,0.04)'}}}}});
   },50);
 }
 
-// ══════════════════════════════════════════════
-//  維度切換
-// ══════════════════════════════════════════════
-const BUILT = {};
-function setDim(dim) {
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.dim-btn').forEach((b,i)=>{
-    const dims=['all','track','region','dept','grade','funnel'];
-    b.classList.toggle('active', dims[i]===dim);
-  });
-  document.getElementById('panel-'+dim).classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
-  if (!BUILT[dim]) {
-    BUILT[dim]=true;
-    if (dim==='all')    buildAll();
-    if (dim==='track')  buildTrack();
-    if (dim==='region') buildRegion();
-    if (dim==='dept')   buildDept();
-    if (dim==='grade')  buildGrade();
-    if (dim==='funnel') buildFunnel();
-  }
+// ── 完整隊伍表 ──────────────────────────────────────────────────────
+function buildTeams() {
+  const w = document.getElementById('w-teams');
+  const t = filtered();
+  w.innerHTML = buildFilterBar({cb:'buildTeams',school:true,region:true,track:true,deptCat:true,nameCat:true,search:true})
+  + teamTable(t, true);
 }
 
-// 初始化
-setDim('all');
-</script>
+// ════════════════════════════════════════════════
+//  維度切換
+// ════════════════════════════════════════════════
+const BUILT = {};
+const BUILDERS = {
+  overview:buildOverview, track:buildTrack, school:buildSchool,
+  dept:buildDept, name:buildName, timeline:buildTimeline, teams:buildTeams
+};
 
+function showDim(dim) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.dim-tab').forEach((b,i)=>{
+    const dims=['overview','track','school','dept','name','timeline','teams'];
+    b.classList.toggle('active',dims[i]===dim);
+  });
+  document.getElementById('p-'+dim).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  BUILT[dim]=false; // always rebuild so filters apply
+  BUILDERS[dim]();
+}
+
+// ── 初始化 ──
+showDim('overview');
+</script>
 <footer>MAIC 行動應用創新賽 2026 ｜ 報名分析中心 ｜ 資料截至 2026/04/29</footer>
 </body>
 </html>
