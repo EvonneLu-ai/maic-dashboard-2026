@@ -4,368 +4,596 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MAIC 報名分析中心</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   :root {
-    --blue:#0071e3; --blue-light:#e8f2fd; --green:#28a846;
-    --orange:#c07000; --red:#c0392b; --gray1:#f5f5f7;
-    --gray2:#d2d2d7; --gray3:#6e6e73; --text:#1d1d1f;
+    --blue:#0071e3; --teal:#5ac8fa; --green:#34c759; --orange:#ff9500;
+    --red:#ff3b30;  --purple:#af52de; --bg:#f5f5f7; --card:#ffffff;
+    --border:#e5e5ea; --text:#1d1d1f; --text2:#6e6e73;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,"SF Pro Text",'PingFang TC',sans-serif;background:#fff;color:var(--text)}
+  body{font-family:-apple-system,"SF Pro Text","PingFang TC",sans-serif;background:var(--bg);color:var(--text)}
 
   /* ── HEADER ── */
-  header{background:#ffffff;border-bottom:1px solid #e5e5ea;padding:28px 48px 0;}
-  .header-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
-  .header-left h1{font-size:24px;font-weight:700;letter-spacing:-.3px}
-  .header-left p{font-size:13px;color:var(--gray3);margin-top:5px}
+  header{background:#fff;border-bottom:1px solid var(--border);padding:22px 40px 0;position:sticky;top:0;z-index:100}
+  .header-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+  .header-left h1{font-size:22px;font-weight:700;letter-spacing:-.3px}
+  .header-left p{font-size:12px;color:var(--text2);margin-top:4px}
   .back-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(0,113,227,.08);color:#0071e3;
-    text-decoration:none;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:600;
-    border:1px solid rgba(0,113,227,.15);transition:background .2s;white-space:nowrap;margin-top:4px}
+    text-decoration:none;border-radius:20px;padding:7px 16px;font-size:12px;font-weight:600;
+    border:1px solid rgba(0,113,227,.15);white-space:nowrap;margin-top:2px}
   .back-btn:hover{background:rgba(0,113,227,.14)}
 
-  /* ── TABS ── */
-  .tabs{display:flex;gap:0;margin-top:4px}
-  .tab{padding:11px 26px;font-size:13.5px;font-weight:500;border:none;background:none;cursor:pointer;
-    color:var(--gray3);border-bottom:2.5px solid transparent;transition:all .18s;letter-spacing:-.1px}
-  .tab.active{color:var(--blue);border-color:var(--blue);font-weight:600}
-  .tab:hover:not(.active){color:var(--text)}
+  /* ── DIM FILTER BAR ── */
+  .dim-bar{display:flex;gap:6px;flex-wrap:wrap;padding:10px 0 0;align-items:center}
+  .dim-label{font-size:12px;font-weight:700;color:var(--text2);margin-right:4px}
+  .dim-btn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);
+    cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);transition:all .15s;white-space:nowrap}
+  .dim-btn:hover{border-color:var(--blue);color:var(--blue)}
+  .dim-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 
-  /* ── CONTENT PANELS ── */
-  .panel{display:none;animation:fadeIn .22s ease}
+  /* ── PANEL ── */
+  .panel{display:none}
   .panel.active{display:block}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-  .wrap{max-width:980px;margin:0 auto;padding:32px 24px 72px}
+  .wrap{max-width:1040px;margin:0 auto;padding:28px 24px 80px}
 
-  /* ══ WEEKLY REPORT STYLES ══ */
-  h2{font-size:18px;font-weight:700;margin:32px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--gray2)}
-  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px}
-  .kpi{background:var(--gray1);border-radius:14px;padding:18px;text-align:center}
-  .kpi .num{font-size:34px;font-weight:800;color:var(--blue)}
-  .kpi .lbl{font-size:12px;color:var(--gray3);margin-top:4px}
-  .kpi .dlt{font-size:13px;margin-top:6px}
-  .kpi-note{font-size:11px;color:var(--gray3);margin-top:4px}
-  .track-row{display:flex;gap:14px;margin-top:14px;flex-wrap:wrap}
-  .track-pill{border-radius:50px;padding:12px 26px;font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:12px}
-  .track-pill .cnt{font-size:26px}
-  .track-pill .sub{font-size:12px;opacity:.85}
-  .t-c1{background:linear-gradient(135deg,#ff9f0a,#ff6b00)}
-  .t-c2{background:linear-gradient(135deg,#34c759,#28a846)}
-  .t-c3{background:linear-gradient(135deg,#0071e3,#005ec4)}
-  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
-  th{background:var(--gray1);text-align:left;padding:9px 12px;font-weight:600;color:var(--gray3);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
-  td{padding:9px 12px;border-bottom:1px solid var(--gray2);vertical-align:middle}
-  tr:hover td{background:var(--blue-light)}
-  .rank{color:var(--gray3);font-size:12px;width:30px}
-  .school-name{font-weight:600}
-  .num-cell{font-weight:700;color:var(--blue);text-align:right;width:52px}
-  .sub-num{color:var(--gray3);font-size:12px;text-align:right;white-space:nowrap}
-  .teacher-cnt{color:var(--gray3);font-size:11px;margin-left:3px}
-  .delta-cell{width:70px;text-align:center;font-size:12px;font-weight:600}
-  .up{color:var(--green)}.dn{color:var(--red)}
-  .bar-wrap{display:flex;align-items:center;gap:6px;font-size:12px}
-  .bar{height:7px;border-radius:3px;min-width:4px}
-  .bar-c1{background:#ff9f0a}.bar-c2{background:#34c759}.bar-c3{background:#0071e3}
-  .prev-note{font-size:12px;color:var(--gray3);margin:6px 0 10px;background:var(--gray1);padding:6px 12px;border-radius:6px;display:inline-block}
-  .warn-box-r{border:1.5px solid #ff9f0a;border-radius:10px;padding:14px 18px;margin-top:32px;background:#fff9f0}
-  .warn-box-r h3{font-size:14px;font-weight:700;color:#c07000;margin-bottom:8px}
-  .warn-item{font-size:13px;padding:4px 0;border-bottom:1px solid #ffe5b0;color:var(--text)}
-  .warn-item:last-child{border-bottom:none}
-  .legend{display:flex;gap:16px;font-size:12px;color:var(--gray3);margin-bottom:6px}
-  .dot{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:3px;vertical-align:middle}
+  /* ── SECTION TITLE ── */
+  .stitle{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+    color:var(--text2);margin:22px 0 10px;border-left:3px solid var(--blue);padding-left:8px}
 
-  /* ══ ANALYSIS STYLES ══ */
-  .section{margin-bottom:22px}
-  .section-title{font-size:14px;font-weight:700;color:#0071e3;border-bottom:2px solid #0071e3;padding-bottom:4px;margin-bottom:12px}
-  .summary-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
-  .sc{background:#f5f5f7;border-radius:10px;padding:10px 12px;text-align:center}
-  .sc.warn-sc{background:#fff9e6;border-left:3px solid #ff9500}
-  .sc.ok{background:#f0fdf4;border-left:3px solid #34c759}
-  .sc.alert{background:#fff5f5;border-left:3px solid #ff3b30}
-  .sc .lbl{font-size:10px;color:#6e6e73;margin-bottom:4px}
-  .sc .val{font-size:18px;font-weight:700}
-  .sc .chg{font-size:11px;font-weight:600;margin-top:2px}
-  .sc.ok .chg{color:#34c759}.sc.warn-sc .chg{color:#ff9500}.sc.alert .chg{color:#ff3b30}
-  .insight{background:#f0f7ff;border:1px solid #b3d4f5;border-radius:10px;padding:12px 16px;margin-bottom:16px}
-  .insight h3{font-size:12.5px;font-weight:700;color:#0071e3;margin-bottom:7px}
-  .insight ul{padding-left:16px}
-  .insight li{margin-bottom:5px;line-height:1.55}
-  .hi{color:#0071e3;font-weight:700}.ok-t{color:#34c759;font-weight:700}
-  .warn-t{color:#ff9500;font-weight:700}.red-t{color:#ff3b30;font-weight:700}
-  .warn-box-a{background:#fff9e6;border:1px solid #ffd87a;border-radius:10px;padding:12px 16px;margin-bottom:16px}
-  .warn-box-a h3{font-size:12.5px;font-weight:700;color:#ff9500;margin-bottom:7px}
-  .warn-box-a ul{padding-left:16px}
-  .warn-box-a li{margin-bottom:5px;line-height:1.55}
-  .bar-section{margin-bottom:8px}
-  .bar-label-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px}
-  .bar-label-row .name{font-weight:600;color:#1d1d1f}
-  .bar-label-row .pcts{color:#6e6e73}
-  .bar-track{height:26px;background:#f0f0f0;border-radius:5px;overflow:hidden;position:relative;margin-bottom:10px}
-  .bar-417{position:absolute;top:0;left:0;height:13px;background:#c7dff7;border-radius:5px 5px 0 0}
-  .bar-420{position:absolute;bottom:0;left:0;height:13px;background:#0071e3;border-radius:0 0 5px 5px}
-  .bar-legend{display:flex;gap:16px;font-size:10px;color:#6e6e73;margin-bottom:14px}
-  .bar-legend .dot2{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:4px;vertical-align:middle}
-  .a-table{font-size:11.5px!important}
-  .a-table thead th{font-size:11px}
-  .a-table tbody td{padding:7px 9px;font-size:11.5px}
-  .td-name{font-weight:600;color:#1d1d1f}
-  .td-v417{color:#8e8e93;text-align:center}
-  .td-v420{font-weight:700;color:#1d1d1f;text-align:center}
-  .td-delta{font-weight:700;text-align:center}
-  .delta-up{color:#34c759}.delta-down{color:#ff3b30}.delta-warn{color:#ff9500}.delta-zero{color:#8e8e93}
-  .highlight-row{background:#fff9e6}.new-school{background:#f0fdf4}
-  .dot-bar{display:inline-block;height:8px;border-radius:4px;vertical-align:middle}
-  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .dept-card{background:#f5f5f7;border-radius:10px;padding:12px}
-  .dept-card .dc-title{font-size:11px;font-weight:700;color:#6e6e73;margin-bottom:8px}
-  .dept-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
-  .dept-name{width:150px;font-size:11px;color:#1d1d1f;flex-shrink:0}
-  .dept-bar{flex:1;height:14px;background:#e5e5ea;border-radius:4px;overflow:hidden}
-  .dept-fill{height:100%;border-radius:4px}
-  .dept-pct{width:36px;font-size:11px;font-weight:600;text-align:right}
-  .c417{background:#c7dff7}.c420{background:#0071e3}
-  .ann{font-size:10px;color:#6e6e73;margin-top:4px;line-height:1.5}
+  /* ── KPI GRID ── */
+  .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+  .kpi4{grid-template-columns:repeat(4,1fr)}
+  .kpi5{grid-template-columns:repeat(5,1fr)}
+  .kpi3{grid-template-columns:repeat(3,1fr)}
+  .kpi-box{background:var(--card);border-radius:10px;padding:14px 16px;border:1px solid var(--border)}
+  .kpi-lbl{font-size:11px;color:var(--text2);margin-bottom:4px}
+  .kpi-val{font-size:26px;font-weight:800;line-height:1}
+  .kpi-sub{font-size:11px;color:var(--text2);margin-top:4px}
+
+  /* ── CARD ── */
+  .card{background:var(--card);border-radius:12px;padding:16px;border:1px solid var(--border);margin-bottom:14px}
+  .card-title{font-size:12px;font-weight:700;margin-bottom:12px;color:var(--text)}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+  /* ── TABLE ── */
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{background:var(--bg);text-align:left;padding:8px 10px;font-weight:600;color:var(--text2);
+    font-size:11px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid var(--border)}
+  td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+  tr:hover td{background:rgba(0,113,227,.04)}
+  tr:nth-child(even) td{background:rgba(0,0,0,.01)}
+  .tc{text-align:center}.tr{text-align:right}
+  .fw{font-weight:700}.tblue{color:var(--blue)}.tgreen{color:var(--green)}
+  .torange{color:var(--orange)}.tred{color:var(--red)}.tgray{color:var(--text2)}
+
+  /* ── INSIGHT BOX ── */
+  .insight{display:flex;gap:10px;padding:10px 14px;border-radius:9px;margin-bottom:8px}
+  .insight-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+  .insight-text{font-size:12px;line-height:1.65;color:var(--text)}
+  .ins-blue{background:rgba(0,113,227,.07);border-left:3px solid var(--blue)}
+  .ins-green{background:rgba(52,199,89,.07);border-left:3px solid var(--green)}
+  .ins-orange{background:rgba(255,149,0,.07);border-left:3px solid var(--orange)}
+  .ins-red{background:rgba(255,59,48,.07);border-left:3px solid var(--red)}
+  .ins-purple{background:rgba(175,82,222,.07);border-left:3px solid var(--purple)}
+
+  /* ── PILL BADGE ── */
+  .pill{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:600;margin:1px}
+  .p-blue{background:rgba(0,113,227,.12);color:var(--blue)}
+  .p-green{background:rgba(52,199,89,.12);color:var(--green)}
+  .p-orange{background:rgba(255,149,0,.12);color:var(--orange)}
+  .p-red{background:rgba(255,59,48,.12);color:var(--red)}
+  .p-purple{background:rgba(175,82,222,.12);color:var(--purple)}
+  .p-gray{background:rgba(0,0,0,.07);color:var(--text2)}
+
+  /* ── MINI BAR ── */
+  .mbar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+  .mbar-lbl{font-size:12px;min-width:95px}
+  .mbar-track{flex:1;height:13px;background:var(--bg);border-radius:6px;overflow:hidden}
+  .mbar-fill{height:100%;border-radius:6px;background:var(--blue)}
+  .mbar-val{font-size:11px;font-weight:700;min-width:44px;text-align:right;color:var(--text)}
+
+  /* ── FUNNEL ── */
+  .funnel-step{border-radius:7px;padding:11px;text-align:center;font-size:12px;font-weight:700;color:#fff;margin-bottom:4px}
+  .funnel-arrow{text-align:center;font-size:16px;color:var(--text2);margin:2px 0}
 
   /* ── FOOTER ── */
-  .page-footer{text-align:center;font-size:12px;color:var(--gray3);padding:20px;border-top:1px solid var(--gray2);margin-top:32px}
+  footer{text-align:center;font-size:11px;color:var(--text2);padding:20px;border-top:1px solid var(--border);margin-top:16px}
 </style>
 </head>
 <body>
 
-<!-- ══ HEADER ══ -->
 <header>
   <div class="header-top">
     <div class="header-left">
       <h1>📊 MAIC 報名分析中心</h1>
-      <p>行動應用創新賽 2026 ｜ 周報概況 & 學校科系深度分析</p>
+      <p>行動應用創新賽 2026 ｜ 資料截至 2026/04/29 ｜ 225 支隊伍 × 13 所學校</p>
     </div>
     <a href="./portal.html" class="back-btn">← 返回 Hub</a>
   </div>
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('weekly', this)">📈 周報概況</button>
-    <button class="tab" onclick="switchTab('analysis', this)">🏫 學校・科系分析</button>
+  <div class="dim-bar" id="dim-bar">
+    <span class="dim-label">篩選維度：</span>
+    <button class="dim-btn active" onclick="setDim('all')">📊 全部總覽</button>
+    <button class="dim-btn" onclick="setDim('track')">🏁 賽道分析</button>
+    <button class="dim-btn" onclick="setDim('region')">🗺️ 地區 / 學校</button>
+    <button class="dim-btn" onclick="setDim('dept')">🔀 跨域組隊</button>
+    <button class="dim-btn" onclick="setDim('grade')">🎓 年級分佈</button>
+    <button class="dim-btn" onclick="setDim('funnel')">📅 報名時程</button>
   </div>
 </header>
 
-<!-- ══ TAB 1: WEEKLY REPORT ══ -->
-<div id="panel-weekly" class="panel active">
-<div class="wrap">
-
-  <h2>整體概況</h2>
-  <div class="kpi-grid">
-    <div class="kpi">
-      <div class="num">224</div>
-      <div class="lbl">報名組數</div>
-      <div class="dlt"><span style="color:var(--gray3)">—</span></div>
-    </div>
-    <div class="kpi">
-      <div class="num">326</div>
-      <div class="lbl">參賽學生人數</div>
-      <div class="dlt"><span style="color:var(--gray3)">—</span></div>
-      <div class="kpi-note">總記錄 481 筆（含指導老師 155 人）</div>
-    </div>
-    <div class="kpi">
-      <div class="num">16</div>
-      <div class="lbl">參與學校</div>
-      <div class="dlt"><span style="color:var(--gray3)">—</span></div>
-    </div>
-    <div class="kpi">
-      <div class="num">3</div>
-      <div class="lbl">競賽賽道</div>
-      <div class="dlt">—</div>
-    </div>
-  </div>
-
-  <h2>賽道分布</h2>
-  <div class="track-row">
-    <div class="track-pill t-c1"><div><div class="cnt">118</div><div>創意賽道</div></div></div>
-    <div class="track-pill t-c2"><div><div class="cnt">70</div><div>創新賽道</div></div></div>
-    <div class="track-pill t-c3"><div><div class="cnt">36</div><div>創業賽道</div></div></div>
-  </div>
-
-  <h2>各校組數排行</h2>
-  <div class="prev-note">▲▼ 與上週比較：尚無上週資料可比較</div>
-  <div class="legend">
-    <span><span class="dot" style="background:#ff9f0a"></span>創意</span>
-    <span><span class="dot" style="background:#34c759"></span>創新</span>
-    <span><span class="dot" style="background:#0071e3"></span>創業</span>
-  </div>
-  <table>
-    <thead><tr>
-      <th>#</th><th>學校</th><th style="text-align:right">組數</th><th style="text-align:center">週比較</th>
-      <th>創意</th><th>創新</th><th>創業</th><th style="text-align:right">人數</th>
-    </tr></thead>
-    <tbody>
-      <tr><td class="rank">1</td><td class="school-name">國立臺灣大學</td><td class="num-cell">61</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td><td><div class="bar-wrap"><div class="bar bar-c1" style="width:52px"></div><span>13</span></div></td><td><div class="bar-wrap"><div class="bar bar-c2" style="width:104px"></div><span>26</span></div></td><td><div class="bar-wrap"><div class="bar bar-c3" style="width:88px"></div><span>22</span></div></td><td class="sub-num">121 人<span class="teacher-cnt">＋0 師</span></td></tr>
-      <tr><td class="rank">2</td><td class="school-name">逢甲大學</td><td class="num-cell">47</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td><td><div class="bar-wrap"><div class="bar bar-c1" style="width:172px"></div><span>43</span></div></td><td><div class="bar-wrap"><div class="bar bar-c2" style="width:12px"></div><span>3</span></div></td><td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>1</span></div></td><td class="sub-num">51 人<span class="teacher-cnt">＋40 師</span></td></tr>
-      <tr><td class="rank">3</td><td class="school-name">國立政治大學</td><td class="num-cell">40</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td><td><div class="bar-wrap"><div class="bar bar-c1" style="width:144px"></div><span>36</span></div></td><td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>1</span></div></td><td><div class="bar-wrap"><div class="bar bar-c3" style="width:12px"></div><span>3</span></div></td><td class="sub-num">64 人<span class="teacher-cnt">＋40 師</span></td></tr>
-      <tr><td class="rank">4</td><td class="school-name">國立臺中教育大學</td><td class="num-cell">23</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td><td><div class="bar-wrap"><div class="bar bar-c1" style="width:32px"></div><span>8</span></div></td><td><div class="bar-wrap"><div class="bar bar-c2" style="width:60px"></div><span>15</span></div></td><td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>0</span></div></td><td class="sub-num">22 人<span class="teacher-cnt">＋22 師</span></td></tr>
-      <tr><td class="rank">5</td><td class="school-name">國立高雄科技大學</td><td class="num-cell">20</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td><td><div class="bar-wrap"><div class="bar bar-c1" style="width:24px"></div><span>6</span></div></td><td><div class="bar-wrap"><div class="bar bar-c2" style="width:56px"></div><span>14</span></div></td><td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>0</span></div></td><td class="sub-num">20 人<span class="teacher-cnt">＋20 師</span></td></tr>
-      <tr><td class="rank">6</td><td class="school-name">國立清華大學</td><td class="num-cell">15</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td><td><div class="bar-wrap"><div class="bar bar-c1" style="width:12px"></div><span>3</span></div></td><td><div class="bar-wrap"><div class="bar bar-c2" style="width:24px"></div><span>6</span></div></td><td><div class="bar-wrap"><div class="bar bar-c3" style="width:24px"></div><span>6</span></div></td><td class="sub-num">18 人<span class="teacher-cnt">＋14 師</span></td></tr>
-      <tr><td class="rank">7</td><td class="school-name">東海大學</td><td class="num-cell">10</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td><td><div class="bar-wrap"><div class="bar bar-c1" style="width:28px"></div><span>7</span></div></td><td><div class="bar-wrap"><div class="bar bar-c2" style="width:12px"></div><span>3</span></div></td><td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>0</span></div></td><td class="sub-num">10 人<span class="teacher-cnt">＋10 師</span></td></tr>
-      <tr><td class="rank">8</td><td class="school-name">國立陽明交通大學</td><td class="num-cell">7</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td><td><div class="bar-wrap"><div class="bar bar-c1" style="width:8px"></div><span>2</span></div></td><td><div class="bar-wrap"><div class="bar bar-c2" style="width:12px"></div><span>3</span></div></td><td><div class="bar-wrap"><div class="bar bar-c3" style="width:8px"></div><span>2</span></div></td><td class="sub-num">8 人<span class="teacher-cnt">＋6 師</span></td></tr>
-      <tr><td class="rank">9</td><td class="school-name">臺北醫學大學</td><td class="num-cell">1</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td><td><div class="bar-wrap"><div class="bar bar-c1" style="width:4px"></div><span>0</span></div></td><td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>0</span></div></td><td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>1</span></div></td><td class="sub-num">1 人<span class="teacher-cnt">＋0 師</span></td></tr>
-      <tr><td class="rank">10</td><td class="school-name">國立臺北教育大學</td><td class="num-cell">1</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td><td><div class="bar-wrap"><div class="bar bar-c1" style="width:4px"></div><span>1</span></div></td><td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>0</span></div></td><td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>0</span></div></td><td class="sub-num">1 人<span class="teacher-cnt">＋0 師</span></td></tr>
-      <tr><td class="rank">11</td><td class="school-name">慈濟科技大學</td><td class="num-cell">1</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td><td><div class="bar-wrap"><div class="bar bar-c1" style="width:4px"></div><span>1</span></div></td><td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>0</span></div></td><td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>0</span></div></td><td class="sub-num">2 人<span class="teacher-cnt">＋1 師</span></td></tr>
-      <tr><td class="rank">12</td><td class="school-name">國立臺北科技大學</td><td class="num-cell">1</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td><td><div class="bar-wrap"><div class="bar bar-c1" style="width:4px"></div><span>0</span></div></td><td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>1</span></div></td><td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>0</span></div></td><td class="sub-num">1 人<span class="teacher-cnt">＋0 師</span></td></tr>
-      <tr><td class="rank">13</td><td class="school-name">輔仁大學</td><td class="num-cell">1</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td><td><div class="bar-wrap"><div class="bar bar-c1" style="width:4px"></div><span>0</span></div></td><td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>0</span></div></td><td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>1</span></div></td><td class="sub-num">1 人<span class="teacher-cnt">＋0 師</span></td></tr>
-      <tr><td class="rank">14</td><td class="school-name">銘傳大學</td><td class="num-cell">1</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td><td><div class="bar-wrap"><div class="bar bar-c1" style="width:4px"></div><span>0</span></div></td><td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>1</span></div></td><td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>0</span></div></td><td class="sub-num">3 人<span class="teacher-cnt">＋1 師</span></td></tr>
-      <tr><td class="rank">15</td><td class="school-name">國立臺南大學</td><td class="num-cell">1</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td><td><div class="bar-wrap"><div class="bar bar-c1" style="width:4px"></div><span>0</span></div></td><td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>0</span></div></td><td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>1</span></div></td><td class="sub-num">3 人<span class="teacher-cnt">＋0 師</span></td></tr>
-      <tr><td class="rank">16</td><td class="school-name">靜宜大學</td><td class="num-cell">1</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td><td><div class="bar-wrap"><div class="bar bar-c1" style="width:4px"></div><span>1</span></div></td><td><div class="bar-wrap"><div class="bar bar-c2" style="width:4px"></div><span>0</span></div></td><td><div class="bar-wrap"><div class="bar bar-c3" style="width:4px"></div><span>0</span></div></td><td class="sub-num">0 人<span class="teacher-cnt">＋1 師</span></td></tr>
-    </tbody>
-  </table>
-
-  <h2>各科系報名組數（前 25）</h2>
-  <div class="prev-note">▲▼ 與上週比較：尚無上週資料可比較</div>
-  <table>
-    <thead><tr>
-      <th>#</th><th>科系 / 所</th><th style="text-align:right">組數</th><th style="text-align:center">週比較</th>
-    </tr></thead>
-    <tbody>
-      <tr><td class="rank">1</td><td>教育學系</td><td class="num-cell">40</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">2</td><td>資訊工程學系</td><td class="num-cell">15</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">3</td><td>室內設計進修學士班</td><td class="num-cell">9</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">4</td><td>外國語文學系</td><td class="num-cell">8</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">5</td><td>合作經濟暨社會事業經營學系</td><td class="num-cell">7</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">6</td><td>會計學系</td><td class="num-cell">6</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">7</td><td>中國文學系</td><td class="num-cell">6</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">8</td><td>經濟學系</td><td class="num-cell">5</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">9</td><td>電機工程學系</td><td class="num-cell">4</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">10</td><td>財務金融學系</td><td class="num-cell">4</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">11</td><td>公共事務研究所</td><td class="num-cell">4</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">12</td><td>哲學系</td><td class="num-cell">4</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">13</td><td>特殊教育學系</td><td class="num-cell">3</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">14</td><td>物理學系</td><td class="num-cell">3</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">15</td><td>生命科學系</td><td class="num-cell">3</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">16</td><td>昆蟲學系</td><td class="num-cell">3</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">17</td><td>華語教學碩士學位學程</td><td class="num-cell">3</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">18</td><td>國際企業學系</td><td class="num-cell">3</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">19</td><td>文化與社會創新碩士學位學程</td><td class="num-cell">3</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">20</td><td>教育與學習科技學系</td><td class="num-cell">2</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">21</td><td>行銷與流通管理系</td><td class="num-cell">2</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">22</td><td>國際經營與貿易學系</td><td class="num-cell">2</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">23</td><td>心理學系</td><td class="num-cell">2</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">24</td><td>植物科學研究所</td><td class="num-cell">2</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-      <tr><td class="rank">25</td><td>教育研究所</td><td class="num-cell">2</td><td class="delta-cell"><span style="color:var(--gray3)">—</span></td></tr>
-    </tbody>
-  </table>
-
-</div>
-<div class="page-footer">MAIC 行動應用創新賽 周報 · 2026-04-28</div>
-</div>
-
-<!-- ══ TAB 2: ANALYSIS ══ -->
-<div id="panel-analysis" class="panel">
-<div class="wrap">
-
-  <div class="warn-box-a">
-    <h3>⚠️ 核心問題：報名量暴增，但東華大學尚未貢獻實際報名</h3>
-    <ul>
-      <li>東華大學執行了 LINE 群組（觸及 1,259 人）、校內公告（>10,000 人）、線上宣講會、課程公告（520人），聲量極大，<span class="warn-t">但 4/20 學校分佈中東華大學未出現在前幾名</span>。</li>
-      <li>新增的 71 隊主要來自 <span class="hi">臺大 + 政大</span>，顯示這段期間增長主力仍是「原有強校」的自然滲透，而非東華的直接轉換。</li>
-      <li>東華 promote 從「觸及」到「報名」的轉換仍需時間，建議持續追蹤並設定 7 天後的驗證節點。</li>
-    </ul>
-  </div>
-
-  <div class="summary-strip">
-    <div class="sc ok"><div class="lbl">報名總量</div><div class="val" style="color:#0071e3;">160 組</div><div class="chg">▲ +71（+80%）</div></div>
-    <div class="sc ok"><div class="lbl">涵蓋學校數</div><div class="val" style="color:#0071e3;">14 所</div><div class="chg">▲ +2 所</div></div>
-    <div class="sc warn-sc"><div class="lbl">東華大學貢獻</div><div class="val" style="color:#ff9500;">≈0%</div><div class="chg">觸及 >10K，未轉換</div></div>
-    <div class="sc alert"><div class="lbl">臺大集中度</div><div class="val" style="color:#ff3b30;">35%</div><div class="chg">↓ 從 57%（稀釋中）</div></div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">🏫 學校分佈對照（4/17 vs 4/20）</div>
-    <div class="bar-legend">
-      <span><span class="dot2" style="background:#c7dff7;"></span>4/17 比例</span>
-      <span><span class="dot2" style="background:#0071e3;"></span>4/20 比例</span>
-    </div>
-    <table class="a-table">
-      <thead><tr>
-        <th style="width:28%">學校</th>
-        <th style="width:14%;text-align:center;">4/17 %</th>
-        <th style="width:14%;text-align:center;">4/20 %</th>
-        <th style="width:16%;text-align:center;">% 變化</th>
-        <th style="width:16%;text-align:center;">估計隊數</th>
-        <th style="width:12%;text-align:center;">狀態</th>
-      </tr></thead>
-      <tbody>
-        <tr><td class="td-name">國立臺灣大學</td><td class="td-v417">57%<div style="margin-top:2px;"><span class="dot-bar c417" style="width:57px;"></span></div></td><td class="td-v420">35%<div style="margin-top:2px;"><span class="dot-bar c420" style="width:35px;"></span></div></td><td class="td-delta delta-warn">▼ −22pp</td><td class="td-v420">51 → <b>56 隊</b><br><span style="font-size:10px;color:#34c759;">+5 隊</span></td><td style="text-align:center;font-size:11px;color:#ff9500;">比例稀釋<br>絕對增加</td></tr>
-        <tr style="background:#f0fdf4;"><td class="td-name">國立政治大學</td><td class="td-v417">13%<div style="margin-top:2px;"><span class="dot-bar c417" style="width:13px;"></span></div></td><td class="td-v420">28%<div style="margin-top:2px;"><span class="dot-bar c420" style="width:28px;"></span></div></td><td class="td-delta delta-up">▲ +15pp</td><td class="td-v420">12 → <b>45 隊</b><br><span style="font-size:10px;color:#34c759;">+33 隊</span></td><td style="text-align:center;font-size:11px;color:#34c759;font-weight:600;">🚀 最大驅動力</td></tr>
-        <tr style="background:#f0fdf4;"><td class="td-name">逢甲大學</td><td class="td-v417">6%<div style="margin-top:2px;"><span class="dot-bar c417" style="width:6px;"></span></div></td><td class="td-v420">12%<div style="margin-top:2px;"><span class="dot-bar c420" style="width:12px;"></span></div></td><td class="td-delta delta-up">▲ +6pp</td><td class="td-v420">5 → <b>19 隊</b><br><span style="font-size:10px;color:#34c759;">+14 隊</span></td><td style="text-align:center;font-size:11px;color:#34c759;font-weight:600;">📈 強勁成長</td></tr>
-        <tr class="new-school"><td class="td-name">國立臺中教育大學 <span style="font-size:10px;color:#34c759;">★ 新增</span></td><td class="td-v417">—</td><td class="td-v420">10%<div style="margin-top:2px;"><span class="dot-bar c420" style="width:10px;"></span></div></td><td class="td-delta delta-up">▲ 新進入</td><td class="td-v420">0 → <b>16 隊</b><br><span style="font-size:10px;color:#34c759;">+16 隊</span></td><td style="text-align:center;font-size:11px;color:#34c759;font-weight:600;">🆕 新學校</td></tr>
-        <tr><td class="td-name">國立清華大學</td><td class="td-v417">8%</td><td class="td-v420">6%*</td><td class="td-delta delta-down">▼ −2pp</td><td class="td-v420">7 → <b>10 隊</b></td><td style="text-align:center;font-size:11px;color:#8e8e93;">比例下降</td></tr>
-        <tr><td class="td-name">國立陽明交通大學</td><td class="td-v417">4%</td><td class="td-v420">3%</td><td class="td-delta delta-zero">≈ 持平</td><td class="td-v420">4 → <b>5 隊</b></td><td style="text-align:center;font-size:11px;color:#8e8e93;">維持</td></tr>
-        <tr class="highlight-row"><td class="td-name">東海大學 <span style="font-size:10px;color:#ff9500;">⚠</span></td><td class="td-v417">7%</td><td class="td-v420"><span style="color:#ff9500;">未上榜</span></td><td class="td-delta delta-down">▼ 退出前10</td><td class="td-v420">6 → <b>≈6 隊</b></td><td style="text-align:center;font-size:11px;color:#ff9500;">⚠ 停滯</td></tr>
-        <tr class="highlight-row"><td class="td-name">國立東華大學 <span style="font-size:10px;color:#ff3b30;">🔥 Promote</span></td><td class="td-v417"><span style="color:#8e8e93;">未上榜</span></td><td class="td-v420"><span style="color:#ff3b30;">未上榜</span></td><td class="td-delta delta-zero">≈ 無轉換</td><td class="td-v420" style="color:#ff3b30;">≈ 0–1 隊</td><td style="text-align:center;font-size:11px;color:#ff3b30;font-weight:600;">⏳ 尚未轉換</td></tr>
-      </tbody>
-    </table>
-    <p class="ann">* 4/20 圖片部分學校名稱因縮圖解析度有限，%數為估算值。</p>
-  </div>
-
-  <div class="section">
-    <div class="section-title">🎓 科系分佈對照（4/17 vs 4/20）</div>
-    <div class="two-col">
-      <div class="dept-card">
-        <div class="dc-title">📅 4/17（89 組）</div>
-        <div class="dept-row"><div class="dept-name">教育</div><div class="dept-bar"><div class="dept-fill c417" style="width:19%"></div></div><div class="dept-pct" style="color:#8e8e93;">19%</div></div>
-        <div class="dept-row"><div class="dept-name">資訊通訊科技</div><div class="dept-bar"><div class="dept-fill c417" style="width:13%"></div></div><div class="dept-pct" style="color:#8e8e93;">13%</div></div>
-        <div class="dept-row"><div class="dept-name">藝術及人文</div><div class="dept-bar"><div class="dept-fill c417" style="width:13%"></div></div><div class="dept-pct" style="color:#8e8e93;">13%</div></div>
-        <div class="dept-row"><div class="dept-name">工程製造</div><div class="dept-bar"><div class="dept-fill c417" style="width:12%"></div></div><div class="dept-pct" style="color:#8e8e93;">12%</div></div>
-        <div class="dept-row"><div class="dept-name">社科/新聞/圖資</div><div class="dept-bar"><div class="dept-fill c417" style="width:12%"></div></div><div class="dept-pct" style="color:#8e8e93;">12%</div></div>
-        <div class="dept-row"><div class="dept-name">商業管理與法律</div><div class="dept-bar"><div class="dept-fill c417" style="width:10%"></div></div><div class="dept-pct" style="color:#8e8e93;">10%</div></div>
-      </div>
-      <div class="dept-card">
-        <div class="dc-title">📅 4/20（160 組）</div>
-        <div class="dept-row"><div class="dept-name">教育</div><div class="dept-bar"><div class="dept-fill c420" style="width:34%"></div></div><div class="dept-pct" style="color:#0071e3;font-weight:700;">34%</div></div>
-        <div class="dept-row"><div class="dept-name">藝術及人文</div><div class="dept-bar"><div class="dept-fill c420" style="width:10%"></div></div><div class="dept-pct" style="color:#0071e3;font-weight:700;">10%</div></div>
-        <div class="dept-row"><div class="dept-name">其他（多元）</div><div class="dept-bar"><div class="dept-fill c420" style="width:17%"></div></div><div class="dept-pct" style="color:#0071e3;font-weight:700;">17%</div></div>
-        <div class="dept-row"><div class="dept-name">商業管理</div><div class="dept-bar"><div class="dept-fill c420" style="width:10%"></div></div><div class="dept-pct" style="color:#0071e3;font-weight:700;">10%</div></div>
-        <div class="dept-row"><div class="dept-name">資訊通訊科技</div><div class="dept-bar"><div class="dept-fill c420" style="width:10%"></div></div><div class="dept-pct" style="color:#0071e3;font-weight:700;">10%</div></div>
-        <div class="dept-row"><div class="dept-name">社科/新聞</div><div class="dept-bar"><div class="dept-fill c420" style="width:10%"></div></div><div class="dept-pct" style="color:#0071e3;font-weight:700;">10%</div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">🔥 東華大學 Promote 效果追蹤</div>
-    <table class="a-table">
-      <thead><tr>
-        <th>行動</th><th style="text-align:center;">時間</th><th style="text-align:center;">觸及規模</th>
-        <th style="text-align:center;">已轉換</th><th style="text-align:center;">轉換率</th><th>建議追蹤節點</th>
-      </tr></thead>
-      <tbody>
-        <tr><td class="td-name">LINE 群組觸及</td><td style="text-align:center;">4/1+4/9</td><td style="text-align:center;font-weight:600;">1,259 人</td><td style="text-align:center;color:#ff9500;">≈ 0–2 隊</td><td style="text-align:center;color:#ff3b30;font-weight:700;">&lt;0.2%</td><td style="font-size:11px;">4/27 前再次 follow up</td></tr>
-        <tr class="highlight-row"><td class="td-name">全校公告 + 校內信</td><td style="text-align:center;">4/8+4/9</td><td style="text-align:center;font-weight:600;color:#ff9500;">10,000+人</td><td style="text-align:center;color:#ff9500;">≈ 0 隊</td><td style="text-align:center;color:#ff3b30;font-weight:700;">0%</td><td style="font-size:11px;">⚠️ 需配合 follow-up 動作</td></tr>
-        <tr><td class="td-name">線上宣講會</td><td style="text-align:center;">4/2+4/9</td><td style="text-align:center;">10 人</td><td style="text-align:center;color:#8e8e93;">未知</td><td style="text-align:center;color:#8e8e93;">待測量</td><td style="font-size:11px;">直接詢問參與者報名狀況</td></tr>
-        <tr class="highlight-row"><td class="td-name">資管系課程公告</td><td style="text-align:center;">4/16</td><td style="text-align:center;font-weight:600;color:#0071e3;">520 人</td><td style="text-align:center;color:#ff9500;">≈ 0 隊</td><td style="text-align:center;color:#ff9500;font-weight:700;">—</td><td style="font-size:11px;">4/23 宣講會後 1 週驗證</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="insight">
-    <h3>💡 綜合洞察與建議</h3>
-    <ul>
-      <li><span class="hi">政大是本週最大驅動力</span>（估計 +33 隊，比例 13%→28%），需確認是否有特定推廣動作。</li>
-      <li><span class="ok-t">逢甲大學持續增長</span>（+14 隊，6%→12%），4/24 學長姐宣講會效果值得關注。</li>
-      <li><span class="ok-t">臺中教育大學新進入</span>（0→16 隊，10%），來源管道需確認。</li>
-      <li><span class="warn-t">東海大學（原 7%）從前排消失</span>，建議主動聯繫是否需要補充宣傳。</li>
-      <li><span class="red-t">東華大學大規模觸及但零轉換</span>，建議 4/23 宣講會後設 7 天追蹤窗口。</li>
-      <li>科系結構往<span class="hi">「教育系所」高度傾斜（19%→34%）</span>，後續宣講策略可針對 CS/EECS 系所加強。</li>
-    </ul>
-  </div>
-
-</div>
-<div class="page-footer">MAIC 2026 學校 & 科系深度分析 ｜ 4/17 vs 4/20</div>
-</div>
+<div class="panel active" id="panel-all"><div class="wrap" id="wrap-all"></div></div>
+<div class="panel" id="panel-track"><div class="wrap" id="wrap-track"></div></div>
+<div class="panel" id="panel-region"><div class="wrap" id="wrap-region"></div></div>
+<div class="panel" id="panel-dept"><div class="wrap" id="wrap-dept"></div></div>
+<div class="panel" id="panel-grade"><div class="wrap" id="wrap-grade"></div></div>
+<div class="panel" id="panel-funnel"><div class="wrap" id="wrap-funnel"></div></div>
 
 <script>
-function switchTab(name, el) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('panel-' + name).classList.add('active');
-  el.classList.add('active');
-  window.scrollTo({top: 0, behavior: 'smooth'});
+// ══════════════════════════════════════════════
+//  資料定義
+// ══════════════════════════════════════════════
+const AN = {
+  totalTeams: 225,
+  tracks: [
+    { label:'創意', count:118, color:'#0071e3' },
+    { label:'創新', count:70,  color:'#5ac8fa' },
+    { label:'創業', count:37,  color:'#af52de' }
+  ],
+  schools: [
+    { name:'國立臺灣大學',     short:'台大',     teams:60, region:'北部', deptCount:36, hasDuty:true,  note:'36系所；昆蟲、農藝、哲學等非典型大量參與' },
+    { name:'逢甲大學',         short:'逢甲',     teams:47, region:'中部', deptCount:18, hasDuty:true,  note:'兩波報名；商管+室內設計為主；4/22後分工品質提升' },
+    { name:'國立政治大學',     short:'政大',     teams:36, region:'北部', deptCount:2,  hasDuty:false, note:'教育學系佔90%+；疑似課堂集體報名' },
+    { name:'國立臺中教育大學', short:'臺中教大', teams:22, region:'中部', deptCount:21, hasDuty:false, note:'4/15單日批量湧入22隊；教育類20+系所但無資工' },
+    { name:'國立高雄科技大學', short:'高科大',   teams:20, region:'南部', deptCount:16, hasDuty:false, note:'南部最大來源；清一色商管學院；分工全空' },
+    { name:'國立清華大學',     short:'清大',     teams:15, region:'北部', deptCount:11, hasDuty:true,  note:'種子最強；含sloppylabs(國際生)、夜行式(回流)' },
+    { name:'東海大學',         short:'東海',     teams:10, region:'中部', deptCount:1,  hasDuty:true,  note:'全為資工系；老師各帶2隊；技術強缺PM' },
+    { name:'國立陽明交通大學', short:'陽交大',   teams:7,  region:'北部', deptCount:6,  hasDuty:false, note:'理工跨域；多單人隊；組隊完整度待加強' },
+    { name:'銘傳大學',         short:'銘傳',     teams:1,  region:'北部', deptCount:1,  hasDuty:true,  note:'分工三者齊備，填寫最完整' },
+    { name:'國立臺南大學',     short:'臺南大',   teams:1,  region:'南部', deptCount:1,  hasDuty:true,  note:'南部首次出現；數位學習科技系' },
+    { name:'國立臺北教育大學', short:'臺北教大', teams:1,  region:'北部', deptCount:1,  hasDuty:true,  note:'設計系唯一代表；填寫齊全' },
+    { name:'臺北醫學大學',     short:'北醫',     teams:1,  region:'北部', deptCount:1,  hasDuty:true,  note:'最早報名(3/7)；醫學系高度跨域' },
+    { name:'輔仁大學',         short:'輔仁',     teams:1,  region:'北部', deptCount:1,  hasDuty:false, note:'法律系參賽，LegalTech潛力' },
+    { name:'慈濟科技大學',     short:'慈濟',     teams:1,  region:'其他', deptCount:1,  hasDuty:true,  note:'行銷系，分工齊備' }
+  ],
+  regions:[
+    { label:'北部', count:123, color:'#0071e3' },
+    { label:'中部', count:80,  color:'#ff9500' },
+    { label:'南部', count:21,  color:'#34c759' },
+    { label:'其他', count:1,   color:'#aeaeb2' }
+  ],
+  grades:[
+    { label:'大一', count:17, color:'#ff9f0a' },
+    { label:'大二', count:32, color:'#0071e3' },
+    { label:'大三', count:41, color:'#5ac8fa' },
+    { label:'大四', count:30, color:'#34c759' },
+    { label:'碩士生',count:11, color:'#af52de' }
+  ],
+  duties:[
+    { label:'程式開發', count:87, color:'#0071e3' },
+    { label:'上台簡報', count:94, color:'#34c759' },
+    { label:'介面設計', count:52, color:'#ff9500' },
+    { label:'三者齊備', count:34, color:'#5ac8fa' }
+  ],
+  timeline:[
+    { date:'3月初 (3/7-3/29)', count:4,  event:'早鳥報名',       color:'#aeaeb2' },
+    { date:'4/5',              count:1,  event:'',                color:'#aeaeb2' },
+    { date:'4/10 🔥',         count:57, event:'說明會後大爆發',  color:'#0071e3' },
+    { date:'4/11',             count:28, event:'',                color:'#5ac8fa' },
+    { date:'4/12–13',          count:38, event:'政大/逢甲擴散',  color:'#5ac8fa' },
+    { date:'4/15',             count:27, event:'臺中教大批次',   color:'#5ac8fa' },
+    { date:'4/22–23 🔥',      count:36, event:'第二波爆發',     color:'#0071e3' },
+    { date:'4/24–27',          count:4,  event:'收尾',            color:'#aeaeb2' }
+  ],
+  nameTopics:[
+    { label:'科技/程式梗', count:24, ex:'修個Bug過好年、進度條失蹤案、產品經理說得對', color:'#0071e3' },
+    { label:'食物/飲料',   count:22, ex:'焦急麻油雞、痛快烤鴨、車輪餅好吃',           color:'#ff9500' },
+    { label:'動物類',      count:18, ex:'狐狸、青蛙、草泥馬、小野貓',                 color:'#34c759' },
+    { label:'幽默/自嘲',   count:14, ex:'躺平的信徒、腦細胞公墓、薪水小偷防禦系統',   color:'#ff3b30' },
+    { label:'像素系列',    count:4,  ex:'像素先鋒×2、像素大食客、像素移動公司',       color:'#5ac8fa' },
+    { label:'統一系列',    count:3,  ex:'統一魔法門、統一天下、全球統一',              color:'#af52de' }
+  ],
+  crossSchool:[
+    { id:'034',  name:'夜行式',      track:'創新', combo:'清大 × 台大',  type:'教育科技 + 電機工程', star:2,  note:'全場唯一真正跨校跨域種子隊，回流成員' },
+    { id:'0138', name:'貓咪',        track:'創意', combo:'臺中教大 × 政大', type:'英語 + 語文 + 教育', star:1, note:'跨北中地區，私人友誼組隊' },
+    { id:'0353', name:'sloppylabs', track:'創新', combo:'清大跨院系',    type:'電資 + 科管 + 國際生', star:1, note:'含馬來西亞籍國際生2名，最具國際視野' }
+  ],
+  duplicates:[
+    { name:'戴修茂', teams:'痛快烤鴨(0156) + 愉快君子(0159)', note:'台大哲學/華語碩士，系所不同疑同一人' },
+    { name:'何天旭', teams:'痛快烤鴨(0156) + 焦急麻油雞(0158)', note:'台大哲學/生命科學，疑同一人' },
+    { name:'袁鬆裕', teams:'脫線運動員(0150) + 沒品韭菜盒子(0151)', note:'台大工管/數學，幫朋友湊隊' },
+    { name:'古千惠', teams:'All money back(0340) + 全球統一(0343)', note:'台大資管/國發所，跨隊跨系' }
+  ]
+};
+
+// ══════════════════════════════════════════════
+//  Chart 管理
+// ══════════════════════════════════════════════
+const CHARTS = {};
+function mkChart(id, cfg) {
+  if (CHARTS[id]) { CHARTS[id].destroy(); delete CHARTS[id]; }
+  const el = document.getElementById(id);
+  if (el) CHARTS[id] = new Chart(el, cfg);
 }
+
+// ══════════════════════════════════════════════
+//  UI helpers
+// ══════════════════════════════════════════════
+const ST = t => `<div class="stitle">${t}</div>`;
+function kpi(lbl, val, sub, color) {
+  return `<div class="kpi-box"><div class="kpi-lbl">${lbl}</div>
+    <div class="kpi-val" style="color:${color||'var(--blue)'}">${val}</div>
+    ${sub?`<div class="kpi-sub">${sub}</div>`:''}
+  </div>`;
+}
+function ins(icon, text, cls) {
+  return `<div class="insight ${cls||'ins-blue'}"><span class="insight-icon">${icon}</span><span class="insight-text">${text}</span></div>`;
+}
+function mbar(label, count, max, color) {
+  const w = Math.max(2, Math.round(count/max*100));
+  return `<div class="mbar-row">
+    <div class="mbar-lbl">${label}</div>
+    <div class="mbar-track"><div class="mbar-fill" style="width:${w}%;background:${color||'var(--blue)'}"></div></div>
+    <div class="mbar-val">${count}</div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+//  Panel builders
+// ══════════════════════════════════════════════
+
+// ── 全部總覽 ──────────────────────────────────
+function buildAll() {
+  document.getElementById('wrap-all').innerHTML = `
+  ${ST('📊 總覽 KPI')}
+  <div class="kpi-grid kpi5">
+    ${kpi('總報名隊伍','225','資料截至 2026/04/29','#0071e3')}
+    ${kpi('涵蓋學校數','13','橫跨北中南三區','#5ac8fa')}
+    ${kpi('企畫書上傳','1 隊','上傳率 &lt;1%','#ff3b30')}
+    ${kpi('回流種子隊','2 隊','夜行式 / 豎笛隊','#af52de')}
+    ${kpi('跨校組隊率','4.4%','91隊有效樣本','#34c759')}
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-title">🏁 賽道分佈</div><canvas id="c-all-track" height="160"></canvas></div>
+    <div class="card"><div class="card-title">🗺️ 地區分佈</div><canvas id="c-all-region" height="160"></canvas></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-title">🏫 學校報名 Top 7</div><canvas id="c-all-school" height="200"></canvas></div>
+    <div class="card">
+      <div class="card-title">⚙️ 分工覆蓋率（106隊有分工資料）</div>
+      <canvas id="c-all-duty" height="200"></canvas>
+      <div style="font-size:11px;color:var(--orange);margin-top:8px">⚠️ 介面設計嚴重缺乏（51%隊伍未填），建議5月說明會補強</div>
+    </div>
+  </div>
+  ${ST('🔑 十大關鍵決策建議')}
+  <div class="g2">
+    <div>
+      ${ins('🏁','創意組佔52%，創業組僅16%。5月說明會應提供「創業企畫模板」降低門檻。','ins-purple')}
+      ${ins('⚠️','企畫書上傳率僅0.4%（1/225）。截止前7天應發送個人化補填提醒。','ins-red')}
+      ${ins('🗺️','南部僅佔9%，成大/中山等頂尖校完全缺席。明年優先安排南部說明會。','ins-green')}
+      ${ins('🔍','政大36隊中90%以上為教育學系，推廣嚴重偏頗，資管/法律等院系未出現。','ins-orange')}
+      ${ins('⚙️','介面設計角色覆蓋率僅49%，是最大分工缺口。應在說明會中強調UI/UX重要性。','ins-orange')}
+    </div>
+    <div>
+      ${ins('🔀','跨校率僅4.4%，82%為同校同系組隊。建議設「最強跨域組合獎」激勵破圈。','ins-blue')}
+      ${ins('🌐','缺乏高潛力組合：資工×設計、法律×資工(LegalTech)、醫療×資工(HealthTech)。','ins-purple')}
+      ${ins('🎓','大三(31%)+大四(23%)是主力，大一僅13%。應在迎新活動提早觸及低年級。','ins-blue')}
+      ${ins('📅','4/10單日57隊為最大爆發點。應追查觸發管道，作為明年預算分配依據。','ins-blue')}
+      ${ins('📝','80%以上年級欄位空白。下次報名表應將年級設為必填，支援精準分析。','ins-red')}
+    </div>
+  </div>`;
+
+  setTimeout(()=>{
+    mkChart('c-all-track',{type:'doughnut',data:{labels:AN.tracks.map(t=>t.label+' '+t.count+'隊'),datasets:[{data:AN.tracks.map(t=>t.count),backgroundColor:AN.tracks.map(t=>t.color),borderWidth:2}]},options:{plugins:{legend:{position:'right',labels:{font:{size:12}}}},cutout:'65%'}});
+    mkChart('c-all-region',{type:'doughnut',data:{labels:AN.regions.map(r=>r.label+' '+r.count+'隊'),datasets:[{data:AN.regions.map(r=>r.count),backgroundColor:AN.regions.map(r=>r.color),borderWidth:2}]},options:{plugins:{legend:{position:'right',labels:{font:{size:12}}}},cutout:'65%'}});
+    const t7=AN.schools.slice(0,7);
+    mkChart('c-all-school',{type:'bar',data:{labels:t7.map(s=>s.short),datasets:[{label:'隊數',data:t7.map(s=>s.teams),backgroundColor:'#0071e3',borderRadius:5}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'}}}}});
+    mkChart('c-all-duty',{type:'bar',data:{labels:AN.duties.map(d=>d.label),datasets:[{label:'隊數',data:AN.duties.map(d=>d.count),backgroundColor:AN.duties.map(d=>d.color),borderRadius:5}]},options:{plugins:{legend:{display:false}},scales:{y:{max:106,grid:{color:'rgba(0,0,0,0.04)'}}}}});
+  },50);
+}
+
+// ── 賽道分析 ──────────────────────────────────
+function buildTrack() {
+  const schoolTrack={'國立臺灣大學':[14,18,28],'逢甲大學':[43,4,0],'國立政治大學':[34,0,2],'國立臺中教育大學':[8,14,0],'國立高雄科技大學':[8,12,0],'國立清華大學':[1,9,5]};
+  document.getElementById('wrap-track').innerHTML = `
+  ${ST('賽道分佈概況')}
+  <div class="kpi-grid kpi3">
+    ${AN.tracks.map(t=>`<div class="kpi-box" style="border-top:3px solid ${t.color};text-align:center">
+      <div class="kpi-val" style="color:${t.color};font-size:40px">${t.count}</div>
+      <div class="kpi-lbl" style="font-size:13px;font-weight:700;margin-top:4px">${t.label}組</div>
+      <div class="kpi-sub">${(t.count/AN.totalTeams*100).toFixed(1)}%</div>
+    </div>`).join('')}
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-title">各賽道佔比</div><canvas id="c-tr-pie" height="200"></canvas></div>
+    <div class="card"><div class="card-title">各賽道 × 前6校分佈（堆疊）</div><canvas id="c-tr-school" height="200"></canvas></div>
+  </div>
+  ${ST('📝 組名趨勢語意分析')}
+  <div class="card">
+    <div class="card-title">組名熱門主題分類</div>
+    <canvas id="c-tr-names" height="130"></canvas>
+    <div style="margin-top:14px;display:flex;flex-direction:column;gap:6px">
+      ${AN.nameTopics.map(n=>`<div style="font-size:11.5px"><span style="font-weight:700;color:${n.color}">${n.label}（${n.count}隊）：</span><span style="color:var(--text2)">${n.ex}</span></div>`).join('')}
+    </div>
+  </div>
+  ${ST('🔑 賽道決策洞察')}
+  ${ins('🏁','創意組（52%）遠超創業組（16%）。5月說明會應提供「創業企畫書模板」與「商業邏輯工作坊」降低創業組門檻。','ins-purple')}
+  ${ins('⚠️','企畫書上傳率不足1%（225隊中僅1隊），大量隊伍停在「報名未提交」。建議截止前7天推送個人化提醒。','ins-red')}
+  ${ins('💡','台大28隊走創業賽道，但上傳率接近0。應追蹤這批創業組的真實意圖，考慮設定「提交初稿確認資格」機制。','ins-blue')}
+  ${ins('📝','「科技/程式梗」命名最多（24隊），反映參賽者對iOS開發文化的強認同感。評審可多邀產品/技術實務背景人士。','ins-blue')}`;
+
+  setTimeout(()=>{
+    mkChart('c-tr-pie',{type:'pie',data:{labels:AN.tracks.map(t=>t.label+'('+t.count+')'),datasets:[{data:AN.tracks.map(t=>t.count),backgroundColor:AN.tracks.map(t=>t.color),borderWidth:2}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:12}}}}}});
+    const t6=AN.schools.slice(0,6);
+    mkChart('c-tr-school',{type:'bar',data:{labels:t6.map(s=>s.short),datasets:[{label:'創意',data:t6.map(s=>(schoolTrack[s.name]||[0,0,0])[0]),backgroundColor:'#0071e3',borderRadius:3},{label:'創新',data:t6.map(s=>(schoolTrack[s.name]||[0,0,0])[1]),backgroundColor:'#5ac8fa',borderRadius:3},{label:'創業',data:t6.map(s=>(schoolTrack[s.name]||[0,0,0])[2]),backgroundColor:'#af52de',borderRadius:3}]},options:{indexAxis:'y',plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{x:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'}},y:{stacked:true}}}});
+    mkChart('c-tr-names',{type:'bar',data:{labels:AN.nameTopics.map(n=>n.label),datasets:[{label:'隊數',data:AN.nameTopics.map(n=>n.count),backgroundColor:AN.nameTopics.map(n=>n.color),borderRadius:5}]},options:{plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(0,0,0,0.04)'}}}}});
+  },50);
+}
+
+// ── 地區/學校 ─────────────────────────────────
+function buildRegion() {
+  document.getElementById('wrap-region').innerHTML = `
+  ${ST('地區板塊分析')}
+  <div class="kpi-grid kpi4">
+    ${AN.regions.map(r=>`<div class="kpi-box" style="border-top:3px solid ${r.color};text-align:center">
+      <div class="kpi-val" style="color:${r.color}">${r.count}</div>
+      <div class="kpi-lbl" style="font-size:13px;font-weight:700">${r.label}</div>
+      <div class="kpi-sub">${(r.count/AN.totalTeams*100).toFixed(1)}%</div>
+    </div>`).join('')}
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-title">地區佔比</div><canvas id="c-rg-pie" height="180"></canvas></div>
+    <div class="card"><div class="card-title">各校報名數（依地區著色）</div><canvas id="c-rg-school" height="180"></canvas></div>
+  </div>
+  ${ST('各校細項比較')}
+  <div class="card" style="overflow-x:auto">
+    <table>
+      <thead><tr>
+        <th>學校</th><th class="tc">地區</th><th class="tc">隊數</th>
+        <th class="tc">系所多樣性</th><th class="tc">分工資料</th><th>關鍵特色</th>
+      </tr></thead>
+      <tbody>
+        ${AN.schools.map((s,i)=>{
+          const rc=s.region==='北部'?'#0071e3':s.region==='中部'?'#ff9500':s.region==='南部'?'#34c759':'#aeaeb2';
+          const dl=s.deptCount>=20?'<span class="p-green">非常多元</span>':s.deptCount>=10?'<span class="p-blue">多元</span>':s.deptCount>=3?'<span class="p-orange">普通</span>':'<span class="p-red">單一</span>';
+          const duty=s.hasDuty?'<span class="p-green">✅ 有填</span>':'<span class="p-red">⚠️ 空白</span>';
+          return `<tr>
+            <td class="fw">${s.name.replace('國立','')}</td>
+            <td class="tc"><span style="padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:${rc}22;color:${rc}">${s.region}</span></td>
+            <td class="tc fw tblue">${s.teams}</td>
+            <td class="tc">${dl}（${s.deptCount}系）</td>
+            <td class="tc">${duty}</td>
+            <td style="font-size:11px;color:var(--text2)">${s.note}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  </div>
+  ${ST('🔑 地區決策洞察')}
+  ${ins('🗺️','南部僅佔9%（21隊），成大、中山、高雄大學等頂尖校完全缺席。明年應優先安排南部說明會，並邀請高雄科大現有老師擴大推廣。','ins-green')}
+  ${ins('🔍','政大36隊中90%以上來自教育學系。資管、傳播、法律等強勢科系完全未出現。建議聯絡政大iOS Club作為推廣窗口。','ins-red')}
+  ${ins('🏫','台大已形成自發性參賽生態（36系所），哲學、農藝、公衛均出現。此模式應複製至逢甲、政大非教育院系。','ins-blue')}
+  ${ins('⚠️','高雄科大20隊均為商管學院，年級與分工資料全空。這批隊伍的「殭屍隊」風險較高，建議設資料補填追蹤機制。','ins-orange')}`;
+
+  setTimeout(()=>{
+    mkChart('c-rg-pie',{type:'doughnut',data:{labels:AN.regions.map(r=>r.label+' '+r.count+'隊'),datasets:[{data:AN.regions.map(r=>r.count),backgroundColor:AN.regions.map(r=>r.color),borderWidth:2}]},options:{plugins:{legend:{position:'right',labels:{font:{size:12}}}},cutout:'60%'}});
+    const rc=AN.schools.slice(0,10).map(s=>s.region==='北部'?'#0071e3':s.region==='中部'?'#ff9500':'#34c759');
+    mkChart('c-rg-school',{type:'bar',data:{labels:AN.schools.slice(0,10).map(s=>s.short),datasets:[{label:'隊數',data:AN.schools.slice(0,10).map(s=>s.teams),backgroundColor:rc,borderRadius:5}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'}}}}});
+  },50);
+}
+
+// ── 跨域組隊 ──────────────────────────────────
+function buildDept() {
+  document.getElementById('wrap-dept').innerHTML = `
+  ${ST('跨域組隊總覽（91隊有多成員資料）')}
+  <div class="kpi-grid kpi4">
+    ${kpi('跨校組隊','4 隊 (4.4%)','清大×台大 等','#af52de')}
+    ${kpi('同校跨系','12 隊 (13%)','台大最多','#34c759')}
+    ${kpi('同校同系','75 隊 (82%)','主流模式','#ff9500')}
+    ${kpi('介面設計缺口','51%','106隊中54隊缺','#ff3b30')}
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-title">組隊類型佔比</div><canvas id="c-dp-pie" height="180"></canvas></div>
+    <div class="card">
+      <div class="card-title">分工角色覆蓋率（106隊）</div>
+      <canvas id="c-dp-duty" height="180"></canvas>
+    </div>
+  </div>
+  ${ST('⭐ 跨校組隊明細（4 隊）')}
+  <div class="g2">
+    ${AN.crossSchool.map(t=>`<div class="card" style="border-left:3px solid #af52de">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+        <span style="font-size:14px">${'⭐'.repeat(t.star)}</span>
+        <span style="font-weight:700;font-size:13px">[${t.id}] ${t.name}</span>
+        <span class="pill p-purple">${t.track}</span>
+      </div>
+      <div style="font-size:11.5px;line-height:1.9">
+        跨校組合：<strong>${t.combo}</strong><br>
+        跨域類型：<span style="color:var(--blue);font-weight:600">${t.type}</span><br>
+        <span style="color:var(--text2)">${t.note}</span>
+      </div>
+    </div>`).join('')}
+    <div class="card" style="border-left:3px solid #34c759">
+      <div style="font-weight:700;font-size:13px;margin-bottom:8px">🔀 同校跨系精選</div>
+      <div style="font-size:11.5px;line-height:2">
+        <strong>[0107] 旁門左道</strong>（台大）：心理學 × 資工<span class="pill p-blue" style="margin-left:4px">人文+理工</span><br>
+        <strong>[0353] sloppylabs</strong>（清大）：電機資訊 × 科技管理<span class="pill p-green" style="margin-left:4px">理工+管理</span><br>
+        <strong>[0138] 貓咪</strong>（政大側）：歐洲語文 × 教育<span class="pill p-gray" style="margin-left:4px">語文+教育</span><br>
+        <span style="color:var(--text2);font-size:11px">完整12隊詳見下方表格</span>
+      </div>
+    </div>
+  </div>
+  ${ST('⚠️ 同校同系高風險集群')}
+  <div class="card" style="overflow-x:auto">
+    <table>
+      <thead><tr><th>集群</th><th class="tc">隊數</th><th>描述</th><th class="tc">風險等級</th></tr></thead>
+      <tbody>
+        <tr><td class="fw">政大教育學系</td><td class="tc fw tred">~20隊</td><td style="font-size:11.5px">幾乎全為同系；組名疑似課堂作業（「你好」「早安」「萬歲」「排水孔」）；缺乏產品動機</td><td class="tc"><span class="pill p-red">🔴 高</span></td></tr>
+        <tr><td class="fw">東海資訊工程</td><td class="tc fw torange">10隊</td><td style="font-size:11.5px">清一色資工；4位老師各帶2隊；技術佳但缺PM/商業思維</td><td class="tc"><span class="pill p-orange">🟡 中</span></td></tr>
+        <tr><td class="fw">台大各系</td><td class="tc tblue fw">~35隊</td><td style="font-size:11.5px">雖同系但每隊系所各異（36系所），整體多元，問題較小</td><td class="tc"><span class="pill p-green">🟢 低</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  ${ST('⚠️ 重複參賽者警示')}
+  <div class="card">
+    <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:10px">以下人員出現在多支隊伍，疑似人頭或湊隊員</div>
+    <table>
+      <thead><tr><th>姓名</th><th>出現隊伍</th><th>疑似情況</th></tr></thead>
+      <tbody>
+        ${AN.duplicates.map((d,i)=>`<tr><td class="fw">${d.name}</td><td style="font-size:11.5px">${d.teams}</td><td style="font-size:11.5px;color:var(--text2)">${d.note}</td></tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+  ${ST('🔑 跨域決策洞察')}
+  ${ins('🔀','跨校率僅4.4%，82%為同校同系，組隊幾乎完全依賴既有社交圈。建議設「最強跨域組合獎」，激勵主動尋找不同背景隊友。','ins-blue')}
+  ${ins('🌐','缺乏高潛力組合：資工×設計(DesignTech)、資工×行銷、法律×資工(LegalTech)、醫療×資工(HealthTech)。應在推廣中明確點名鼓勵。','ins-purple')}
+  ${ins('⭐','夜行式(034)是全場唯一真正跨校跨域隊（清大教育科技×台大電機+回流種子），應邀請為說明會標竿案例分享。','ins-green')}
+  ${ins('⚠️','建議報名系統加入信箱/電話去重機制，防止同一人以不同系所出現在多支隊伍，確保競賽公平性。','ins-red')}`;
+
+  setTimeout(()=>{
+    mkChart('c-dp-pie',{type:'doughnut',data:{labels:['同校同系 75','同校跨系 12','跨校 4'],datasets:[{data:[75,12,4],backgroundColor:['#ff9500','#34c759','#af52de'],borderWidth:2}]},options:{plugins:{legend:{position:'right',labels:{font:{size:12}}}},cutout:'60%'}});
+    mkChart('c-dp-duty',{type:'bar',data:{labels:AN.duties.map(d=>d.label),datasets:[{label:'覆蓋隊數',data:AN.duties.map(d=>d.count),backgroundColor:AN.duties.map(d=>d.color),borderRadius:5}]},options:{plugins:{legend:{display:false}},scales:{y:{max:106,grid:{color:'rgba(0,0,0,0.04)'}}}}});
+  },50);
+}
+
+// ── 年級分佈 ──────────────────────────────────
+function buildGrade() {
+  document.getElementById('wrap-grade').innerHTML = `
+  ${ST('年級分佈（有效樣本 131 人 / 總估計 650+ 人次）')}
+  <div class="kpi-grid kpi5">
+    ${AN.grades.map(g=>`<div class="kpi-box" style="border-top:3px solid ${g.color};text-align:center">
+      <div class="kpi-val" style="color:${g.color}">${g.count}</div>
+      <div class="kpi-lbl" style="font-size:13px;font-weight:700">${g.label}</div>
+      <div class="kpi-sub">${(g.count/131*100).toFixed(0)}%</div>
+    </div>`).join('')}
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-title">年級佔比（有效131人）</div><canvas id="c-gr-pie" height="200"></canvas></div>
+    <div class="card">
+      <div class="card-title">各校年級填寫完整度（堆疊）</div>
+      <canvas id="c-gr-school" height="200"></canvas>
+      <div style="font-size:11px;color:var(--red);margin-top:8px">⚠️ 超過75%成員年級欄位空白，嚴重影響分析精度</div>
+    </div>
+  </div>
+  ${ST('各校年級細項')}
+  <div class="card" style="overflow-x:auto">
+    <table>
+      <thead><tr><th>學校</th><th class="tc">大一</th><th class="tc">大二</th><th class="tc" style="color:var(--blue)">大三</th><th class="tc">大四</th><th class="tc">碩士生</th><th class="tc">未知</th></tr></thead>
+      <tbody>
+        ${[
+          {n:'逢甲大學',        g1:2, g2:7,  g3:14, g4:11, gm:2, unk:60,  unkc:'#ff9500'},
+          {n:'東海大學',        g1:2, g2:3,  g3:4,  g4:1,  gm:0, unk:0,   unkc:'#34c759'},
+          {n:'政治大學',        g1:3, g2:3,  g3:6,  g4:3,  gm:0, unk:80,  unkc:'#ff3b30'},
+          {n:'清華大學',        g1:0, g2:4,  g3:2,  g4:0,  gm:2, unk:25,  unkc:'#ff9500'},
+          {n:'臺灣大學',        g1:1, g2:1,  g3:1,  g4:0,  gm:1, unk:120, unkc:'#ff3b30'},
+          {n:'臺中教大/高科大', g1:0, g2:0,  g3:0,  g4:0,  gm:0, unk:'全部', unkc:'#ff3b30'}
+        ].map(r=>`<tr>
+          <td class="fw">${r.n}</td>
+          <td class="tc">${r.g1||'-'}</td>
+          <td class="tc">${r.g2||'-'}</td>
+          <td class="tc fw tblue">${r.g3||'-'}</td>
+          <td class="tc">${r.g4||'-'}</td>
+          <td class="tc">${r.gm||'-'}</td>
+          <td class="tc fw" style="color:${r.unkc}">${r.unk}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+  ${ST('🔑 年級決策洞察')}
+  ${ins('🎓','大三（31%）+大四（23%）合計54%為主力族群。說明會訴求應主打「履歷加值」與「畢業前作品集」，對高年級最有說服力。','ins-blue')}
+  ${ins('📊','大一僅佔13%，觸及率明顯偏低。建議在社團博覽會或大一迎新活動設攤，提早建立MAIC品牌認知。','ins-orange')}
+  ${ins('📝','80%以上年級欄位空白，報名表應設年級為必填，並改用下拉選單防止格式錯誤。','ins-red')}
+  ${ins('🎓','碩士生（8%）集中在清大（教育科技、學習科技），是技術+教育跨域的潛力族群，值得專項培育。','ins-purple')}`;
+
+  setTimeout(()=>{
+    mkChart('c-gr-pie',{type:'doughnut',data:{labels:AN.grades.map(g=>g.label+'('+g.count+')'),datasets:[{data:AN.grades.map(g=>g.count),backgroundColor:AN.grades.map(g=>g.color),borderWidth:2}]},options:{plugins:{legend:{position:'right',labels:{font:{size:12}}}},cutout:'60%'}});
+    mkChart('c-gr-school',{type:'bar',data:{labels:['逢甲','東海','政大','清大','台大'],datasets:[{label:'大一',data:[2,2,3,0,1],backgroundColor:'#ff9f0a',borderRadius:2},{label:'大二',data:[7,3,3,4,1],backgroundColor:'#0071e3',borderRadius:2},{label:'大三',data:[14,4,6,2,1],backgroundColor:'#5ac8fa',borderRadius:2},{label:'大四',data:[11,1,3,0,0],backgroundColor:'#34c759',borderRadius:2},{label:'碩士',data:[2,0,0,2,1],backgroundColor:'#af52de',borderRadius:2}]},options:{plugins:{legend:{position:'top',labels:{font:{size:10}}}},scales:{x:{stacked:true},y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'}}}}});
+  },50);
+}
+
+// ── 報名時程 ──────────────────────────────────
+function buildFunnel() {
+  document.getElementById('wrap-funnel').innerHTML = `
+  ${ST('報名時程 — 浪潮分析')}
+  <div class="kpi-grid kpi4">
+    ${kpi('最大單日','57 隊','4/10 大爆發','#ff3b30')}
+    ${kpi('第一波','~85 隊','4/10–4/11','#0071e3')}
+    ${kpi('第二波','~36 隊','4/22–4/23','#5ac8fa')}
+    ${kpi('企畫書上傳','1 / 225','上傳率 &lt;1%','#ff9500')}
+  </div>
+  <div class="card">
+    <div class="card-title">各日期區間報名隊數</div>
+    <canvas id="c-fn-bar" height="200"></canvas>
+  </div>
+  ${ST('時程詳細分析')}
+  <div class="card" style="overflow-x:auto">
+    <table>
+      <thead><tr><th>日期區間</th><th class="tc">報名隊數</th><th class="tc">佔比</th><th>推測觸發事件</th></tr></thead>
+      <tbody>
+        ${AN.timeline.map((t,i)=>`<tr>
+          <td class="fw">${t.date}</td>
+          <td class="tc">
+            <div style="display:flex;align-items:center;gap:6px;justify-content:center">
+              <div style="width:${Math.round(t.count/57*72)}px;height:10px;border-radius:5px;background:${t.color};min-width:4px"></div>
+              <span class="fw" style="color:${t.color}">${t.count}</span>
+            </div>
+          </td>
+          <td class="tc tgray">${(t.count/195*100).toFixed(1)}%</td>
+          <td style="font-size:11.5px;color:var(--text2)">${t.event||'—'}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+  ${ST('📋 報名漏斗（Funnel）')}
+  <div class="card" style="max-width:600px;margin:0 auto 14px">
+    ${[
+      {label:'已完成基本報名',count:225,color:'#0071e3',pct:100},
+      {label:'年級/系所填寫齊全',count:91,color:'#5ac8fa',pct:40},
+      {label:'分工欄位填寫',count:106,color:'#34c759',pct:47},
+      {label:'企畫書已上傳',count:1,color:'#ff3b30',pct:0.4}
+    ].map((f,i,arr)=>`
+      <div class="funnel-step" style="background:${f.color};margin:0 ${i*18}px">${f.label}：${f.count} 隊 (${f.pct}%)</div>
+      ${i<arr.length-1?'<div class="funnel-arrow">▼</div>':''}`).join('')}
+  </div>
+  ${ST('🔑 時程與轉換決策洞察')}
+  ${ins('📅','4/10 單日57隊是全程最大爆發點（佔29%）。應深入追查當日觸發管道（說明會/老師群組/社群貼文），作為明年預算分配依據。','ins-blue')}
+  ${ins('🔄','兩波明顯浪潮（4/10 & 4/22）顯示學生報名高度受外部觸發驅動。應在說明會後24-48h內發送填報提醒，強化轉換效率。','ins-blue')}
+  ${ins('⚠️','企畫書上傳率僅0.4%（1/225），是最嚴重的轉換瓶頸。建議設「提交企畫書初稿才確認資格」門檻，並提供範本+線上工作坊。','ins-red')}
+  ${ins('💡','4/15的27隊為臺中教大批量湧入，但年級/分工資料幾乎全空。批次報名後的「資料補全追蹤」是下一個優化重點。','ins-orange')}`;
+
+  setTimeout(()=>{
+    mkChart('c-fn-bar',{type:'bar',data:{labels:AN.timeline.map(t=>t.date),datasets:[{label:'報名隊數',data:AN.timeline.map(t=>t.count),backgroundColor:AN.timeline.map(t=>t.color),borderRadius:6}]},options:{plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:ctx=>{const ev=AN.timeline[ctx.dataIndex].event;return ev?'→ '+ev:'';}}}},scales:{y:{grid:{color:'rgba(0,0,0,0.04)'}}}}});
+  },50);
+}
+
+// ══════════════════════════════════════════════
+//  維度切換
+// ══════════════════════════════════════════════
+const BUILT = {};
+function setDim(dim) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.dim-btn').forEach((b,i)=>{
+    const dims=['all','track','region','dept','grade','funnel'];
+    b.classList.toggle('active', dims[i]===dim);
+  });
+  document.getElementById('panel-'+dim).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if (!BUILT[dim]) {
+    BUILT[dim]=true;
+    if (dim==='all')    buildAll();
+    if (dim==='track')  buildTrack();
+    if (dim==='region') buildRegion();
+    if (dim==='dept')   buildDept();
+    if (dim==='grade')  buildGrade();
+    if (dim==='funnel') buildFunnel();
+  }
+}
+
+// 初始化
+setDim('all');
 </script>
+
+<footer>MAIC 行動應用創新賽 2026 ｜ 報名分析中心 ｜ 資料截至 2026/04/29</footer>
 </body>
 </html>
