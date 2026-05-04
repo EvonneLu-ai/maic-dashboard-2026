@@ -468,24 +468,24 @@ function buildFilterBar(opts) {
   opts = opts || {};
   const cb = opts.cb || '';
 
-  // Build base pool (without each filter applied to itself) for dynamic options
-  // School options: ignore school filter, apply region+track+deptCat+nameCat
+  // Build base pool: ignore each key's own filter, but apply ALL other active filters
+  // (including search) — so only options with real data are shown
   function baseIgnoring(key) {
-    const bk = FS[key]; FS[key]='all';
+    const bk = FS[key]; FS[key] = 'all';
     const r = filtered();
     FS[key] = bk;
     return r;
   }
-  const schoolOpts = ['all',...[...new Set(baseIgnoring('school').map(t=>t.school))].sort()]
-    .map(s=>`<option value="${s}"${FS.school===s?' selected':''}>${s==='all'?'全部學校':s.replace('國立','')}</option>`).join('');
-  const regionOpts = ['all',...[...new Set(baseIgnoring('region').map(t=>t.region))].sort()]
-    .map(r=>`<option value="${r}"${FS.region===r?' selected':''}>${r==='all'?'全部地區':r}</option>`).join('');
-  const trackOpts = ['all',...[...new Set(baseIgnoring('track').map(t=>t.track))].sort()]
-    .map(t=>`<option value="${t}"${FS.track===t?' selected':''}>${t==='all'?'全部賽道':t}</option>`).join('');
-  const deptOpts = ['all',...[...new Set(baseIgnoring('deptCat').map(t=>t.deptCat))].sort()]
-    .map(d=>`<option value="${d}"${FS.deptCat===d?' selected':''}>${d==='all'?'全部科系類別':d}</option>`).join('');
-  const nameOpts = ['all',...[...new Set(baseIgnoring('nameCat').map(t=>t.nameCat))].sort()]
-    .map(n=>`<option value="${n}"${FS.nameCat===n?' selected':''}>${n==='all'?'全部組名類型':n}</option>`).join('');
+  const schoolOpts = ['all', ...[...new Set(baseIgnoring('school').map(t => t.school).filter(Boolean))].sort()]
+    .map(s => `<option value="${s}"${FS.school === s ? ' selected' : ''}>${s === 'all' ? '全部學校' : s.replace('國立', '')}</option>`).join('');
+  const regionOpts = ['all', ...[...new Set(baseIgnoring('region').map(t => t.region).filter(Boolean))].sort()]
+    .map(r => `<option value="${r}"${FS.region === r ? ' selected' : ''}>${r === 'all' ? '全部地區' : r}</option>`).join('');
+  const trackOpts = ['all', ...[...new Set(baseIgnoring('track').map(t => t.track).filter(Boolean))].sort()]
+    .map(t => `<option value="${t}"${FS.track === t ? ' selected' : ''}>${t === 'all' ? '全部賽道' : t}</option>`).join('');
+  const deptOpts = ['all', ...[...new Set(baseIgnoring('deptCat').map(t => t.deptCat).filter(Boolean))].sort()]
+    .map(d => `<option value="${d}"${FS.deptCat === d ? ' selected' : ''}>${d === 'all' ? '全部科系類別' : d}</option>`).join('');
+  const nameOpts = ['all', ...[...new Set(baseIgnoring('nameCat').map(t => t.nameCat).filter(Boolean))].sort()]
+    .map(n => `<option value="${n}"${FS.nameCat === n ? ' selected' : ''}>${n === 'all' ? '全部組名類型' : n}</option>`).join('');
 
   const show = opts;
   let html = `<div class="filter-bar">`;
