@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>MAIC 2026 報名資料分析報告</title>
+<style>
+  @page { size: A4 portrait; margin: 18mm 16mm 16mm 16mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang TC", "Heiti TC", "Microsoft JhengHei", sans-serif; font-size: 11.5pt; color: #1d1d1f; line-height: 1.7; background: #fff; }
+
+  /* ── 封面 ── */
+  .cover { page-break-after: always; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; min-height: 240mm; padding: 20mm 0; }
+  .cover-badge { background: #0071e3; color: #fff; font-size: 9pt; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 14px; border-radius: 20px; margin-bottom: 18px; display: inline-block; }
+  .cover-title { font-size: 28pt; font-weight: 800; line-height: 1.2; letter-spacing: -.5px; margin-bottom: 10px; }
+  .cover-subtitle { font-size: 14pt; color: #6e6e73; margin-bottom: 32px; }
+  .cover-divider { width: 48px; height: 4px; background: #0071e3; border-radius: 2px; margin-bottom: 28px; }
+  .cover-meta { font-size: 10pt; color: #6e6e73; }
+  .cover-meta span { display: block; margin-bottom: 4px; }
+
+  /* ── 通用 ── */
+  h1 { font-size: 17pt; font-weight: 800; color: #0071e3; border-bottom: 2.5px solid #0071e3; padding-bottom: 6px; margin: 0 0 14px; page-break-after: avoid; }
+  h2 { font-size: 13pt; font-weight: 700; color: #1d1d1f; margin: 20px 0 10px; page-break-after: avoid; }
+  h3 { font-size: 11pt; font-weight: 700; color: #1d1d1f; margin: 14px 0 6px; page-break-after: avoid; }
+  p  { margin-bottom: 8px; }
+  b  { font-weight: 700; }
+  .section { page-break-inside: avoid; margin-bottom: 28px; }
+  .page-break { page-break-before: always; }
+
+  /* ── KPI 列 ── */
+  .kpi-row { display: flex; gap: 10px; margin: 14px 0; }
+  .kpi { flex: 1; background: #f5f5f7; border-radius: 10px; padding: 12px 14px; text-align: center; border-top: 3px solid #0071e3; }
+  .kpi.orange { border-top-color: #ff9500; }
+  .kpi.green  { border-top-color: #34c759; }
+  .kpi.purple { border-top-color: #af52de; }
+  .kpi.red    { border-top-color: #ff3b30; }
+  .kpi-num { font-size: 22pt; font-weight: 800; color: #0071e3; line-height: 1; }
+  .kpi.orange .kpi-num { color: #c07000; }
+  .kpi.green  .kpi-num { color: #1a7f37; }
+  .kpi.purple .kpi-num { color: #6b2b9e; }
+  .kpi.red    .kpi-num { color: #b91c1c; }
+  .kpi-lbl { font-size: 9pt; color: #6e6e73; margin-top: 3px; }
+  .kpi-sub { font-size: 8.5pt; color: #aeaeb2; margin-top: 2px; }
+
+  /* ── 橫條圖 ── */
+  .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .bar-label { font-size: 10pt; min-width: 130px; color: #1d1d1f; }
+  .bar-track { flex: 1; height: 13px; background: #e8e8ed; border-radius: 6px; overflow: hidden; }
+  .bar-fill  { height: 100%; border-radius: 6px; background: #0071e3; }
+  .bar-val   { font-size: 10pt; font-weight: 700; min-width: 48px; text-align: right; color: #1d1d1f; }
+
+  /* ── 表格 ── */
+  table { width: 100%; border-collapse: collapse; font-size: 10pt; margin: 10px 0; page-break-inside: avoid; }
+  th { background: #f5f5f7; padding: 7px 10px; text-align: left; font-weight: 700; font-size: 9.5pt; color: #6e6e73; border-bottom: 1.5px solid #d2d2d7; }
+  td { padding: 7px 10px; border-bottom: 1px solid #e5e5ea; vertical-align: top; }
+  tr:nth-child(even) td { background: #fafafa; }
+  .tc { text-align: center; }
+  .tblue { color: #0071e3; font-weight: 700; }
+  .torange { color: #c07000; font-weight: 700; }
+  .tred { color: #b91c1c; font-weight: 700; }
+  .tgreen { color: #1a7f37; font-weight: 700; }
+  .tgray { color: #6e6e73; }
+
+  /* ── 洞察框 ── */
+  .ins { display: flex; gap: 10px; padding: 9px 12px; border-radius: 8px; margin-bottom: 7px; page-break-inside: avoid; }
+  .ins-icon { font-size: 14pt; flex-shrink: 0; margin-top: 1px; }
+  .ins-text { font-size: 10.5pt; line-height: 1.6; }
+  .ins-blue   { background: rgba(0,113,227,.07); border-left: 3px solid #0071e3; }
+  .ins-green  { background: rgba(52,199,89,.07); border-left: 3px solid #34c759; }
+  .ins-orange { background: rgba(255,149,0,.07); border-left: 3px solid #ff9500; }
+  .ins-red    { background: rgba(255,59,48,.07);  border-left: 3px solid #ff3b30; }
+  .ins-purple { background: rgba(175,82,222,.07); border-left: 3px solid #af52de; }
+
+  /* ── 標籤 ── */
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 9pt; font-weight: 600; margin: 1px; }
+  .tag-blue   { background: rgba(0,113,227,.12); color: #0071e3; }
+  .tag-green  { background: rgba(52,199,89,.12);  color: #1a7f37; }
+  .tag-orange { background: rgba(255,149,0,.12);  color: #c07000; }
+  .tag-red    { background: rgba(255,59,48,.12);   color: #b91c1c; }
+  .tag-gray   { background: rgba(0,0,0,.07);       color: #6e6e73; }
+
+  /* ── 校名標題框 ── */
+  .school-header { background: #f5f5f7; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; page-break-after: avoid; }
+  .school-num { font-size: 20pt; font-weight: 800; color: #0071e3; min-width: 44px; }
+  .school-info { flex: 1; }
+  .school-name { font-size: 13pt; font-weight: 700; }
+  .school-desc { font-size: 9.5pt; color: #6e6e73; margin-top: 2px; }
+
+  /* ── 重點框 ── */
+  .highlight-box { border: 1.5px solid #0071e3; border-radius: 10px; padding: 12px 16px; margin: 12px 0; background: rgba(0,113,227,.04); page-break-inside: avoid; }
+  .warn-box      { border: 1.5px solid #ff9500; border-radius: 10px; padding: 12px 16px; margin: 12px 0; background: rgba(255,149,0,.04); page-break-inside: avoid; }
+  .highlight-box h3, .warn-box h3 { margin: 0 0 8px; font-size: 11pt; }
+
+  /* ── 頁尾 ── */
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .no-print { display: none; }
+  }
+  .print-btn { position: fixed; bottom: 24px; right: 24px; background: #0071e3; color: #fff; border: none; border-radius: 22px; padding: 12px 24px; font-size: 13pt; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(0,113,227,.3); z-index: 9999; }
+  .print-btn:hover { background: #005ec4; }
+</style>
+</head>
+<body>
+
+<!-- 列印按鈕 -->
+<button class="print-btn no-print" onclick="window.print()">🖨️ 儲存為 PDF</button>
+
+<!-- ══════════════ 封面 ══════════════ -->
+<div class="cover">
+  <span class="cover-badge">MAIC 2026 · Straight A × Apple</span>
+  <div class="cover-title">報名資料<br>深度分析報告</div>
+  <div class="cover-subtitle">行動應用創新賽 2026 參賽者分析</div>
+  <div class="cover-divider"></div>
+  <div class="cover-meta">
+    <span>📅 資料截至：2026 年 4 月 29 日</span>
+    <span>📊 分析範圍：225 支報名隊伍｜13 所大學</span>
+    <span>🔍 分析維度：跨域組隊、地區滲透、趨勢語意、報名時程、歷史傳承</span>
+  </div>
+</div>
+
+<!-- ══════════════ 總覽 ══════════════ -->
+<div class="section">
+  <h1>📊 整體數據總覽</h1>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-num">225</div><div class="kpi-lbl">報名隊伍總數</div><div class="kpi-sub">資料截至 4/29</div></div>
+    <div class="kpi orange"><div class="kpi-num">13</div><div class="kpi-lbl">涵蓋學校數</div><div class="kpi-sub">北中南三區</div></div>
+    <div class="kpi green"><div class="kpi-num">1</div><div class="kpi-lbl">企畫書已上傳</div><div class="kpi-sub">上傳率 &lt;1%</div></div>
+    <div class="kpi purple"><div class="kpi-num">2</div><div class="kpi-lbl">回流種子隊</div><div class="kpi-sub">夜行式 / 豎笛隊</div></div>
+  </div>
+
+  <h2>賽道分佈</h2>
+  <div class="bar-row"><div class="bar-label">🎨 創意組</div><div class="bar-track"><div class="bar-fill" style="width:52.4%"></div></div><div class="bar-val">118 隊（52%）</div></div>
+  <div class="bar-row"><div class="bar-label">⚡ 創新組</div><div class="bar-track"><div class="bar-fill" style="width:31.1%;background:#5ac8fa"></div></div><div class="bar-val">70 隊（31%）</div></div>
+  <div class="bar-row"><div class="bar-label">🚀 創業組</div><div class="bar-track"><div class="bar-fill" style="width:16.4%;background:#af52de"></div></div><div class="bar-val">37 隊（16%）</div></div>
+
+  <h2>學校報名排行</h2>
+  <div class="bar-row"><div class="bar-label">國立臺灣大學</div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><div class="bar-val">60 隊（27%）</div></div>
+  <div class="bar-row"><div class="bar-label">逢甲大學</div><div class="bar-track"><div class="bar-fill" style="width:78%;background:#ff9500"></div></div><div class="bar-val">47 隊（21%）</div></div>
+  <div class="bar-row"><div class="bar-label">國立政治大學</div><div class="bar-track"><div class="bar-fill" style="width:60%;background:#0071e3"></div></div><div class="bar-val">36 隊（16%）</div></div>
+  <div class="bar-row"><div class="bar-label">國立臺中教育大學</div><div class="bar-track"><div class="bar-fill" style="width:37%;background:#5ac8fa"></div></div><div class="bar-val">22 隊（10%）</div></div>
+  <div class="bar-row"><div class="bar-label">國立高雄科技大學</div><div class="bar-track"><div class="bar-fill" style="width:33%;background:#34c759"></div></div><div class="bar-val">20 隊（9%）</div></div>
+  <div class="bar-row"><div class="bar-label">國立清華大學</div><div class="bar-track"><div class="bar-fill" style="width:25%;background:#0071e3"></div></div><div class="bar-val">15 隊（7%）</div></div>
+  <div class="bar-row"><div class="bar-label">東海大學</div><div class="bar-track"><div class="bar-fill" style="width:17%;background:#5ac8fa"></div></div><div class="bar-val">10 隊（4%）</div></div>
+
+  <h2>地區分佈</h2>
+  <div class="bar-row"><div class="bar-label">🔵 北部</div><div class="bar-track"><div class="bar-fill" style="width:54.7%"></div></div><div class="bar-val">123 隊（55%）</div></div>
+  <div class="bar-row"><div class="bar-label">🟠 中部</div><div class="bar-track"><div class="bar-fill" style="width:35.6%;background:#ff9500"></div></div><div class="bar-val">80 隊（36%）</div></div>
+  <div class="bar-row"><div class="bar-label">🟢 南部</div><div class="bar-track"><div class="bar-fill" style="width:9.3%;background:#34c759"></div></div><div class="bar-val">21 隊（9%）</div></div>
+</div>
+
+<!-- ══════════════ 一、跨域力 ══════════════ -->
+<div class="page-break"></div>
+<div class="section">
+  <h1>一、跨域力與組隊結構分析</h1>
+  <p>透過分析「科系」與「分工」，評估參賽團隊的戰力完整度與跨域趨勢。</p>
+
+  <h2>1.1 分工覆蓋率（有效資料 106 隊）</h2>
+  <div class="bar-row"><div class="bar-label">上台簡報</div><div class="bar-track"><div class="bar-fill" style="width:88.7%;background:#34c759"></div></div><div class="bar-val">94 隊（89%）</div></div>
+  <div class="bar-row"><div class="bar-label">程式開發</div><div class="bar-track"><div class="bar-fill" style="width:82.1%"></div></div><div class="bar-val">87 隊（82%）</div></div>
+  <div class="bar-row"><div class="bar-label" style="color:#c07000">介面設計 ⚠️</div><div class="bar-track"><div class="bar-fill" style="width:49.1%;background:#ff9500"></div></div><div class="bar-val">52 隊（49%）</div></div>
+  <div class="bar-row"><div class="bar-label">三者齊備</div><div class="bar-track"><div class="bar-fill" style="width:32.1%;background:#5ac8fa"></div></div><div class="bar-val">34 隊（32%）</div></div>
+
+  <div class="warn-box">
+    <h3>⚠️ 介面設計角色嚴重缺乏</h3>
+    <p>51% 的隊伍未填寫介面設計角色，是三大分工中缺口最大者。大量隊伍只有「程式開發 + 上台簡報」雙角色，缺乏 UI/UX 思維，可能影響 App 品質與評審觀感。</p>
+  </div>
+
+  <h2>1.2 各校跨域結構特色</h2>
+  <table>
+    <thead><tr><th>學校</th><th>系所多樣性</th><th>主要背景</th><th>跨域狀況</th><th>缺口</th></tr></thead>
+    <tbody>
+      <tr><td><b>臺灣大學</b></td><td class="tc tgreen">36 系所</td><td>理工、人文社科、法律、生命科學</td><td class="tgreen">✅ 最多元</td><td>介面設計</td></tr>
+      <tr><td><b>逢甲大學</b></td><td class="tc torange">18 系所</td><td>商管、室內設計、中文</td><td class="torange">⚠️ 缺資工</td><td>程式開發</td></tr>
+      <tr><td><b>政治大學</b></td><td class="tc tred">2 系所</td><td>教育學系（95%+）</td><td class="tred">❌ 極度集中</td><td>資工/設計/商管全缺</td></tr>
+      <tr><td><b>臺中教大</b></td><td class="tc tgreen">21 系所</td><td>教育類各系</td><td class="torange">⚠️ 純教育</td><td>資工背景完全缺席</td></tr>
+      <tr><td><b>高雄科大</b></td><td class="tc torange">16 系所</td><td>商管學院</td><td class="torange">⚠️ 純商管</td><td>技術執行力</td></tr>
+      <tr><td><b>清華大學</b></td><td class="tc tblue">11 系所</td><td>教育科技、電機、科管</td><td class="tgreen">✅ 技術強</td><td>PM 角色</td></tr>
+      <tr><td><b>東海大學</b></td><td class="tc tred">1 系所</td><td>資訊工程（100%）</td><td class="tred">❌ 單一系所</td><td>商業思維、PM</td></tr>
+    </tbody>
+  </table>
+
+  <h2>1.3 跨校組隊分析</h2>
+  <p>有多成員資料的 91 隊中：</p>
+  <div class="kpi-row">
+    <div class="kpi red"><div class="kpi-num">4</div><div class="kpi-lbl">跨校組隊</div><div class="kpi-sub">4.4%</div></div>
+    <div class="kpi orange"><div class="kpi-num">12</div><div class="kpi-lbl">同校跨系</div><div class="kpi-sub">13.2%</div></div>
+    <div class="kpi"><div class="kpi-num">75</div><div class="kpi-lbl">同校同系</div><div class="kpi-sub">82.4%</div></div>
+  </div>
+  <table>
+    <thead><tr><th>⭐</th><th>隊伍</th><th>跨校組合</th><th>跨域類型</th><th>特色</th></tr></thead>
+    <tbody>
+      <tr><td class="tc">⭐⭐</td><td><b>夜行式（034）</b></td><td>清大 × 台大</td><td>教育科技 + 電機工程</td><td class="tgreen">全場唯一真跨校跨域種子隊，回流成員</td></tr>
+      <tr><td class="tc">⭐</td><td><b>貓咪（0138）</b></td><td>臺中教大 × 政大</td><td>英語 + 語文 + 教育</td><td>跨北中地區，私人友誼組隊</td></tr>
+      <tr><td class="tc">⭐</td><td><b>sloppylabs（0353）</b></td><td>清大跨院系</td><td>電資 + 科管 + 國際生</td><td>含馬來西亞籍國際生 2 名</td></tr>
+    </tbody>
+  </table>
+
+  <h2>1.4 決策建議</h2>
+  <div class="ins ins-orange"><span class="ins-icon">⚠️</span><span class="ins-text">同校同系組隊佔 82%，組隊動機幾乎完全依賴既有社交圈。建議設「<b>最強跨域組合獎</b>」，激勵主動尋找不同背景隊友。</span></div>
+  <div class="ins ins-blue"><span class="ins-icon">🌐</span><span class="ins-text">目前嚴重缺乏的黃金組合：資工×設計（DesignTech）、法律×資工（LegalTech）、醫療×資工（HealthTech）。這些是 iOS App 最有市場潛力的方向，應在說明會中明確鼓勵。</span></div>
+  <div class="ins ins-orange"><span class="ins-icon">🎨</span><span class="ins-text">5 月說明會應強調「<b>UI/UX 設計角色的重要性</b>」，介面設計覆蓋率僅 49%，是影響決賽品質最關鍵的分工缺口。</span></div>
+</div>
+
+<!-- ══════════════ 二、地區分析 ══════════════ -->
+<div class="page-break"></div>
+<div class="section">
+  <h1>二、區域與校園滲透分析</h1>
+
+  <h2>2.1 南北板塊現況</h2>
+  <table>
+    <thead><tr><th>地區</th><th class="tc">隊伍數</th><th class="tc">佔比</th><th>代表學校</th><th>狀態</th></tr></thead>
+    <tbody>
+      <tr><td>🔵 北部</td><td class="tc tblue"><b>123</b></td><td class="tc">54.7%</td><td>台大、政大、清大、陽明交大</td><td class="tgreen">穩固</td></tr>
+      <tr><td>🟠 中部</td><td class="tc torange"><b>80</b></td><td class="tc">35.6%</td><td>逢甲、東海、臺中教大</td><td class="torange">成長中</td></tr>
+      <tr><td>🟢 南部</td><td class="tc tred"><b>21</b></td><td class="tc">9.3%</td><td>高雄科大（20）、臺南大學（1）</td><td class="tred">⚠️ 嚴重不足</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn-box">
+    <h3>⚠️ 南部頂尖校完全缺席</h3>
+    <p>成功大學、國立中山大學、國立高雄大學等南部主要大學均未出現在報名名單中。南部 21 隊中，20 隊來自高雄科技大學（管理學院集中報名），實際上的南部「自主報名」僅 1 隊（臺南大學）。</p>
+  </div>
+
+  <h2>2.2 校內系所滲透深度</h2>
+
+  <div class="school-header">
+    <div class="school-num">60</div>
+    <div class="school-info">
+      <div class="school-name">🏆 國立臺灣大學</div>
+      <div class="school-desc">系所分佈：36 個系所 ｜ 自發生態最成熟</div>
+    </div>
+    <div><span class="tag tag-green">系所最廣</span> <span class="tag tag-blue">自發報名</span></div>
+  </div>
+  <p>台大已形成自發性參賽生態，哲學系（4 隊）、昆蟲學系（3 隊）、農藝學系等非典型系所大量出現，代表賽事品牌已在台大校內自然擴散。</p>
+
+  <div class="school-header" style="margin-top:10px">
+    <div class="school-num" style="color:#c07000">36</div>
+    <div class="school-info">
+      <div class="school-name">⚠️ 國立政治大學</div>
+      <div class="school-desc">系所分佈：教育學系佔 95%+ ｜ 推廣嚴重偏頗</div>
+    </div>
+    <div><span class="tag tag-red">死角校</span> <span class="tag tag-orange">課堂動員</span></div>
+  </div>
+  <p>政大 36 隊中絕大多數來自教育學系，資管、傳播、財管、法律等政大強勢科系完全未出現。組名充斥「你好」「早安」「萬歲」「排水孔」等無明顯產品動機的名稱，疑似課堂集體報名。</p>
+
+  <div class="school-header" style="margin-top:10px">
+    <div class="school-num" style="color:#34c759">22</div>
+    <div class="school-info">
+      <div class="school-name">📌 國立臺中教育大學</div>
+      <div class="school-desc">系所分佈：20+ 教育類系所 ｜ 4/15 單日批量湧入</div>
+    </div>
+    <div><span class="tag tag-orange">批次報名</span> <span class="tag tag-red">資料全空</span></div>
+  </div>
+  <p>4/15 單日湧入 22 隊，顯然由特定老師集體動員，但年級與分工資料幾乎全空，有大量殭屍隊風險。</p>
+
+  <h2>2.3 決策建議</h2>
+  <div class="ins ins-green"><span class="ins-icon">🎯</span><span class="ins-text">南部強化方案：明年應優先安排<b>成大、中山大學說明會</b>，並邀請高雄科大現有合作老師擴大推廣至理工、設計學院。</span></div>
+  <div class="ins ins-orange"><span class="ins-icon">🔍</span><span class="ins-text">政大應聯繫<b>資管系、傳播學院、法律學系</b>的老師或 iOS Club 作為推廣窗口，打破教育系獨大現象。</span></div>
+  <div class="ins ins-blue"><span class="ins-icon">🏫</span><span class="ins-text">台大的自發生態（36 系所）是最成功的推廣典範。應分析台大參賽擴散的關鍵路徑（社團？口碑？課程？），複製至政大、清大等校。</span></div>
+</div>
+
+<!-- ══════════════ 三、趨勢語意 ══════════════ -->
+<div class="page-break"></div>
+<div class="section">
+  <h1>三、趨勢語意與主題偏好分析</h1>
+
+  <h2>3.1 組名類型分佈</h2>
+  <div class="bar-row"><div class="bar-label">🖥️ 科技/程式梗</div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><div class="bar-val">48 隊（21%）</div></div>
+  <div class="bar-row"><div class="bar-label">🏠 日常生活</div><div class="bar-track"><div class="bar-fill" style="width:79%;background:#ff9f0a"></div></div><div class="bar-val">38 隊（17%）</div></div>
+  <div class="bar-row"><div class="bar-label">🌿 自然意象</div><div class="bar-track"><div class="bar-fill" style="width:48%;background:#af52de"></div></div><div class="bar-val">23 隊（10%）</div></div>
+  <div class="bar-row"><div class="bar-label">🍜 食物/飲料</div><div class="bar-track"><div class="bar-fill" style="width:50%;background:#ff9500"></div></div><div class="bar-val">24 隊（11%）</div></div>
+  <div class="bar-row"><div class="bar-label">😂 幽默自嘲</div><div class="bar-track"><div class="bar-fill" style="width:50%;background:#ff3b30"></div></div><div class="bar-val">24 隊（11%）</div></div>
+  <div class="bar-row"><div class="bar-label">🦊 動物類</div><div class="bar-track"><div class="bar-fill" style="width:35%;background:#34c759"></div></div><div class="bar-val">17 隊（8%）</div></div>
+  <div class="bar-row"><div class="bar-label">⚔️ 戰鬥冒險</div><div class="bar-track"><div class="bar-fill" style="width:31%;background:#e85d04"></div></div><div class="bar-val">15 隊（7%）</div></div>
+  <div class="bar-row"><div class="bar-label">🔤 英文混搭</div><div class="bar-track"><div class="bar-fill" style="width:25%;background:#5ac8fa"></div></div><div class="bar-val">12 隊（5%）</div></div>
+
+  <h2>3.2 代表性組名案例</h2>
+  <table>
+    <thead><tr><th>類型</th><th>代表組名</th><th>趨勢信號</th></tr></thead>
+    <tbody>
+      <tr><td>科技/程式梗</td><td>修個Bug過好年、進度條失蹤案、產品經理說得對、重開機解決一切、薪水小偷防禦系統</td><td class="tblue">對 iOS 開發文化強認同</td></tr>
+      <tr><td>食物/飲料</td><td>焦急麻油雞、痛快烤鴨、台式義大利麵、車輪餅好吃、蜜香烏龍</td><td class="tgray">輕鬆幽默風格</td></tr>
+      <tr><td>幽默自嘲</td><td>躺平的信徒、腦細胞公墓、救救我啊我救我、天才是不真實的</td><td class="torange">反映職場焦慮社會趨勢</td></tr>
+      <tr><td>英文混搭</td><td>Innovative!!、sloppylabs、Enigma Explorers、Y2KK2Y</td><td class="tblue">國際化意識較強</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3.3 特別觀察：像素系列 × 統一系列</h2>
+  <p>「像素」系列共 4 隊（像素先鋒×2、像素大食客、像素移動公司），顯示對 UI/視覺領域的高度認同感。「統一」系列共 3 隊（統一魔法門、統一天下、全球統一），帶有台灣在地幽默色彩。</p>
+
+  <h2>3.4 決策建議</h2>
+  <div class="ins ins-blue"><span class="ins-icon">🏆</span><span class="ins-text">決賽評審邀請建議：科技梗組名佔最多（21%），反映參賽者對產品開發的強烈認同。評審應納入<b>資深產品經理、iOS 工程師</b>，以符合參賽者期待。</span></div>
+  <div class="ins ins-orange"><span class="ins-icon">💼</span><span class="ins-text">「薪水小偷防禦系統」「躺平的信徒」「Money is Power」等名稱反映<b>職場焦慮與財務議題</b>的社會熱點。可考慮邀請創業導師或財科類評審。</span></div>
+  <div class="ins ins-purple"><span class="ins-icon">🎨</span><span class="ins-text">決賽宣傳視覺建議採用「程式梗 + iOS 極簡美學」主軸，與參賽者的組名文化高度呼應。</span></div>
+</div>
+
+<!-- ══════════════ 四、報名行為 ══════════════ -->
+<div class="page-break"></div>
+<div class="section">
+  <h1>四、報名行為與轉換漏斗分析</h1>
+
+  <h2>4.1 報名時程浪潮</h2>
+  <table>
+    <thead><tr><th>日期區間</th><th class="tc">報名隊數</th><th class="tc">佔比</th><th>推測觸發事件</th></tr></thead>
+    <tbody>
+      <tr><td>3/7 – 3/29（早鳥）</td><td class="tc">4 隊</td><td class="tc">2%</td><td>主動發現，含唯一上傳企畫書的隊伍</td></tr>
+      <tr><td>4/5</td><td class="tc">1 隊</td><td class="tc">0.5%</td><td>—</td></tr>
+      <tr class="highlight-row" style="background:#eff6ff"><td><b>4/10 🔥 第一波</b></td><td class="tc tblue"><b>57 隊</b></td><td class="tc tblue"><b>29%</b></td><td><b>說明會或老師群組推播後大爆發</b></td></tr>
+      <tr><td>4/11</td><td class="tc">28 隊</td><td class="tc">14%</td><td>第一波餘震</td></tr>
+      <tr><td>4/12 – 13</td><td class="tc">38 隊</td><td class="tc">19%</td><td>政大（35隊）、逢甲批量跟進</td></tr>
+      <tr><td>4/15</td><td class="tc">27 隊</td><td class="tc">14%</td><td>臺中教大單日批量湧入 22 隊</td></tr>
+      <tr class="highlight-row" style="background:#eff6ff"><td><b>4/22 – 23 🔥 第二波</b></td><td class="tc tblue"><b>36 隊</b></td><td class="tc tblue"><b>18%</b></td><td><b>逢甲（22隊）+ 台大（約14隊）第二波</b></td></tr>
+      <tr><td>4/24 – 27</td><td class="tc">4 隊</td><td class="tc">2%</td><td>收尾</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4.2 轉換漏斗</h2>
+  <table>
+    <thead><tr><th>漏斗層級</th><th class="tc">數量</th><th class="tc">轉換率</th><th>瓶頸分析</th></tr></thead>
+    <tbody>
+      <tr><td>完成基本報名</td><td class="tc tblue"><b>225 隊</b></td><td class="tc">100%</td><td>—</td></tr>
+      <tr><td>分工欄位填寫</td><td class="tc torange"><b>106 隊</b></td><td class="tc torange">47%</td><td>超過一半未填分工，資料不完整</td></tr>
+      <tr><td>年級/系所資料齊全</td><td class="tc torange"><b>91 隊</b></td><td class="tc torange">40%</td><td>80%+ 成員年級欄位空白</td></tr>
+      <tr><td>企畫書已上傳</td><td class="tc tred"><b>1 隊</b></td><td class="tc tred">&lt;1%</td><td>最嚴重的轉換瓶頸</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4.3 重複參賽者警示</h2>
+  <table>
+    <thead><tr><th>姓名</th><th>出現隊伍</th><th>疑似情況</th></tr></thead>
+    <tbody>
+      <tr><td><b>戴修茂</b></td><td>痛快烤鴨(0156) + 愉快君子(0159)</td><td class="tgray">台大哲學/華語碩士，不同系所出現</td></tr>
+      <tr><td><b>何天旭</b></td><td>痛快烤鴨(0156) + 焦急麻油雞(0158)</td><td class="tgray">台大哲學/生命科學，疑同一人</td></tr>
+      <tr><td><b>袁鬆裕</b></td><td>脫線運動員(0150) + 沒品韭菜盒子(0151)</td><td class="tgray">台大工管/數學，幫朋友湊隊</td></tr>
+      <tr><td><b>古千惠</b></td><td>All money back(0340) + 全球統一(0343)</td><td class="tgray">台大資管/國發所，跨隊跨系</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4.4 決策建議</h2>
+  <div class="ins ins-red"><span class="ins-icon">⚠️</span><span class="ins-text">企畫書上傳率僅 0.4%，是最嚴重的轉換瓶頸。建議設定「<b>提交企畫書初稿才確認參賽資格</b>」的機制，同時提供企畫書填寫範本與線上工作坊。</span></div>
+  <div class="ins ins-blue"><span class="ins-icon">📅</span><span class="ins-text">4/10 單日 57 隊是全程最大爆發點（29%）。應深入追查當日觸發管道（說明會/老師群組/社群貼文），作為明年預算分配依據。</span></div>
+  <div class="ins ins-orange"><span class="ins-icon">🔄</span><span class="ins-text">兩波浪潮（4/10 & 4/22）顯示學生報名高度受外部觸發驅動。應在每次說明會後 24-48 小時內發送個人化填報提醒，強化轉換效率。</span></div>
+  <div class="ins ins-orange"><span class="ins-icon">🔒</span><span class="ins-text">建議報名系統加入<b>信箱/電話去重機制</b>，防止同一人以不同系所身份出現在多支隊伍，確保競賽公平性。</span></div>
+</div>
+
+<!-- ══════════════ 五、年級分析 ══════════════ -->
+<div class="page-break"></div>
+<div class="section">
+  <h1>五、年級分佈分析</h1>
+  <p style="color:#6e6e73;margin-bottom:10px">有效樣本：131 人（80%+ 成員年級空白，以下為可分析的子集）</p>
+
+  <div class="kpi-row">
+    <div class="kpi" style="border-top-color:#ff9f0a"><div class="kpi-num" style="color:#c07000">17</div><div class="kpi-lbl">大一</div><div class="kpi-sub">13%</div></div>
+    <div class="kpi"><div class="kpi-num">32</div><div class="kpi-lbl">大二</div><div class="kpi-sub">24%</div></div>
+    <div class="kpi" style="border-top-color:#5ac8fa"><div class="kpi-num" style="color:#007aab">41</div><div class="kpi-lbl">大三 ★ 最多</div><div class="kpi-sub">31%</div></div>
+    <div class="kpi green"><div class="kpi-num">30</div><div class="kpi-lbl">大四</div><div class="kpi-sub">23%</div></div>
+    <div class="kpi purple"><div class="kpi-num">11</div><div class="kpi-lbl">碩士生</div><div class="kpi-sub">8%</div></div>
+  </div>
+
+  <h2>各校年級特色</h2>
+  <table>
+    <thead><tr><th>學校</th><th class="tc">大一</th><th class="tc">大二</th><th class="tc">大三</th><th class="tc">大四</th><th class="tc">碩士生</th><th class="tc">未知</th></tr></thead>
+    <tbody>
+      <tr><td>逢甲大學</td><td class="tc">2</td><td class="tc">7</td><td class="tc tblue"><b>14</b></td><td class="tc">11</td><td class="tc">2</td><td class="tc tgray">~60</td></tr>
+      <tr><td>東海大學</td><td class="tc">2</td><td class="tc">3</td><td class="tc tblue"><b>4</b></td><td class="tc">1</td><td class="tc">-</td><td class="tc tgreen">0</td></tr>
+      <tr><td>政治大學</td><td class="tc">3</td><td class="tc">3</td><td class="tc tblue"><b>6</b></td><td class="tc">3</td><td class="tc">-</td><td class="tc tred">~80</td></tr>
+      <tr><td>清華大學</td><td class="tc">-</td><td class="tc">4</td><td class="tc">2</td><td class="tc">-</td><td class="tc tblue"><b>2</b></td><td class="tc torange">~25</td></tr>
+      <tr><td>臺灣大學</td><td class="tc">1</td><td class="tc">1</td><td class="tc">1</td><td class="tc">-</td><td class="tc">1</td><td class="tc tred">~120 ⚠️</td></tr>
+      <tr><td>臺中教大/高科大</td><td class="tc tgray">—</td><td class="tc tgray">—</td><td class="tc tgray">—</td><td class="tc tgray">—</td><td class="tc tgray">—</td><td class="tc tred">全部</td></tr>
+    </tbody>
+  </table>
+
+  <div class="ins ins-blue"><span class="ins-icon">🎓</span><span class="ins-text">大三（31%）+ 大四（23%）合計 54% 為主力族群。說明會訴求應主打「<b>履歷加值</b>」與「<b>畢業前作品集</b>」，對高年級最有說服力。</span></div>
+  <div class="ins ins-orange"><span class="ins-icon">📊</span><span class="ins-text">大一僅佔 13%，觸及率明顯偏低。建議在<b>社團博覽會或大一迎新活動設攤</b>，提早建立 MAIC 品牌認知。</span></div>
+  <div class="ins ins-red"><span class="ins-icon">📝</span><span class="ins-text">超過 80% 年級欄位空白，嚴重影響分析精度。下次報名表應<b>設年級為必填欄位</b>，並改用下拉選單防止格式錯誤。</span></div>
+</div>
+
+<!-- ══════════════ 六、歷史傳承 ══════════════ -->
+<div class="page-break"></div>
+<div class="section">
+  <h1>六、歷史傳承與種子回流分析</h1>
+
+  <h2>6.1 核心種子名單</h2>
+  <table>
+    <thead><tr><th>姓名</th><th>隊伍</th><th>身份</th><th>背景</th><th>特色</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>鄭凱馨</b></td>
+        <td>夜行式（034）</td>
+        <td>隊長</td>
+        <td>清大教育與學習科技｜碩士生</td>
+        <td class="tgreen">回流回流種子 ⭐⭐</td>
+      </tr>
+      <tr>
+        <td><b>楊承燁</b></td>
+        <td>夜行式（034）</td>
+        <td>隊員</td>
+        <td>台大電機工程學系｜大三</td>
+        <td class="tgreen">回流種子 ⭐⭐ 跨校成員</td>
+      </tr>
+      <tr>
+        <td><b>黃廷宇</b></td>
+        <td>每個人都想成為我的豎笛（037）</td>
+        <td>隊長</td>
+        <td>逢甲資訊工程｜大四</td>
+        <td class="tblue">唯一已上傳企畫書 ⭐ 回流種子</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="highlight-box">
+    <h3>🌟 最值得關注的種子：夜行式 034</h3>
+    <p>隊長鄭凱馨（清大教育科技碩士）+ 隊員楊承燁（台大電機大三）是<b>全場唯一真正跨校跨域的種子隊</b>，兩人均為回流成員，組合涵蓋「教育學習理論 + 工程技術執行」，是 MAIC 最理想的跨域典範。</p>
+  </div>
+
+  <div class="highlight-box" style="border-color:#ff9500;background:rgba(255,149,0,.04)">
+    <h3>📋 回流率分析</h3>
+    <p>在有填寫參加狀態的隊伍中，明確標記「參加過」的有效種子僅 2 支隊伍（夜行式、豎笛隊），約佔有資料隊伍的 6%。大多數隊伍的「參加狀態」欄位為「未知」，顯示資料收集仍需改善。</p>
+  </div>
+
+  <h2>6.2 決策建議</h2>
+  <div class="ins ins-blue"><span class="ins-icon">🌱</span><span class="ins-text">黃廷宇（037 豎笛隊）是今年最積極的種子——已上傳企畫書（全場唯一），建議邀請擔任<b>逢甲校園大使</b>或說明會分享人。</span></div>
+  <div class="ins ins-blue"><span class="ins-icon">⭐</span><span class="ins-text">鄭凱馨（034 夜行式）是清大教育科技碩士 + 回流成員，適合邀請作為<b>「跨域最強隊」標竿案例</b>在說明會中分享跨校組隊經驗。</span></div>
+  <div class="ins ins-orange"><span class="ins-icon">📋</span><span class="ins-text">建議建立「<b>MAIC Alumni 社群</b>」，系統追蹤多屆參與者，為明年種子大使計畫打基礎。</span></div>
+  <div class="ins ins-red"><span class="ins-icon">📝</span><span class="ins-text">報名表應設「是否曾參加 MAIC」為必填欄位，才能建立完整的回流率追蹤機制。</span></div>
+</div>
+
+<!-- ══════════════ 七、綜合建議 ══════════════ -->
+<div class="page-break"></div>
+<div class="section">
+  <h1>七、綜合決策建議摘要</h1>
+
+  <h2>🔴 高優先度（立即行動）</h2>
+  <div class="ins ins-red"><span class="ins-icon">1</span><span class="ins-text"><b>企畫書資格門檻</b>：設定「提交企畫書初稿才確認參賽資格」，並提供填寫範本。當前上傳率不足 1%，大量隊伍形同殭屍。</span></div>
+  <div class="ins ins-red"><span class="ins-icon">2</span><span class="ins-text"><b>資料補全追蹤</b>：4/10、4/15 兩批集體報名隊伍（約 80 隊）年級/分工資料幾乎全空，發送個人化提醒補填，截止前 7 天再提醒一次。</span></div>
+  <div class="ins ins-red"><span class="ins-icon">3</span><span class="ins-text"><b>去重機制</b>：加入信箱/電話去重，防止同一人出現在多支隊伍。至少 4 人被發現跨隊重複。</span></div>
+
+  <h2>🟠 中優先度（5 月說明會前完成）</h2>
+  <div class="ins ins-orange"><span class="ins-icon">4</span><span class="ins-text"><b>介面設計工作坊</b>：分工覆蓋率中，介面設計僅 49%，是最大缺口。5 月說明會應加入「UI/UX 設計角色」的重要性介紹。</span></div>
+  <div class="ins ins-orange"><span class="ins-icon">5</span><span class="ins-text"><b>創業組企畫模板</b>：創業組僅佔 16%，提供「創業企畫書模板」與「商業邏輯工作坊」可有效降低門檻。</span></div>
+  <div class="ins ins-orange"><span class="ins-icon">6</span><span class="ins-text"><b>種子邀請</b>：邀請黃廷宇（037）和鄭凱馨（034）擔任說明會分享人，展示「已完成企畫書的回流隊伍」作為標竿。</span></div>
+
+  <h2>🟢 長期佈局（明年賽季）</h2>
+  <div class="ins ins-green"><span class="ins-icon">7</span><span class="ins-text"><b>南部深耕</b>：成大、中山大學完全缺席，明年應提前 3 個月接觸，安排南部專場說明會。高雄科大可作為南部發展跳板。</span></div>
+  <div class="ins ins-green"><span class="ins-icon">8</span><span class="ins-text"><b>政大跨院推廣</b>：聯繫政大資管、傳播、法律、財管系老師/iOS Club，打破教育系獨大現象。</span></div>
+  <div class="ins ins-green"><span class="ins-icon">9</span><span class="ins-text"><b>跨域激勵機制</b>：設立「最強跨域組合獎」，鼓勵資工+設計、法律+資工等高潛力組合出現。</span></div>
+  <div class="ins ins-blue"><span class="ins-icon">10</span><span class="ins-text"><b>報名表優化</b>：年級、參加歷史設為必填；加入「組隊跨校/跨系」選項；提供分工角色下拉選單防止格式混亂。</span></div>
+
+  <p style="margin-top:24px;font-size:9.5pt;color:#aeaeb2;text-align:center;border-top:1px solid #e5e5ea;padding-top:14px">
+    MAIC 行動應用創新賽 2026 ｜ Straight A × Apple ｜ 報名資料深度分析報告 ｜ 資料截至 2026/04/29
+  </p>
+</div>
+
+</body>
+</html>
