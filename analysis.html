@@ -494,7 +494,7 @@ function buildFilterBar(opts) {
   if(show.school)  html += `<div class="filter-group"><div class="filter-label">🏫 學校</div><select onchange="FS.school=this.value;${cb}()">${schoolOpts}</select></div>`;
   if(show.deptCat) html += `<div class="filter-group"><div class="filter-label">🎓 科系類別</div><select onchange="FS.deptCat=this.value;${cb}()">${deptOpts}</select></div>`;
   if(show.nameCat) html += `<div class="filter-group"><div class="filter-label">💬 組名類型</div><select onchange="FS.nameCat=this.value;${cb}()">${nameOpts}</select></div>`;
-  if(show.search)  html += `<div class="filter-group" style="flex:1;min-width:160px"><div class="filter-label">🔍 搜尋（組名/學校/科系）</div><input class="search-box" type="text" placeholder="輸入關鍵字..." value="${FS.search}" oninput="FS.search=this.value;${cb}()"></div>`;
+  if(show.search)  html += `<div class="filter-group" style="flex:1;min-width:160px"><div class="filter-label">🔍 搜尋（組名/學校/科系）</div><input class="search-box" type="text" placeholder="輸入關鍵字..." value="${FS.search}" oninput="if(!event.isComposing){FS.search=this.value;${cb}()}" oncompositionend="FS.search=this.value;${cb}()"></div>`;
   const cur = filtered();
   html += `<div style="display:flex;align-items:flex-end;gap:8px">
     <span style="font-size:11px;color:var(--text2)">符合 <b style="color:var(--blue)">${cur.length}</b> 隊</span>
