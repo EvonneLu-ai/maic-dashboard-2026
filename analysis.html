@@ -81,8 +81,11 @@ tr:hover td{background:rgba(0,113,227,.04)}
 .mbar-f{height:100%;border-radius:6px}
 .mbar-v{font-size:11px;font-weight:700;min-width:32px;text-align:right}
 /* SEARCH */
-.search-box{width:100%;padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;outline:none}
+.search-box{width:100%;padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;outline:none;box-sizing:border-box}
 .search-box:focus{border-color:var(--blue)}
+.search-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.search-chip{font-size:10.5px;padding:2px 9px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;line-height:1.7}
+.search-chip:hover,.search-chip.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 footer{text-align:center;font-size:11px;color:var(--text2);padding:16px;border-top:1px solid var(--border)}
 </style>
 </head>
@@ -475,6 +478,52 @@ function filtered(overrides) {
   );
 }
 
+// ── 快捷 chip 點擊 / 清除搜尋 ──
+// 立即更新 FS.search，全量 rebuild（chip 點擊本來就少，不需 debounce）
+function setSearch(val, cb) {
+  FS.search = (FS.search === val) ? '' : val; // 再點同一個 chip → toggle off
+  window[cb]();
+}
+
+// ── 搜尋輸入完成後的分離式更新 ──
+// 有 search-result-zone 時只更新 table 區；否則全量 rebuild
+const _searchZoneCb = {};
+function onSearchChange(cb) {
+  const zone = document.getElementById('search-result-zone-' + cb);
+  if (!zone) { window[cb](); return; }
+  // 只重繪 table 區 + filterBar 計數，不動 chart
+  const t = filtered();
+  // 更新計數 badge
+  const badge = document.getElementById('search-count-' + cb);
+  if (badge) badge.innerHTML = `符合 <b style="color:var(--blue)">${t.length}</b> 隊`;
+  // 更新 table
+  const extra = zone.dataset.extra === 'true';
+  zone.innerHTML = teamTable(t, extra);
+  // 更新搜尋框本身（✕ 按鈕顯示 + chip active 狀態），用局部 DOM 操作避免整頁 rebuild
+  const inp = document.getElementById('search-input-' + cb);
+  if (inp) {
+    inp.style.paddingRight = FS.search ? '28px' : '12px';
+    // 更新 ✕ 按鈕
+    let clearBtn = inp.parentNode.querySelector('button[title="清除搜尋"]');
+    if (FS.search && !clearBtn) {
+      clearBtn = document.createElement('button');
+      clearBtn.title = '清除搜尋';
+      clearBtn.setAttribute('style','position:absolute;right:6px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:14px;line-height:1;padding:2px 4px;border-radius:4px');
+      clearBtn.textContent = '✕';
+      clearBtn.onmouseover = () => clearBtn.style.color='var(--blue)';
+      clearBtn.onmouseout  = () => clearBtn.style.color='var(--text2)';
+      clearBtn.onclick = () => setSearch('', cb);
+      inp.parentNode.appendChild(clearBtn);
+    } else if (!FS.search && clearBtn) {
+      clearBtn.remove();
+    }
+  }
+  // 更新 chip active 狀態
+  document.querySelectorAll('.search-chips .search-chip').forEach(el => {
+    el.classList.toggle('active', el.textContent.trim() === FS.search || el.dataset?.val === FS.search);
+  });
+}
+
 // ════════════════════════════════════════════════
 //  Unique values helpers
 // ════════════════════════════════════════════════
@@ -484,6 +533,29 @@ const ALL_REGIONS = ['北部','中部','南部','其他'];
 const ALL_DEPTCATS = ['資工電機','商管','教育','設計藝術','語文人文','理工科學','法律醫療','其他'];
 const ALL_NAMECATS = ['科技梗','食物飲料','動物','幽默自嘲','英文混搭','自然意象','日常生活','戰鬥冒險','其他'];
 const ALL_TRACKS = ['創意','創新','創業'];
+
+// ── Debounce：停止輸入 280ms 後才觸發 rebuild ──
+const _debounceMap = {};
+function debounce(key, fn, delay) {
+  clearTimeout(_debounceMap[key]);
+  _debounceMap[key] = setTimeout(fn, delay || 280);
+}
+
+// ── 搜尋快捷 Chips 定義 ──
+const SEARCH_CHIPS = [
+  { label:'台大',   val:'台大' },
+  { label:'逢甲',   val:'逢甲' },
+  { label:'政大',   val:'政大' },
+  { label:'清大',   val:'清大' },
+  { label:'高科大', val:'高科大' },
+  { label:'師大',   val:'師大' },
+  { label:'資工電機', val:'資工電機' },
+  { label:'教育',   val:'教育' },
+  { label:'商管',   val:'商管' },
+  { label:'Bug',    val:'Bug' },
+  { label:'食物飲料', val:'食物飲料' },
+  { label:'動物',   val:'動物' },
+];
 
 const REGION_COLORS = {'北部':'#0071e3','中部':'#ff9500','南部':'#34c759','其他':'#aeaeb2'};
 const TRACK_COLORS = {'創意':'#0071e3','創新':'#5ac8fa','創業':'#af52de'};
@@ -596,10 +668,25 @@ function buildFilterBar(opts) {
   if(show.school)  html += `<div class="filter-group"><div class="filter-label">🏫 學校</div><select onchange="FS.school=this.value;${cb}()">${schoolOpts}</select></div>`;
   if(show.deptCat) html += `<div class="filter-group"><div class="filter-label">🎓 科系類別</div><select onchange="FS.deptCat=this.value;${cb}()">${deptOpts}</select></div>`;
   if(show.nameCat) html += `<div class="filter-group"><div class="filter-label">💬 組名類型</div><select onchange="FS.nameCat=this.value;${cb}()">${nameOpts}</select></div>`;
-  if(show.search)  html += `<div class="filter-group" style="flex:1;min-width:160px"><div class="filter-label">🔍 搜尋（組名/學校/科系/編號）</div><div style="position:relative;display:flex;align-items:center"><input class="search-box" type="text" placeholder="輸入關鍵字、別名如台大/政大/ntu..." value="${FS.search}" style="padding-right:${FS.search?'28px':'12px'}" oninput="if(!event.isComposing){FS.search=this.value;${cb}()}" oncompositionend="FS.search=this.value;${cb}()">${FS.search?`<button onclick="FS.search='';${cb}()" title="清除搜尋" style="position:absolute;right:6px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:14px;line-height:1;padding:2px 4px;border-radius:4px" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text2)'">✕</button>`:''}</div></div>`;
+  if(show.search) {
+    const chipsHtml = SEARCH_CHIPS.map(c =>
+      `<button class="search-chip${FS.search===c.val?' active':''}" onclick="setSearch('${c.val}','${cb}')">${c.label}</button>`
+    ).join('');
+    html += `<div class="filter-group" style="flex:1;min-width:180px">
+      <div class="filter-label">🔍 搜尋（組名/學校/科系/編號）</div>
+      <div style="position:relative;display:flex;align-items:center">
+        <input id="search-input-${cb}" class="search-box" type="text" placeholder="關鍵字、別名如台大/政大/ntu..."
+          value="${FS.search}" style="padding-right:${FS.search?'28px':'12px'}"
+          oninput="if(!event.isComposing){FS.search=this.value;debounce('search-${cb}',()=>onSearchChange('${cb}'))}"
+          oncompositionend="FS.search=this.value;debounce('search-${cb}',()=>onSearchChange('${cb}'),0)"
+        >${FS.search?`<button onclick="setSearch('','${cb}')" title="清除搜尋" style="position:absolute;right:6px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:14px;line-height:1;padding:2px 4px;border-radius:4px" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text2)'">✕</button>`:''}
+      </div>
+      <div class="search-chips">${chipsHtml}</div>
+    </div>`;
+  }
   const cur = filtered();
   html += `<div style="display:flex;align-items:flex-end;gap:8px">
-    <span style="font-size:11px;color:var(--text2)">符合 <b style="color:var(--blue)">${cur.length}</b> 隊</span>
+    <span id="search-count-${cb}" style="font-size:11px;color:var(--text2)">符合 <b style="color:var(--blue)">${cur.length}</b> 隊</span>
     <button class="chip" onclick="Object.assign(FS,{track:'all',school:'all',region:'all',deptCat:'all',nameCat:'all',search:''});${cb}()">✕ 清除</button>
   </div>`;
   html += `</div>`;
@@ -798,7 +885,7 @@ function buildSchool() {
   </div>
   <div class="card">
     <div class="card-title">篩選結果隊伍列表</div>
-    ${teamTable(t)}
+    <div id="search-result-zone-buildSchool" data-extra="false">${teamTable(t)}</div>
   </div>`;
   w.innerHTML += genInsights(t);
 
@@ -956,7 +1043,7 @@ function buildTeams() {
   const w = document.getElementById('w-teams');
   const t = filtered();
   w.innerHTML = buildFilterBar({cb:'buildTeams',school:true,region:true,track:true,deptCat:true,nameCat:true,search:true})
-  + teamTable(t, true);
+  + `<div id="search-result-zone-buildTeams" data-extra="true">${teamTable(t, true)}</div>`;
 }
 
 // ════════════════════════════════════════════════
