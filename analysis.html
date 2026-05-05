@@ -386,6 +386,83 @@ const FS = {
   search: ''
 };
 
+// ── 搜尋正規化：全形→半形、統一小寫 ──
+function normalizeSearch(str) {
+  if (!str) return '';
+  return str
+    .replace(/[\uff01-\uff5e]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xfee0)) // 全形→半形
+    .replace(/\u3000/g, ' ')  // 全形空白→半形
+    .toLowerCase()
+    .trim();
+}
+
+// ── 學校別名對照表（輸入口語縮寫 → 資料中的正式名稱關鍵字）──
+const SCHOOL_ALIAS = {
+  '台大': '臺灣大學',
+  '臺大': '臺灣大學',
+  'ntu': '臺灣大學',
+  '政大': '政治大學',
+  'nccu': '政治大學',
+  '成大': '成功大學',
+  'ncku': '成功大學',
+  '清大': '清華大學',
+  'nthu': '清華大學',
+  '交大': '陽明交通大學',
+  '陽明交大': '陽明交通大學',
+  'nycu': '陽明交通大學',
+  '中大': '中央大學',
+  'ncu': '中央大學',
+  '中山': '中山大學',
+  'nsysu': '中山大學',
+  '台師大': '臺灣師範大學',
+  '臺師大': '臺灣師範大學',
+  'ntnu': '臺灣師範大學',
+  '師大': '師範大學',
+  '逢甲': '逢甲大學',
+  '逢甲大': '逢甲大學',
+  '中興': '中興大學',
+  'nchu': '中興大學',
+  '中教大': '臺中教育大學',
+  '臺中教大': '臺中教育大學',
+  '高科大': '高雄科技大學',
+  'nkust': '高雄科技大學',
+  '台科大': '臺灣科技大學',
+  '臺科大': '臺灣科技大學',
+  'ntust': '臺灣科技大學',
+  '輔大': '輔仁大學',
+  'fju': '輔仁大學',
+  '東海': '東海大學',
+  'thu': '東海大學',
+  '淡江': '淡江大學',
+  'tku': '淡江大學',
+  '文化': '文化大學',
+  '亞大': '亞洲大學',
+  '中原': '中原大學',
+  'cycu': '中原大學',
+  '元智': '元智大學',
+  '銘傳': '銘傳大學',
+  '世新': '世新大學',
+  '北教大': '臺北教育大學',
+  '北藝大': '臺北藝術大學',
+  '宜大': '宜蘭大學',
+  '中正': '中正大學',
+  'ccu': '中正大學',
+};
+
+function searchMatchTeam(t, raw) {
+  if (!raw) return true;
+  const q = normalizeSearch(raw);
+  if (!q) return true;
+  // 展開別名：若輸入對應到 SCHOOL_ALIAS，同時用別名對應的關鍵字搜尋
+  const aliasKey = SCHOOL_ALIAS[raw.trim()] || SCHOOL_ALIAS[q] || null;
+  const norm = s => normalizeSearch(s);
+  return norm(t.name).includes(q)
+    || norm(t.school).includes(q)
+    || norm(t.dept).includes(q)
+    || norm(t.id).includes(q)
+    || (aliasKey && norm(t.school).includes(normalizeSearch(aliasKey)));
+}
+
 function filtered(overrides) {
   const f = Object.assign({}, FS, overrides||{});
   return TEAMS.filter(t =>
@@ -394,7 +471,7 @@ function filtered(overrides) {
     (f.region==='all'  || t.region===f.region) &&
     (f.deptCat==='all' || t.deptCat===f.deptCat) &&
     (f.nameCat==='all' || t.nameCat===f.nameCat) &&
-    (f.search===''     || t.name.includes(f.search) || t.school.includes(f.search) || t.dept.includes(f.search))
+    searchMatchTeam(t, f.search)
   );
 }
 
@@ -519,7 +596,7 @@ function buildFilterBar(opts) {
   if(show.school)  html += `<div class="filter-group"><div class="filter-label">🏫 學校</div><select onchange="FS.school=this.value;${cb}()">${schoolOpts}</select></div>`;
   if(show.deptCat) html += `<div class="filter-group"><div class="filter-label">🎓 科系類別</div><select onchange="FS.deptCat=this.value;${cb}()">${deptOpts}</select></div>`;
   if(show.nameCat) html += `<div class="filter-group"><div class="filter-label">💬 組名類型</div><select onchange="FS.nameCat=this.value;${cb}()">${nameOpts}</select></div>`;
-  if(show.search)  html += `<div class="filter-group" style="flex:1;min-width:160px"><div class="filter-label">🔍 搜尋（組名/學校/科系）</div><input class="search-box" type="text" placeholder="輸入關鍵字..." value="${FS.search}" oninput="if(!event.isComposing){FS.search=this.value;${cb}()}" oncompositionend="FS.search=this.value;${cb}()"></div>`;
+  if(show.search)  html += `<div class="filter-group" style="flex:1;min-width:160px"><div class="filter-label">🔍 搜尋（組名/學校/科系/編號）</div><div style="position:relative;display:flex;align-items:center"><input class="search-box" type="text" placeholder="輸入關鍵字、別名如台大/政大/ntu..." value="${FS.search}" style="padding-right:${FS.search?'28px':'12px'}" oninput="if(!event.isComposing){FS.search=this.value;${cb}()}" oncompositionend="FS.search=this.value;${cb}()">${FS.search?`<button onclick="FS.search='';${cb}()" title="清除搜尋" style="position:absolute;right:6px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:14px;line-height:1;padding:2px 4px;border-radius:4px" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text2)'">✕</button>`:''}</div></div>`;
   const cur = filtered();
   html += `<div style="display:flex;align-items:flex-end;gap:8px">
     <span style="font-size:11px;color:var(--text2)">符合 <b style="color:var(--blue)">${cur.length}</b> 隊</span>
@@ -530,6 +607,22 @@ function buildFilterBar(opts) {
 }
 
 // ── Team table ──
+// hl(text): 有搜尋關鍵字時，高亮匹配的文字片段
+function hl(text) {
+  if (!FS.search || !text) return text;
+  const q = normalizeSearch(FS.search);
+  const aliasKey = SCHOOL_ALIAS[FS.search.trim()] || SCHOOL_ALIAS[q] || null;
+  const target = aliasKey ? normalizeSearch(aliasKey) : q;
+  if (!target) return text;
+  const norm = normalizeSearch(text);
+  const idx = norm.indexOf(target);
+  if (idx < 0) return text;
+  const matched = text.slice(idx, idx + target.length);
+  return text.slice(0, idx)
+    + `<mark style="background:#ffd60a;color:#1d1d1f;border-radius:2px;padding:0 1px">${matched}</mark>`
+    + text.slice(idx + target.length);
+}
+
 function teamTable(teams, extra) {
   if(!teams.length) return `<div class="result-count">無符合條件的隊伍</div>`;
   const header = extra
@@ -538,19 +631,25 @@ function teamTable(teams, extra) {
   const rows = teams.map((t,i)=>{
     const tc=TRACK_COLORS[t.track]||'#aaa';
     const nc=NAMECAT_COLORS[t.nameCat]||'#aaa';
+    const schoolDisplay = hl(t.school.replace('國立',''));
+    const deptDisplay = hl(t.dept);
+    const nameDisplay = hl(t.name);
     return extra
-      ? `<tr><td class="tgray">${t.id}</td><td class="fw">${t.name}</td>
+      ? `<tr><td class="tgray">${t.id}</td><td class="fw">${nameDisplay}</td>
           <td>${pill(t.track,`pill p-${t.track==='創意'?'blue':t.track==='創新'?'teal':'purple'}`)}</td>
-          <td>${t.school.replace('國立','')}</td><td style="font-size:11px;color:var(--text2)">${t.dept}</td>
+          <td>${schoolDisplay}</td><td style="font-size:11px;color:var(--text2)">${deptDisplay}</td>
           <td><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${REGION_COLORS[t.region]}22;color:${REGION_COLORS[t.region]};font-weight:600">${t.region}</span></td>
           <td><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${DEPTCAT_COLORS[t.deptCat]}22;color:${DEPTCAT_COLORS[t.deptCat]};font-weight:600">${t.deptCat}</span></td>
           <td><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${nc}22;color:${nc};font-weight:600">${t.nameCat}</span></td></tr>`
-      : `<tr><td class="tgray">${t.id}</td><td class="fw">${t.name}</td>
+      : `<tr><td class="tgray">${t.id}</td><td class="fw">${nameDisplay}</td>
           <td>${pill(t.track,`pill p-${t.track==='創意'?'blue':t.track==='創新'?'teal':'purple'}`)}</td>
-          <td>${t.school.replace('國立','')}</td><td style="font-size:11px;color:var(--text2)">${t.dept}</td>
+          <td>${schoolDisplay}</td><td style="font-size:11px;color:var(--text2)">${deptDisplay}</td>
           <td><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${nc}22;color:${nc};font-weight:600">${t.nameCat}</span></td></tr>`;
   }).join('');
-  return `<div class="result-count">共 <b>${teams.length}</b> 支隊伍</div>
+  const countLabel = FS.search
+    ? `共 <b>${teams.length}</b> 支隊伍 <span style="color:var(--blue);font-size:10px">🔍「${FS.search}」</span>`
+    : `共 <b>${teams.length}</b> 支隊伍`;
+  return `<div class="result-count">${countLabel}</div>
     <div class="tbl-wrap"><table><thead>${header}</thead><tbody>${rows}</tbody></table></div>`;
 }
 
