@@ -347,6 +347,31 @@ const TEAMS = [
 {id:'0355', name:'早安(NYCU)',             track:'創業',  school:'國立陽明交通大學', region:'北部', dept:'教育研究所',                   deptCat:'教育',     nameCat:'日常生活'},
 {id:'0356', name:'我要第一名',             track:'創新',  school:'逢甲大學',         region:'中部', dept:'室內設計進修學士班',           deptCat:'設計藝術', nameCat:'幽默自嘲'},
 {id:'0357', name:'真愛逢甲',               track:'創新',  school:'逢甲大學',         region:'中部', dept:'經濟學系',                     deptCat:'商管',     nameCat:'其他'},
+// ── 新增 24 組（members(4).csv 匯入）──
+{id:'362',  name:'AI先衝再說',            track:'創新',  school:'國立臺灣師範大學',  region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'科技梗'},
+{id:'363',  name:'關稅打不倒我',          track:'創新',  school:'國立臺灣師範大學',  region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'其他'},
+{id:'364',  name:'提示詞工程師',          track:'創意',  school:'國立臺灣師範大學',  region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'其他'},
+{id:'365',  name:'GPT我的隊友',           track:'創新',  school:'國立臺灣師範大學',  region:'北部', dept:'教育學系',                     deptCat:'教育',     nameCat:'英文混搭'},
+{id:'366',  name:'先裁員後上市',          track:'創意',  school:'國立中興大學',      region:'中部', dept:'行銷學系',                     deptCat:'商管',     nameCat:'其他'},
+{id:'367',  name:'Vibe Coding隊',         track:'創意',  school:'國立中正大學',      region:'中部', dept:'歷史學系',                     deptCat:'語文人文', nameCat:'英文混搭'},
+{id:'368',  name:'台積電接班人',          track:'創新',  school:'國立中正大學',      region:'中部', dept:'哲學系',                       deptCat:'語文人文', nameCat:'其他'},
+{id:'369',  name:'AGI還沒來我先來',       track:'創新',  school:'國立中正大學',      region:'中部', dept:'中國文學系',                   deptCat:'語文人文', nameCat:'英文混搭'},
+{id:'370',  name:'模型微調小能手',        track:'創意',  school:'國立中正大學',      region:'中部', dept:'外國語文學系',                 deptCat:'語文人文', nameCat:'科技梗'},
+{id:'371',  name:'減碳APP救地球',         track:'創新',  school:'國立中興大學',      region:'中部', dept:'中國文學系',                   deptCat:'語文人文', nameCat:'英文混搭'},
+{id:'372',  name:'DeepSeek挑戰者',        track:'創意',  school:'國立臺灣藝術大學',  region:'其他', dept:'電影學系',                     deptCat:'設計藝術', nameCat:'英文混搭'},
+{id:'373',  name:'川普沒有我強',          track:'創新',  school:'國立臺灣藝術大學',  region:'其他', dept:'電影學系',                     deptCat:'設計藝術', nameCat:'戰鬥冒險'},
+{id:'374',  name:'主權AI開發隊',          track:'創意',  school:'國立臺灣藝術大學',  region:'其他', dept:'電影學系',                     deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'375',  name:'量子運算預備生',        track:'創新',  school:'國立臺灣藝術大學',  region:'其他', dept:'電影學系',                     deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'376',  name:'everybody用AI',         track:'創新',  school:'國立中興大學',      region:'中部', dept:'應用經濟學系',                 deptCat:'商管',     nameCat:'英文混搭'},
+{id:'377',  name:'晶片荒中求突破',        track:'創新',  school:'中原大學',          region:'北部', dept:'應用華語文學系',               deptCat:'語文人文', nameCat:'科技梗'},
+{id:'378',  name:'AI Agent特攻隊',        track:'創新',  school:'中原大學',          region:'北部', dept:'物理學系',                     deptCat:'理工科學', nameCat:'英文混搭'},
+{id:'379',  name:'資安第一防火牆',        track:'創新',  school:'中原大學',          region:'北部', dept:'應用數學系',                   deptCat:'理工科學', nameCat:'科技梗'},
+{id:'380',  name:'綠能科技先行者',        track:'創新',  school:'中原大學',          region:'北部', dept:'電子工程學系',                 deptCat:'資工電機', nameCat:'科技梗'},
+{id:'381',  name:'人機協作新世代',        track:'創新',  school:'國立中興大學',      region:'中部', dept:'圖書資訊學研究所',             deptCat:'其他',     nameCat:'其他'},
+{id:'382',  name:'TimeNest',              track:'創新',  school:'亞洲大學',          region:'其他', dept:'資訊工程學系',                 deptCat:'資工電機', nameCat:'英文混搭'},
+{id:'410',  name:'一起玩',               track:'創業',  school:'國立臺灣師範大學',  region:'北部', dept:'資訊教育研究所',               deptCat:'教育',     nameCat:'其他'},
+{id:'412',  name:'教育學習熱門APP',       track:'創新',  school:'國立臺灣師範大學',  region:'北部', dept:'社會教育學系',                 deptCat:'教育',     nameCat:'英文混搭'},
+{id:'415',  name:'豬豬隊友',             track:'創意',  school:'國立宜蘭大學',      region:'北部', dept:'應用經濟與管理學系',           deptCat:'商管',     nameCat:'動物'},
 ];
 
 // ════════════════════════════════════════════════
@@ -783,6 +808,7 @@ const TL_DATA = [
   {date:'4/15',            count:27, event:'臺中教大批次',  color:'#5ac8fa'},
   {date:'4/22–23 🔥',     count:36, event:'第二波爆發',    color:'#0071e3'},
   {date:'4/24–27',         count:4,  event:'收尾',          color:'#aeaeb2'},
+  {date:'4/28–5/2 🆕',   count:24, event:'師大/中正/藝大/中興/中原批次', color:'#30d158'},
 ];
 function buildTimeline() {
   const w = document.getElementById('w-timeline');
