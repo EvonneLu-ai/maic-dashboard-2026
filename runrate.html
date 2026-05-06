@@ -6,134 +6,141 @@
 <title>MAIC 2026 — 報名 Run-rate 分析</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --blue:   #0071e3;
-    --orange: #ff9500;
-    --red:    #ff3b30;
-    --green:  #34c759;
-    --purple: #af52de;
-    --gray:   #6e6e73;
-    --bg:     #f5f5f7;
-    --card:   #ffffff;
-    --border: #d2d2d7;
-    --text:   #1d1d1f;
-  }
-  body { font-family: -apple-system, "SF Pro Display", "Helvetica Neue", sans-serif; background: var(--bg); color: var(--text); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --blue:   #0071e3;
+  --orange: #ff9500;
+  --red:    #ff3b30;
+  --green:  #34c759;
+  --purple: #af52de;
+  --teal:   #5ac8fa;
+  --gray:   #6e6e73;
+  --bg:     #f5f5f7;
+  --card:   #ffffff;
+  --border: #d2d2d7;
+  --text:   #1d1d1f;
+}
+body { font-family: -apple-system, "SF Pro Display", "Helvetica Neue", sans-serif; background: var(--bg); color: var(--text); }
 
-  /* ── HEADER ── */
-  header { background: #fff; border-bottom: 1px solid var(--border); padding: 20px 32px; display: flex; justify-content: space-between; align-items: center; }
-  header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
-  header .sub { font-size: 13px; color: var(--gray); margin-top: 2px; }
-  .badge { background: var(--red); color: #fff; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+/* HEADER */
+header { background: #fff; border-bottom: 1px solid var(--border); padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; }
+.hd-title { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+.hd-sub   { font-size: 12px; color: var(--gray); margin-top: 3px; }
+.badge    { background: var(--red); color: #fff; font-size: 11px; font-weight: 600; padding: 4px 11px; border-radius: 20px; }
 
-  /* ── LAYOUT ── */
-  main { max-width: 1200px; margin: 0 auto; padding: 28px 24px 60px; }
+/* LAYOUT */
+main { max-width: 1160px; margin: 0 auto; padding: 28px 24px 64px; }
 
-  /* ── SECTION TITLE ── */
-  .section-title { font-size: 13px; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 14px; margin-top: 36px; }
-  .section-title:first-child { margin-top: 0; }
+/* SECTION LABEL */
+.sec { font-size: 11px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 12px; margin-top: 32px; }
+.sec:first-of-type { margin-top: 0; }
 
-  /* ── KPI ROW ── */
-  .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 28px; }
-  .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
-  .kpi .label { font-size: 12px; color: var(--gray); margin-bottom: 6px; }
-  .kpi .value { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
-  .kpi .unit  { font-size: 13px; font-weight: 400; color: var(--gray); margin-left: 3px; }
-  .kpi .sub   { font-size: 12px; color: var(--gray); margin-top: 4px; }
-  .kpi.blue   .value { color: var(--blue); }
-  .kpi.orange .value { color: var(--orange); }
-  .kpi.red    .value { color: var(--red); }
-  .kpi.green  .value { color: var(--green); }
-  .kpi.purple .value { color: var(--purple); }
+/* KPI STRIP */
+.kpi-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
+.kpi { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
+.kpi .lbl  { font-size: 11px; color: var(--gray); margin-bottom: 5px; }
+.kpi .val  { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; line-height: 1; }
+.kpi .unit { font-size: 12px; font-weight: 500; color: var(--gray); margin-left: 2px; }
+.kpi .hint { font-size: 11px; color: var(--gray); margin-top: 5px; }
+.kpi.blue   .val { color: var(--blue); }
+.kpi.orange .val { color: var(--orange); }
+.kpi.red    .val { color: var(--red); }
+.kpi.green  .val { color: var(--green); }
+.kpi.purple .val { color: var(--purple); }
 
-  /* ── PROGRESS BAR ── */
-  .progress-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 24px; margin-bottom: 28px; }
-  .progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
-  .progress-header .title { font-size: 15px; font-weight: 600; }
-  .progress-header .pct   { font-size: 22px; font-weight: 700; color: var(--blue); }
-  .bar-track { background: #e5e5ea; border-radius: 8px; height: 12px; overflow: hidden; }
-  .bar-fill  { height: 100%; border-radius: 8px; transition: width 0.6s ease; }
-  .bar-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--gray); margin-top: 6px; }
+/* PROGRESS BAR */
+.progress-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; margin-bottom: 24px; }
+.prog-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.prog-head .ptitle { font-size: 14px; font-weight: 600; }
+.prog-head .ppct   { font-size: 20px; font-weight: 800; color: var(--blue); }
+.bar-bg   { background: #e5e5ea; border-radius: 99px; height: 10px; overflow: hidden; }
+.bar-fg   { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--blue) 0%, var(--purple) 100%); }
+.bar-tick { display: flex; justify-content: space-between; font-size: 10px; color: var(--gray); margin-top: 5px; }
 
-  /* ── PHASE CARDS ── */
-  .phase-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
-  .phase-card { border-radius: 12px; padding: 20px; color: #fff; }
-  .phase-card.blue   { background: var(--blue); }
-  .phase-card.orange { background: var(--orange); }
-  .phase-card.red    { background: var(--red); }
-  .phase-card .phase-label  { font-size: 11px; font-weight: 600; opacity: 0.85; margin-bottom: 4px; }
-  .phase-card .phase-name   { font-size: 17px; font-weight: 700; margin-bottom: 12px; }
-  .phase-card .phase-date   { font-size: 12px; opacity: 0.85; margin-bottom: 14px; }
-  .phase-card .phase-meta   { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .phase-card .meta-item .mval { font-size: 22px; font-weight: 700; line-height: 1; }
-  .phase-card .meta-item .mkey { font-size: 11px; opacity: 0.8; margin-top: 3px; }
-  .phase-progress { background: rgba(255,255,255,0.25); border-radius: 4px; height: 4px; margin-top: 14px; overflow: hidden; }
-  .phase-progress-fill { height: 100%; background: rgba(255,255,255,0.85); border-radius: 4px; }
-  .phase-status { font-size: 11px; opacity: 0.85; margin-top: 6px; }
+/* PHASE CARDS */
+.phase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+.phase { border-radius: 14px; padding: 18px 20px; color: #fff; position: relative; overflow: hidden; }
+.phase::after { content:''; position:absolute; right:-20px; bottom:-20px; width:80px; height:80px; border-radius:50%; background:rgba(255,255,255,.1); }
+.phase.ph1 { background: var(--blue); }
+.phase.ph2 { background: var(--orange); }
+.phase.ph3 { background: var(--red); }
+.ph-no   { font-size: 10px; font-weight: 700; opacity: .75; letter-spacing: .5px; margin-bottom: 2px; }
+.ph-name { font-size: 16px; font-weight: 700; margin-bottom: 3px; }
+.ph-date { font-size: 11px; opacity: .8; margin-bottom: 14px; }
+.ph-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.phs-v { font-size: 22px; font-weight: 800; line-height: 1; }
+.phs-l { font-size: 10px; opacity: .8; margin-top: 2px; }
+.ph-bar-bg { background: rgba(255,255,255,.25); border-radius: 99px; height: 3px; margin-top: 14px; overflow: hidden; }
+.ph-bar-fg { height: 100%; background: rgba(255,255,255,.8); border-radius: 99px; }
+.ph-note { font-size: 10px; opacity: .75; margin-top: 5px; }
 
-  /* ── CHART ── */
-  .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 24px; margin-bottom: 28px; }
-  .chart-card .chart-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-  .chart-card .chart-sub { font-size: 12px; color: var(--gray); margin-bottom: 18px; }
-  .chart-wrap { position: relative; height: 260px; }
+/* CHART */
+.chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; margin-bottom: 24px; }
+.chart-card .ct-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.chart-card .ct-sub   { font-size: 11px; color: var(--gray); margin-bottom: 16px; }
+.chart-wrap { position: relative; height: 240px; }
 
-  /* ── TABLE ── */
-  .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 28px; }
-  .table-card .tbl-header { padding: 16px 20px 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .table-card .tbl-header .title { font-size: 15px; font-weight: 600; }
-  .table-card .tbl-header .hint  { font-size: 12px; color: var(--gray); }
-  table { width: 100%; border-collapse: collapse; }
-  thead th { background: #f5f5f7; font-size: 11px; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: 0.4px; padding: 9px 16px; text-align: left; border-bottom: 1px solid var(--border); }
-  tbody tr:nth-child(even) { background: #fafafa; }
-  tbody tr:hover { background: #f0f7ff; }
-  tbody td { font-size: 13px; padding: 8px 16px; border-bottom: 1px solid #f0f0f5; vertical-align: middle; }
-  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-  .phase-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px; color: #fff; }
-  .phase-tag.blue   { background: var(--blue); }
-  .phase-tag.orange { background: var(--orange); }
-  .phase-tag.red    { background: var(--red); }
-  .gap-pos { color: var(--green); font-weight: 600; }
-  .gap-neg { color: var(--red);   font-weight: 600; }
-  td.actual-cell { }
-  input.actual-input {
-    width: 70px; padding: 3px 6px; border: 1px solid var(--border);
-    border-radius: 6px; font-size: 13px; text-align: center;
-    font-family: inherit; background: #fff;
-    transition: border-color 0.2s;
-  }
-  input.actual-input:focus { outline: none; border-color: var(--blue); }
+/* THREE-COL WAR ROOM */
+.war-room { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+.wr-col { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.wr-col-head { padding: 13px 16px 11px; border-bottom: 1px solid var(--border); }
+.wr-col-head .wh-title { font-size: 13px; font-weight: 700; }
+.wr-col-head .wh-sub   { font-size: 11px; color: var(--gray); margin-top: 2px; }
+.wr-col-body { padding: 12px 16px; }
 
-  /* ── ALERT BANNER ── */
-  .alert { background: #fff3cd; border: 1px solid #ffc107; border-radius: 10px; padding: 12px 18px; font-size: 13px; color: #664d03; margin-bottom: 20px; display: none; }
-  .alert strong { color: #d97706; }
+/* school list */
+.school-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #f5f5f7; font-size: 12px; }
+.school-row:last-child { border-bottom: none; }
+.s-name { flex: 1; }
+.s-bar-wrap { width: 80px; height: 6px; background: #e5e5ea; border-radius: 99px; overflow: hidden; margin: 0 10px; }
+.s-bar { height: 100%; border-radius: 99px; }
+.s-cnt { font-weight: 700; font-size: 12px; min-width: 24px; text-align: right; }
+.s-warn { font-size: 10px; font-weight: 600; color: var(--red); margin-left: 4px; }
+.s-ok   { font-size: 10px; font-weight: 600; color: var(--gray); margin-left: 4px; }
 
-  /* ── TACTICS ── */
-  .tactics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
-  .tactic { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
-  .tactic .t-num  { font-size: 11px; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
-  .tactic .t-name { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
-  .tactic .t-body { font-size: 13px; color: #444; line-height: 1.6; }
-  .tactic .t-tag  { display: inline-block; font-size: 10px; font-weight: 600; background: #e8f0fe; color: var(--blue); padding: 2px 8px; border-radius: 10px; margin-top: 10px; }
+/* funnel */
+.funnel-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f5f5f7; font-size: 12px; }
+.funnel-row:last-child { border-bottom: none; }
+.fn-label { flex: 1; color: var(--gray); }
+.fn-bar-wrap { width: 90px; height: 8px; background: #e5e5ea; border-radius: 99px; overflow: hidden; }
+.fn-bar { height: 100%; border-radius: 99px; }
+.fn-val { font-weight: 700; min-width: 40px; text-align: right; }
+.fn-rate { font-size: 10px; color: var(--gray); min-width: 36px; text-align: right; }
+.fn-arrow { color: var(--gray); font-size: 11px; text-align: center; padding: 0; }
 
-  /* ── FOOTER ── */
-  footer { border-top: 1px solid var(--border); padding: 16px 32px; text-align: center; font-size: 12px; color: var(--gray); background: #fff; }
+/* action list */
+.action-item { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f5f5f7; }
+.action-item:last-child { border-bottom: none; }
+.ai-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.ai-body { flex: 1; }
+.ai-title { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+.ai-desc  { font-size: 11px; color: var(--gray); line-height: 1.5; }
+.ai-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 7px; border-radius: 10px; color: #fff; margin-top: 4px; }
 
-  @media (max-width: 900px) {
-    .kpi-row { grid-template-columns: repeat(3, 1fr); }
-    .phase-row, .tactics-row { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 600px) {
-    .kpi-row { grid-template-columns: repeat(2, 1fr); }
-  }
+/* INSIGHT BAR */
+.insight-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.ins { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
+.ins-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+.ins-head .ih-title { font-size: 13px; font-weight: 700; }
+.ins-head .ih-sub   { font-size: 11px; color: var(--gray); }
+.ins-chart-wrap { position: relative; height: 140px; }
+
+/* REGION PILLS */
+.region-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.rp { border-radius: 10px; padding: 8px 14px; display: flex; flex-direction: column; align-items: center; }
+.rp .rv { font-size: 20px; font-weight: 800; line-height: 1; }
+.rp .rl { font-size: 10px; margin-top: 3px; opacity: .8; }
+
+footer { border-top: 1px solid var(--border); padding: 14px 32px; text-align: center; font-size: 11px; color: var(--gray); background: #fff; }
+@media(max-width:900px){ .kpi-strip{grid-template-columns:repeat(3,1fr);} .phase-grid,.war-room,.insight-row{grid-template-columns:1fr;} }
 </style>
 </head>
 <body>
 
 <header>
   <div>
-    <h1>MAIC 2026 — 報名 Run-rate 分析報告</h1>
-    <div class="sub">資料截至 2026/05/06 ｜ 報名截止 2026/05/31</div>
+    <div class="hd-title">MAIC 2026 — 報名 Run-rate 分析報告</div>
+    <div class="hd-sub">資料截至 2026/05/06 ｜ 報名截止 2026/05/31 ｜ 共 249 隊 / 23 所學校</div>
   </div>
   <span class="badge">距截止 25 天</span>
 </header>
@@ -141,443 +148,440 @@
 <main>
 
   <!-- ① KPI -->
-  <div class="section-title">一、現況診斷</div>
-  <div class="kpi-row">
+  <div class="sec">一、現況診斷</div>
+  <div class="kpi-strip">
     <div class="kpi blue">
-      <div class="label">目標總隊伍</div>
-      <div class="value">800<span class="unit">隊</span></div>
-      <div class="sub">報名截止 5/31</div>
+      <div class="lbl">目標總隊伍</div>
+      <div class="val">800<span class="unit"> 隊</span></div>
+      <div class="hint">報名截止 5/31</div>
     </div>
     <div class="kpi green">
-      <div class="label">目前已報名</div>
-      <div class="value">249<span class="unit">隊</span></div>
-      <div class="sub">截至 2026/05/06</div>
+      <div class="lbl">目前已報名</div>
+      <div class="val">249<span class="unit"> 隊</span></div>
+      <div class="hint">23 所學校</div>
     </div>
     <div class="kpi red">
-      <div class="label">剩餘缺口</div>
-      <div class="value">551<span class="unit">隊</span></div>
-      <div class="sub">需在 25 天內達成</div>
+      <div class="lbl">剩餘缺口</div>
+      <div class="val">551<span class="unit"> 隊</span></div>
+      <div class="hint">需在 25 天內達成</div>
     </div>
     <div class="kpi orange">
-      <div class="label">所需每日均速</div>
-      <div class="value">22<span class="unit">隊/日</span></div>
-      <div class="sub">平均 Run-rate</div>
+      <div class="lbl">所需每日均速</div>
+      <div class="val">22<span class="unit"> 隊/日</span></div>
+      <div class="hint">平均 Run-rate</div>
     </div>
     <div class="kpi purple">
-      <div class="label">目前達成率</div>
-      <div class="value">31.1<span class="unit">%</span></div>
-      <div class="sub">249 / 800</div>
+      <div class="lbl">目前達成率</div>
+      <div class="val">31.1<span class="unit"> %</span></div>
+      <div class="hint">249 / 800</div>
     </div>
   </div>
 
-  <!-- ② 進度條 -->
-  <div class="progress-card">
-    <div class="progress-header">
-      <span class="title">整體報名進度</span>
-      <span class="pct">31.1%</span>
+  <!-- 進度條 -->
+  <div class="progress-wrap">
+    <div class="prog-head">
+      <span class="ptitle">整體報名進度</span>
+      <span class="ppct">31.1%</span>
     </div>
-    <div class="bar-track">
-      <div class="bar-fill" style="width:31.1%; background: linear-gradient(90deg, var(--blue), var(--purple));"></div>
-    </div>
-    <div class="bar-labels">
-      <span>0 隊</span>
-      <span>200</span>
-      <span>400</span>
-      <span>600</span>
-      <span>800 隊 (目標)</span>
+    <div class="bar-bg"><div class="bar-fg" style="width:31.1%"></div></div>
+    <div class="bar-tick">
+      <span>0</span><span>目前 249 隊</span><span>400</span><span>600</span><span>目標 800 隊</span>
     </div>
   </div>
 
-  <!-- ③ 三階段卡片 -->
-  <div class="section-title">二、階梯式 Run-rate 規劃</div>
-  <div class="phase-row">
-    <div class="phase-card blue">
-      <div class="phase-label">PHASE 1</div>
-      <div class="phase-name">穩定增長期</div>
-      <div class="phase-date">5/07 — 5/17 ｜ 11 天</div>
-      <div class="phase-meta">
-        <div class="meta-item">
-          <div class="mval">165</div>
-          <div class="mkey">階段目標（隊）</div>
-        </div>
-        <div class="meta-item">
-          <div class="mval">15</div>
-          <div class="mkey">建議日均速</div>
-        </div>
-        <div class="meta-item">
-          <div class="mval">30%</div>
-          <div class="mkey">權重</div>
-        </div>
-        <div class="meta-item">
-          <div class="mval">414</div>
-          <div class="mkey">階段末累積</div>
-        </div>
+  <!-- ② 三階段 -->
+  <div class="sec">二、階梯式 Run-rate 規劃（總缺口 551 隊）</div>
+  <div class="phase-grid">
+    <div class="phase ph1">
+      <div class="ph-no">PHASE 1</div>
+      <div class="ph-name">穩定增長期</div>
+      <div class="ph-date">5/07 — 5/17 ｜ 11 天</div>
+      <div class="ph-stats">
+        <div><div class="phs-v">165</div><div class="phs-l">階段目標（隊）</div></div>
+        <div><div class="phs-v">15</div><div class="phs-l">建議日均速</div></div>
+        <div><div class="phs-v">30%</div><div class="phs-l">缺口佔比</div></div>
+        <div><div class="phs-v">414</div><div class="phs-l">階段末累積</div></div>
       </div>
-      <div class="phase-progress"><div class="phase-progress-fill" style="width:0%"></div></div>
-      <div class="phase-status">尚未開始</div>
+      <div class="ph-bar-bg"><div class="ph-bar-fg" style="width:0%"></div></div>
+      <div class="ph-note">穩定推進，深耕現有學校</div>
     </div>
-    <div class="phase-card orange">
-      <div class="phase-label">PHASE 2</div>
-      <div class="phase-name">加溫預熱期</div>
-      <div class="phase-date">5/18 — 5/24 ｜ 7 天</div>
-      <div class="phase-meta">
-        <div class="meta-item">
-          <div class="mval">138</div>
-          <div class="mkey">階段目標（隊）</div>
-        </div>
-        <div class="meta-item">
-          <div class="mval">20</div>
-          <div class="mkey">建議日均速</div>
-        </div>
-        <div class="meta-item">
-          <div class="mval">25%</div>
-          <div class="mkey">權重</div>
-        </div>
-        <div class="meta-item">
-          <div class="mval">554</div>
-          <div class="mkey">階段末累積</div>
-        </div>
+    <div class="phase ph2">
+      <div class="ph-no">PHASE 2</div>
+      <div class="ph-name">加溫預熱期</div>
+      <div class="ph-date">5/18 — 5/24 ｜ 7 天</div>
+      <div class="ph-stats">
+        <div><div class="phs-v">138</div><div class="phs-l">階段目標（隊）</div></div>
+        <div><div class="phs-v">20</div><div class="phs-l">建議日均速</div></div>
+        <div><div class="phs-v">25%</div><div class="phs-l">缺口佔比</div></div>
+        <div><div class="phs-v">554</div><div class="phs-l">階段末累積</div></div>
       </div>
-      <div class="phase-progress"><div class="phase-progress-fill" style="width:0%"></div></div>
-      <div class="phase-status">尚未開始</div>
+      <div class="ph-bar-bg"><div class="ph-bar-fg" style="width:0%"></div></div>
+      <div class="ph-note">5/15 發送未完成隊伍提醒信</div>
     </div>
-    <div class="phase-card red">
-      <div class="phase-label">PHASE 3</div>
-      <div class="phase-name">最後衝刺期</div>
-      <div class="phase-date">5/25 — 5/31 ｜ 7 天</div>
-      <div class="phase-meta">
-        <div class="meta-item">
-          <div class="mval">248</div>
-          <div class="mkey">階段目標（隊）</div>
-        </div>
-        <div class="meta-item">
-          <div class="mval">35</div>
-          <div class="mkey">建議日均速</div>
-        </div>
-        <div class="meta-item">
-          <div class="mval">45%</div>
-          <div class="mkey">權重</div>
-        </div>
-        <div class="meta-item">
-          <div class="mval">800</div>
-          <div class="mkey">階段末累積</div>
-        </div>
+    <div class="phase ph3">
+      <div class="ph-no">PHASE 3</div>
+      <div class="ph-name">最後衝刺期</div>
+      <div class="ph-date">5/25 — 5/31 ｜ 7 天</div>
+      <div class="ph-stats">
+        <div><div class="phs-v">248</div><div class="phs-l">階段目標（隊）</div></div>
+        <div><div class="phs-v">35</div><div class="phs-l">建議日均速</div></div>
+        <div><div class="phs-v">45%</div><div class="phs-l">缺口佔比</div></div>
+        <div><div class="phs-v">800</div><div class="phs-l">目標達成</div></div>
       </div>
-      <div class="phase-progress"><div class="phase-progress-fill" style="width:0%"></div></div>
-      <div class="phase-status">壓線潮高爆發</div>
+      <div class="ph-bar-bg"><div class="ph-bar-fg" style="width:0%"></div></div>
+      <div class="ph-note">壓線潮爆發 ｜ 5/25 發倒數誘因</div>
     </div>
   </div>
 
-  <!-- ④ 折線圖 -->
+  <!-- ③ 折線圖 -->
   <div class="chart-card">
-    <div class="chart-title">累積報名隊伍 — 預期軌跡</div>
-    <div class="chart-sub">藍色虛線 = 目標 800 隊；彩色實線 = 階梯式 Run-rate 預期路徑；灰色點 = 可填入實際值</div>
-    <div class="chart-wrap">
-      <canvas id="runrateChart"></canvas>
-    </div>
+    <div class="ct-title">累積報名預期軌跡</div>
+    <div class="ct-sub">藍虛線 = 目標 800 隊｜彩色實線 = 階梯式 Run-rate 預期路徑（依階段變色）</div>
+    <div class="chart-wrap"><canvas id="runrateChart"></canvas></div>
   </div>
 
-  <!-- ⑤ 每日對比表 + 警報 -->
-  <div class="section-title">三、每日達標對比表（可填入實際數字）</div>
-  <div class="alert" id="alertBanner">
-    <strong>注意：</strong> 已連續 <span id="alertDays">0</span> 天低於預計目標，建議立即啟動補救方案（加發推播 / 異業合作）。
-  </div>
+  <!-- ④ 三欄戰情室 -->
+  <div class="sec">三、推廣戰情室</div>
+  <div class="war-room">
 
-  <div class="table-card">
-    <div class="tbl-header">
-      <span class="title">日別追蹤表</span>
-      <span class="hint">在「實際累積」欄位輸入每日數字，Gap 與達成率自動計算</span>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <th>日期</th>
-          <th>階段</th>
-          <th>日均速</th>
-          <th>預計累積</th>
-          <th>實際累積</th>
-          <th>Gap</th>
-          <th>達成率</th>
-        </tr>
-      </thead>
-      <tbody id="dailyTableBody"></tbody>
-    </table>
-  </div>
-
-  <!-- ⑥ 戰術建議 -->
-  <div class="section-title">四、針對性推廣策略</div>
-  <div class="tactics-row">
-    <div class="tactic">
-      <div class="t-num">TACTIC 01</div>
-      <div class="t-name">視覺化監控看板</div>
-      <div class="t-body">
-        每日下班前更新本頁「實際累積」欄位。<br><br>
-        <strong>觸發條件：</strong>連續 3 天「實際」低於「預計」，立即啟動補救（加發推播、異業合作）。
+    <!-- 欄A：學校滲透缺口 -->
+    <div class="wr-col">
+      <div class="wr-col-head">
+        <div class="wh-title">學校滲透缺口</div>
+        <div class="wh-sub">目前 23 所學校 ｜ Top 8 + 白地目標</div>
       </div>
-      <div class="t-tag">Monitoring</div>
-    </div>
-    <div class="tactic">
-      <div class="t-num">TACTIC 02</div>
-      <div class="t-name">未完成名單追蹤</div>
-      <div class="t-body">
-        鎖定後台「已註冊但未提交」隊伍，此群轉化率最高。<br><br>
-        <strong>關鍵節點：</strong>5/15（Phase 1 末）、5/25（衝刺開始）發送專屬提醒信。
+      <div class="wr-col-body">
+        <!-- 現有Top8 -->
+        <div class="school-row">
+          <span class="s-name">臺灣大學</span>
+          <div class="s-bar-wrap"><div class="s-bar" style="width:100%;background:var(--blue)"></div></div>
+          <span class="s-cnt" style="color:var(--blue)">60</span>
+          <span class="s-ok">中高</span>
+        </div>
+        <div class="school-row">
+          <span class="s-name">逢甲大學</span>
+          <div class="s-bar-wrap"><div class="s-bar" style="width:78%;background:var(--blue)"></div></div>
+          <span class="s-cnt" style="color:var(--blue)">47</span>
+          <span class="s-ok">中高</span>
+        </div>
+        <div class="school-row">
+          <span class="s-name">政治大學</span>
+          <div class="s-bar-wrap"><div class="s-bar" style="width:60%;background:var(--purple)"></div></div>
+          <span class="s-cnt" style="color:var(--purple)">36</span>
+          <span class="s-warn">教育死角</span>
+        </div>
+        <div class="school-row">
+          <span class="s-name">臺中教育大學</span>
+          <div class="s-bar-wrap"><div class="s-bar" style="width:37%;background:var(--green)"></div></div>
+          <span class="s-cnt" style="color:var(--green)">22</span>
+          <span class="s-ok">中等</span>
+        </div>
+        <div class="school-row">
+          <span class="s-name">高雄科技大學</span>
+          <div class="s-bar-wrap"><div class="s-bar" style="width:33%;background:var(--green)"></div></div>
+          <span class="s-cnt" style="color:var(--green)">20</span>
+          <span class="s-ok">南部代表</span>
+        </div>
+        <div class="school-row">
+          <span class="s-name">清華大學</span>
+          <div class="s-bar-wrap"><div class="s-bar" style="width:25%;background:var(--teal)"></div></div>
+          <span class="s-cnt" style="color:var(--teal)">15</span>
+          <span class="s-ok">成長中</span>
+        </div>
+        <div class="school-row">
+          <span class="s-name">陽明交通大學</span>
+          <div class="s-bar-wrap"><div class="s-bar" style="width:12%;background:var(--teal)"></div></div>
+          <span class="s-cnt" style="color:var(--teal)">7</span>
+          <span class="s-ok">待深化</span>
+        </div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid #f0f0f5;">
+          <div style="font-size:10px;font-weight:700;color:var(--red);margin-bottom:6px;">白地高潛力目標（0 隊）</div>
+          <div class="school-row">
+            <span class="s-name">成功大學</span>
+            <div class="s-bar-wrap"><div class="s-bar" style="width:0%;background:var(--red)"></div></div>
+            <span class="s-cnt" style="color:var(--red)">0</span>
+            <span class="s-warn">P1 優先</span>
+          </div>
+          <div class="school-row">
+            <span class="s-name">中山大學</span>
+            <div class="s-bar-wrap"><div class="s-bar" style="width:0%;background:var(--red)"></div></div>
+            <span class="s-cnt" style="color:var(--red)">0</span>
+            <span class="s-warn">南部空白</span>
+          </div>
+        </div>
       </div>
-      <div class="t-tag">Conversion</div>
     </div>
-    <div class="tactic">
-      <div class="t-num">TACTIC 03</div>
-      <div class="t-name">倒數誘因 × 壓線潮</div>
-      <div class="t-body">
-        最後 7 天（5/25-31）將缺口壓力轉化為用戶動力。<br><br>
-        <strong>範例：</strong>「最後 100 名報名隊伍獲得獨家資源包」，搭配倒數計時強化緊迫感。
-      </div>
-      <div class="t-tag">Urgency</div>
-    </div>
-  </div>
 
-  <!-- ⑦ 學校白地分析 -->
-  <div class="section-title">五、重點學校滲透缺口</div>
-  <div class="table-card">
-    <div class="tbl-header">
-      <span class="title">現有報名學校與建議二推目標</span>
-      <span class="hint">基於目前 249 隊、22 所學校分佈</span>
+    <!-- 欄B：轉化漏斗 -->
+    <div class="wr-col">
+      <div class="wr-col-head">
+        <div class="wh-title">報名轉化漏斗</div>
+        <div class="wh-sub">科系與賽道分佈（排除創業 38 隊）</div>
+      </div>
+      <div class="wr-col-body">
+        <div style="font-size:10px;font-weight:700;color:var(--gray);margin-bottom:8px;">科系分佈（211 隊，創意+創新）</div>
+        <div class="funnel-row">
+          <span class="fn-label">教育</span>
+          <div class="fn-bar-wrap"><div class="fn-bar" style="width:100%;background:var(--purple)"></div></div>
+          <span class="fn-val" style="color:var(--purple)">54</span>
+          <span class="fn-rate">25.6%</span>
+        </div>
+        <div class="funnel-row">
+          <span class="fn-label">商管</span>
+          <div class="fn-bar-wrap"><div class="fn-bar" style="width:93%;background:var(--blue)"></div></div>
+          <span class="fn-val" style="color:var(--blue)">50</span>
+          <span class="fn-rate">23.7%</span>
+        </div>
+        <div class="funnel-row">
+          <span class="fn-label">語文人文</span>
+          <div class="fn-bar-wrap"><div class="fn-bar" style="width:80%;background:var(--teal)"></div></div>
+          <span class="fn-val" style="color:var(--teal)">43</span>
+          <span class="fn-rate">20.4%</span>
+        </div>
+        <div class="funnel-row">
+          <span class="fn-label">設計藝術</span>
+          <div class="fn-bar-wrap"><div class="fn-bar" style="width:39%;background:var(--orange)"></div></div>
+          <span class="fn-val" style="color:var(--orange)">21</span>
+          <span class="fn-rate">10.0%</span>
+        </div>
+        <div class="funnel-row">
+          <span class="fn-label">理工科學</span>
+          <div class="fn-bar-wrap"><div class="fn-bar" style="width:37%;background:var(--green)"></div></div>
+          <span class="fn-val" style="color:var(--green)">20</span>
+          <span class="fn-rate">9.5%</span>
+        </div>
+        <div class="funnel-row">
+          <span class="fn-label">資工電機</span>
+          <div class="fn-bar-wrap"><div class="fn-bar" style="width:35%;background:var(--blue)"></div></div>
+          <span class="fn-val" style="color:var(--blue)">19</span>
+          <span class="fn-rate">9.0%</span>
+        </div>
+        <div class="funnel-row">
+          <span class="fn-label">法律醫療</span>
+          <div class="fn-bar-wrap"><div class="fn-bar" style="width:4%;background:var(--red)"></div></div>
+          <span class="fn-val" style="color:var(--red)">2</span>
+          <span class="fn-rate">0.9%</span>
+        </div>
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid #f0f0f5;">
+          <div style="font-size:10px;font-weight:700;color:var(--gray);margin-bottom:6px;">地區分佈</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <div style="background:rgba(0,113,227,.09);border-radius:8px;padding:7px 12px;text-align:center;">
+              <div style="font-size:18px;font-weight:800;color:var(--blue);">134</div>
+              <div style="font-size:10px;color:var(--gray);">北部 53.8%</div>
+            </div>
+            <div style="background:rgba(255,149,0,.09);border-radius:8px;padding:7px 12px;text-align:center;">
+              <div style="font-size:18px;font-weight:800;color:var(--orange);">87</div>
+              <div style="font-size:10px;color:var(--gray);">中部 34.9%</div>
+            </div>
+            <div style="background:rgba(255,59,48,.09);border-radius:8px;padding:7px 12px;text-align:center;">
+              <div style="font-size:18px;font-weight:800;color:var(--red);">21</div>
+              <div style="font-size:10px;color:var(--gray);">南部 8.4%</div>
+            </div>
+            <div style="background:rgba(110,110,115,.09);border-radius:8px;padding:7px 12px;text-align:center;">
+              <div style="font-size:18px;font-weight:800;color:var(--gray);">7</div>
+              <div style="font-size:10px;color:var(--gray);">其他 2.8%</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>學校</th>
-          <th>現有隊數</th>
-          <th>主力賽道</th>
-          <th>飽和度</th>
-          <th>建議行動</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td><span class="dot" style="background:var(--blue)"></span>臺灣大學</td><td>60</td><td>創業 / 創新</td><td><span style="color:var(--orange)">中高</span></td><td>擴散至法律、社科、醫學院</td></tr>
-        <tr><td><span class="dot" style="background:var(--orange)"></span>逢甲大學</td><td>47</td><td>創意（43）</td><td><span style="color:var(--orange)">中高</span></td><td>推動創新/創業賽道多元化</td></tr>
-        <tr><td><span class="dot" style="background:var(--purple)"></span>政治大學</td><td>36</td><td>創意教育系</td><td><span style="color:var(--red)">偏高（死角）</span></td><td>優先攻資管、傳播、法律科系</td></tr>
-        <tr><td><span class="dot" style="background:var(--green)"></span>臺中教育大學</td><td>22</td><td>創意 / 創新</td><td><span style="color:var(--green)">中等</span></td><td>可持續推進，目標 35 隊</td></tr>
-        <tr><td><span class="dot" style="background:var(--green)"></span>高雄科技大學</td><td>20</td><td>創新（14）</td><td><span style="color:var(--green)">中等</span></td><td>南部代表，加強深耕</td></tr>
-        <tr style="background:#fff8f8"><td><span class="dot" style="background:var(--red)"></span>成功大學</td><td>0</td><td>—</td><td><span style="color:var(--red)">完全缺席</span></td><td>立即安排線上說明會（P1 優先）</td></tr>
-        <tr style="background:#fff8f8"><td><span class="dot" style="background:var(--red)"></span>中山大學</td><td>0</td><td>—</td><td><span style="color:var(--red)">完全缺席</span></td><td>南部滲透策略首要目標</td></tr>
-        <tr style="background:#fff8f8"><td><span class="dot" style="background:var(--red)"></span>陽明交通大學</td><td>0</td><td>—</td><td><span style="color:var(--red)">完全缺席</span></td><td>資工/理工強校，高潛力未開發</td></tr>
-      </tbody>
-    </table>
+
+    <!-- 欄C：關鍵行動清單 -->
+    <div class="wr-col">
+      <div class="wr-col-head">
+        <div class="wh-title">關鍵行動清單</div>
+        <div class="wh-sub">依時間軸排序 / 依優先級標色</div>
+      </div>
+      <div class="wr-col-body">
+        <div class="action-item">
+          <div class="ai-dot" style="background:var(--red)"></div>
+          <div class="ai-body">
+            <div class="ai-title">南部白地說明會</div>
+            <div class="ai-desc">成大、中山完全缺席，優先安排線上說明會，目標各招 15–20 隊。</div>
+            <span class="ai-badge" style="background:var(--red)">P1 — 5/7 前啟動</span>
+          </div>
+        </div>
+        <div class="action-item">
+          <div class="ai-dot" style="background:var(--red)"></div>
+          <div class="ai-body">
+            <div class="ai-title">政大科系突破</div>
+            <div class="ai-desc">政大 36 隊中 95%+ 為教育系，資管、傳播、法律院系完全缺席，需定點推廣。</div>
+            <span class="ai-badge" style="background:var(--red)">P1 — 5/10 前</span>
+          </div>
+        </div>
+        <div class="action-item">
+          <div class="ai-dot" style="background:var(--orange)"></div>
+          <div class="ai-body">
+            <div class="ai-title">未完成名單追蹤信</div>
+            <div class="ai-desc">後台「已註冊但未提交」隊伍轉化率最高，在 5/15 發送第一封提醒。</div>
+            <span class="ai-badge" style="background:var(--orange)">P2 — 5/15</span>
+          </div>
+        </div>
+        <div class="action-item">
+          <div class="ai-dot" style="background:var(--orange)"></div>
+          <div class="ai-body">
+            <div class="ai-title">種子大使擴散</div>
+            <div class="ai-desc">逢甲黃廷宇（唯一上傳企畫書）適合邀為校園大使，協助二推逢甲創新/創業賽道。</div>
+            <span class="ai-badge" style="background:var(--orange)">P2 — 5/18 前</span>
+          </div>
+        </div>
+        <div class="action-item">
+          <div class="ai-dot" style="background:var(--blue)"></div>
+          <div class="ai-body">
+            <div class="ai-title">倒數誘因 × 壓線潮</div>
+            <div class="ai-desc">5/25 起啟動「最後 XX 名報名可獲資源包」，搭配 5/25 第二封提醒信，推動壓線爆發。</div>
+            <span class="ai-badge" style="background:var(--blue)">P3 — 5/25</span>
+          </div>
+        </div>
+        <div class="action-item">
+          <div class="ai-dot" style="background:var(--blue)"></div>
+          <div class="ai-body">
+            <div class="ai-title">資工電機科系補強</div>
+            <div class="ai-desc">資工電機僅 9%（19 隊），陽明交通大學僅 7 隊，是高潛力但低覆蓋的科系群。</div>
+            <span class="ai-badge" style="background:var(--blue)">P3 — 持續推進</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end war-room -->
+
+  <!-- ⑤ 賽道 × 組名雙圖 -->
+  <div class="sec">四、報名結構分析</div>
+  <div class="insight-row">
+    <div class="ins">
+      <div class="ins-head">
+        <span class="ih-title">賽道分佈</span>
+        <span class="ih-sub">共 249 隊</span>
+      </div>
+      <div class="ins-chart-wrap"><canvas id="trackChart"></canvas></div>
+    </div>
+    <div class="ins">
+      <div class="ins-head">
+        <span class="ih-title">組名命名風格</span>
+        <span class="ih-sub">9 大類型</span>
+      </div>
+      <div class="ins-chart-wrap"><canvas id="nameChart"></canvas></div>
+    </div>
   </div>
 
 </main>
 
-<footer>MAIC 2026 Run-rate 分析報告 ｜ 生成日期 2026/05/06 ｜ 目標 800 隊，截止 2026/05/31</footer>
+<footer>MAIC 2026 Run-rate 分析報告 ｜ 資料截至 2026/05/06 ｜ 249 隊 / 23 所學校 ｜ 目標 800 隊，截止 2026/05/31</footer>
 
 <script>
-// ── 每日數據 ──
+// ── Run-rate 折線圖 ──
 const DAILY = [
-  {"date":"5/7","expected":264,"rate":15,"phase":"穩定增長期","color":"#0071e3","pct":33.0},
-  {"date":"5/8","expected":279,"rate":15,"phase":"穩定增長期","color":"#0071e3","pct":34.9},
-  {"date":"5/9","expected":294,"rate":15,"phase":"穩定增長期","color":"#0071e3","pct":36.8},
-  {"date":"5/10","expected":309,"rate":15,"phase":"穩定增長期","color":"#0071e3","pct":38.6},
-  {"date":"5/11","expected":324,"rate":15,"phase":"穩定增長期","color":"#0071e3","pct":40.5},
-  {"date":"5/12","expected":339,"rate":15,"phase":"穩定增長期","color":"#0071e3","pct":42.4},
-  {"date":"5/13","expected":354,"rate":15,"phase":"穩定增長期","color":"#0071e3","pct":44.2},
-  {"date":"5/14","expected":369,"rate":15,"phase":"穩定增長期","color":"#0071e3","pct":46.1},
-  {"date":"5/15","expected":384,"rate":15,"phase":"穩定增長期","color":"#0071e3","pct":48.0},
-  {"date":"5/16","expected":399,"rate":15,"phase":"穩定增長期","color":"#0071e3","pct":49.9},
-  {"date":"5/17","expected":414,"rate":15,"phase":"穩定增長期","color":"#0071e3","pct":51.7},
-  {"date":"5/18","expected":434,"rate":20,"phase":"加溫預熱期","color":"#ff9500","pct":54.2},
-  {"date":"5/19","expected":454,"rate":20,"phase":"加溫預熱期","color":"#ff9500","pct":56.8},
-  {"date":"5/20","expected":474,"rate":20,"phase":"加溫預熱期","color":"#ff9500","pct":59.2},
-  {"date":"5/21","expected":494,"rate":20,"phase":"加溫預熱期","color":"#ff9500","pct":61.8},
-  {"date":"5/22","expected":514,"rate":20,"phase":"加溫預熱期","color":"#ff9500","pct":64.2},
-  {"date":"5/23","expected":534,"rate":20,"phase":"加溫預熱期","color":"#ff9500","pct":66.8},
-  {"date":"5/24","expected":554,"rate":20,"phase":"加溫預熱期","color":"#ff9500","pct":69.2},
-  {"date":"5/25","expected":589,"rate":35,"phase":"最後衝刺期","color":"#ff3b30","pct":73.6},
-  {"date":"5/26","expected":624,"rate":35,"phase":"最後衝刺期","color":"#ff3b30","pct":78.0},
-  {"date":"5/27","expected":659,"rate":35,"phase":"最後衝刺期","color":"#ff3b30","pct":82.4},
-  {"date":"5/28","expected":694,"rate":35,"phase":"最後衝刺期","color":"#ff3b30","pct":86.8},
-  {"date":"5/29","expected":729,"rate":35,"phase":"最後衝刺期","color":"#ff3b30","pct":91.1},
-  {"date":"5/30","expected":764,"rate":35,"phase":"最後衝刺期","color":"#ff3b30","pct":95.5},
-  {"date":"5/31","expected":799,"rate":35,"phase":"最後衝刺期","color":"#ff3b30","pct":99.9}
+  {d:"5/7", e:264,  color:"#0071e3"}, {d:"5/8", e:279,  color:"#0071e3"},
+  {d:"5/9", e:294,  color:"#0071e3"}, {d:"5/10",e:309,  color:"#0071e3"},
+  {d:"5/11",e:324,  color:"#0071e3"}, {d:"5/12",e:339,  color:"#0071e3"},
+  {d:"5/13",e:354,  color:"#0071e3"}, {d:"5/14",e:369,  color:"#0071e3"},
+  {d:"5/15",e:384,  color:"#0071e3"}, {d:"5/16",e:399,  color:"#0071e3"},
+  {d:"5/17",e:414,  color:"#0071e3"},
+  {d:"5/18",e:434,  color:"#ff9500"}, {d:"5/19",e:454,  color:"#ff9500"},
+  {d:"5/20",e:474,  color:"#ff9500"}, {d:"5/21",e:494,  color:"#ff9500"},
+  {d:"5/22",e:514,  color:"#ff9500"}, {d:"5/23",e:534,  color:"#ff9500"},
+  {d:"5/24",e:554,  color:"#ff9500"},
+  {d:"5/25",e:589,  color:"#ff3b30"}, {d:"5/26",e:624,  color:"#ff3b30"},
+  {d:"5/27",e:659,  color:"#ff3b30"}, {d:"5/28",e:694,  color:"#ff3b30"},
+  {d:"5/29",e:729,  color:"#ff3b30"}, {d:"5/30",e:764,  color:"#ff3b30"},
+  {d:"5/31",e:799,  color:"#ff3b30"}
 ];
 
-const TARGET = 800;
-const phaseTagClass = {"穩定增長期":"blue","加溫預熱期":"orange","最後衝刺期":"red"};
+// 起始點 249（5/6 實際）
+const baseline = {d:"5/6", e:249};
+const allPts = [baseline, ...DAILY];
 
-// ── 從 localStorage 讀取實際數字 ──
-const STORAGE_KEY = 'maic_runrate_actuals_2026';
-let actuals = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-
-function saveActuals() { localStorage.setItem(STORAGE_KEY, JSON.stringify(actuals)); }
-
-// ── 渲染表格 ──
-function renderTable() {
-  const tbody = document.getElementById('dailyTableBody');
-  tbody.innerHTML = '';
-  let consecutiveLow = 0;
-  let maxConsec = 0;
-
-  DAILY.forEach((row, idx) => {
-    const actualVal = actuals[row.date] !== undefined ? actuals[row.date] : '';
-    const gap = actualVal !== '' ? (actualVal - row.expected) : null;
-    const pct = actualVal !== '' ? (actualVal / TARGET * 100).toFixed(1) + '%' : '—';
-    const gapStr = gap !== null ? (gap >= 0 ? `<span class="gap-pos">+${gap}</span>` : `<span class="gap-neg">${gap}</span>`) : '—';
-
-    if (actualVal !== '' && gap !== null && gap < 0) consecutiveLow++;
-    else consecutiveLow = 0;
-    maxConsec = Math.max(maxConsec, consecutiveLow);
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><strong>${row.date}</strong></td>
-      <td><span class="phase-tag ${phaseTagClass[row.phase]}">${row.phase}</span></td>
-      <td style="color:${row.color};font-weight:600">+${row.rate}</td>
-      <td><strong>${row.expected}</strong></td>
-      <td class="actual-cell">
-        <input class="actual-input" type="number" placeholder="—" value="${actualVal}"
-          data-date="${row.date}" min="0" max="800">
-      </td>
-      <td>${gapStr}</td>
-      <td>${pct}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  // 警報判斷
-  const alertBanner = document.getElementById('alertBanner');
-  if (maxConsec >= 3) {
-    document.getElementById('alertDays').textContent = maxConsec;
-    alertBanner.style.display = 'block';
-  } else {
-    alertBanner.style.display = 'none';
-  }
-}
-
-// ── 表格輸入事件 ──
-document.addEventListener('input', e => {
-  if (e.target.classList.contains('actual-input')) {
-    const d = e.target.dataset.date;
-    const v = e.target.value === '' ? '' : parseInt(e.target.value, 10);
-    if (v === '') delete actuals[d]; else actuals[d] = v;
-    saveActuals();
-    renderTable();
-    updateChart();
+new Chart(document.getElementById('runrateChart'), {
+  type:'line',
+  data:{
+    labels: allPts.map(r=>r.d),
+    datasets:[
+      {
+        label:'目標 800 隊',
+        data: Array(26).fill(800),
+        borderColor:'#0071e3', borderWidth:1.5,
+        borderDash:[6,4], pointRadius:0, fill:false, tension:0
+      },
+      {
+        label:'預期累積',
+        data: allPts.map(r=>r.e),
+        segment:{
+          borderColor: ctx => {
+            const i = ctx.p1DataIndex;
+            if(i <= 11) return '#0071e3';
+            if(i <= 18) return '#ff9500';
+            return '#ff3b30';
+          }
+        },
+        borderWidth:2.5,
+        pointRadius: allPts.map((_,i)=> i===0?5:3),
+        pointBackgroundColor: allPts.map(r=>r.color||'#0071e3'),
+        fill:{target:'origin', above:'rgba(0,113,227,0.04)'},
+        tension:0.3
+      }
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    interaction:{mode:'index', intersect:false},
+    plugins:{
+      legend:{ position:'top', labels:{font:{size:11}, boxWidth:14, padding:12} },
+      tooltip:{ callbacks:{ label: ctx => ctx.raw!==null ? ` ${ctx.dataset.label}: ${ctx.raw} 隊` : null } }
+    },
+    scales:{
+      x:{ grid:{color:'#f0f0f5'}, ticks:{font:{size:10}, maxRotation:45} },
+      y:{ min:200, max:850, grid:{color:'#f0f0f5'},
+          ticks:{font:{size:10}, callback:v=>v+' 隊'} }
+    }
   }
 });
 
-// ── 折線圖 ──
-let chart;
-function buildChart() {
-  const ctx = document.getElementById('runrateChart').getContext('2d');
-  const labels = DAILY.map(r => r.date);
-  const expectedData = DAILY.map(r => r.expected);
-  const actualData = DAILY.map(r => actuals[r.date] !== undefined ? actuals[r.date] : null);
-
-  // 分段顏色：按階段分 3 段
-  const seg1 = DAILY.filter(r=>r.phase==='穩定增長期').map(r=>r.expected);
-  const seg2 = DAILY.filter(r=>r.phase==='加溫預熱期').map(r=>r.expected);
-  const seg3 = DAILY.filter(r=>r.phase==='最後衝刺期').map(r=>r.expected);
-
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: '目標 800 隊',
-          data: Array(25).fill(800),
-          borderColor: '#0071e3',
-          borderWidth: 1.5,
-          borderDash: [6,4],
-          pointRadius: 0,
-          fill: false,
-          tension: 0
-        },
-        {
-          label: '預期累積',
-          data: expectedData,
-          borderColor: function(ctx) {
-            const idx = ctx.p1DataIndex;
-            if (idx < 11) return '#0071e3';
-            if (idx < 18) return '#ff9500';
-            return '#ff3b30';
-          },
-          segment: {
-            borderColor: ctx => {
-              const i = ctx.p1DataIndex;
-              if (i < 11) return '#0071e3';
-              if (i < 18) return '#ff9500';
-              return '#ff3b30';
-            }
-          },
-          borderWidth: 2.5,
-          pointRadius: 3,
-          pointBackgroundColor: DAILY.map(r=>r.color),
-          fill: {
-            target: 'origin',
-            above: 'rgba(0,113,227,0.04)'
-          },
-          tension: 0.3
-        },
-        {
-          label: '實際累積',
-          data: actualData,
-          borderColor: '#34c759',
-          backgroundColor: '#34c759',
-          borderWidth: 2,
-          pointRadius: 5,
-          pointBackgroundColor: '#34c759',
-          fill: false,
-          tension: 0.3,
-          spanGaps: false
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: {
-          position: 'top',
-          labels: { font: { size: 12 }, boxWidth: 16, padding: 16 }
-        },
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              if (ctx.raw === null) return null;
-              return ` ${ctx.dataset.label}: ${ctx.raw} 隊`;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: { color: '#f0f0f5' },
-          ticks: { font: { size: 11 }, maxRotation: 45 }
-        },
-        y: {
-          min: 200,
-          max: 850,
-          grid: { color: '#f0f0f5' },
-          ticks: {
-            font: { size: 11 },
-            callback: v => v + ' 隊'
-          }
-        }
-      }
+// ── 賽道圓餅圖 ──
+new Chart(document.getElementById('trackChart'), {
+  type:'doughnut',
+  data:{
+    labels:['創意','創新','創業'],
+    datasets:[{
+      data:[125, 86, 38],
+      backgroundColor:['#0071e3','#ff9500','#af52de'],
+      borderWidth:2, borderColor:'#fff'
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    cutout:'62%',
+    plugins:{
+      legend:{position:'right', labels:{font:{size:11}, boxWidth:12, padding:10}},
+      tooltip:{callbacks:{label: ctx=>`${ctx.label}: ${ctx.raw} 隊 (${(ctx.raw/249*100).toFixed(1)}%)`}}
     }
-  });
-}
+  }
+});
 
-function updateChart() {
-  if (!chart) return;
-  chart.data.datasets[2].data = DAILY.map(r => actuals[r.date] !== undefined ? actuals[r.date] : null);
-  chart.update();
-}
-
-// ── Init ──
-renderTable();
-buildChart();
+// ── 組名類型橫條圖 ──
+new Chart(document.getElementById('nameChart'), {
+  type:'bar',
+  data:{
+    labels:['科技梗','日常生活','其他','食物飲料','幽默自嘲','自然意象','英文混搭','動物','戰鬥冒險'],
+    datasets:[{
+      data:[55,38,30,24,24,23,21,18,16],
+      backgroundColor:['#0071e3','#5ac8fa','#d2d2d7','#ff9500','#ff3b30','#34c759','#af52de','#ff2d55','#8e8e93'],
+      borderRadius:4, borderWidth:0
+    }]
+  },
+  options:{
+    indexAxis:'y',
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label: ctx=>`${ctx.raw} 隊 (${(ctx.raw/249*100).toFixed(1)}%)`}}
+    },
+    scales:{
+      x:{grid:{color:'#f0f0f5'}, ticks:{font:{size:10}, callback:v=>v+' 隊'}},
+      y:{grid:{display:false}, ticks:{font:{size:10}}}
+    }
+  }
+});
 </script>
 </body>
 </html>
