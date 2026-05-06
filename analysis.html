@@ -94,7 +94,7 @@ footer{text-align:center;font-size:11px;color:var(--text2);padding:16px;border-t
   <div class="header-top">
     <div class="header-left">
       <h1>📊 MAIC 報名分析中心</h1>
-      <p>行動應用創新賽 2026 ｜ 225 支隊伍 × 13 所學校 ｜ 資料截至 2026/05/05</p>
+      <p>行動應用創新賽 2026 ｜ 249 支隊伍 × 22 所學校 ｜ 資料截至 2026/05/06</p>
     </div>
     <a href="./portal.html" class="back-btn">← 返回 Hub</a>
   </div>
@@ -755,7 +755,7 @@ function buildOverview() {
   w.innerHTML = buildFilterBar({cb:'buildOverview',school:true,region:true,track:true,deptCat:true,nameCat:false,search:false})
   + `<div class="stats-row">
     ${statBox(t.length,'篩選後隊伍','#0071e3')}
-    ${statBox(Object.keys(bySchool).length,'涵蓋學校數','#5ac8fa')}
+    ${statBox(Object.keys(bySchool).filter(s => s && s !== '未知').length,'涵蓋學校數','#5ac8fa')}
     ${statBox(byTrack['創意']||0,'創意組','#0071e3')}
     ${statBox(byTrack['創新']||0,'創新組','#5ac8fa')}
     ${statBox(byTrack['創業']||0,'創業組','#af52de')}

@@ -2106,8 +2106,8 @@ window.addEventListener('afterprint', _printRestore);
     DATA.operation.schoolChart.data   = pcts;
     const sc = Chart.getChart(document.getElementById('schoolChart'));
     if (sc) { sc.data.labels = DATA.operation.schoolChart.labels; sc.data.datasets[0].data = pcts; sc.update(); }
-    // 自動更新「涵蓋學校數」
-    const schoolCount = rows.length;
+    // 自動更新「涵蓋學校數」（排除「未知」與空值）
+    const schoolCount = rows.filter(r => r[0] && r[0] !== '未知').length;
     if (DATA.operation.kpi1[4]) { DATA.operation.kpi1[4].value = String(schoolCount); }
     console.log('[AutoSync] 學校分佈 ✓', rows.length, '所');
   }
