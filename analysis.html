@@ -125,9 +125,9 @@ footer{text-align:center;font-size:11px;color:var(--text2);padding:16px;border-t
 //  nameCat: 科技梗|食物飲料|動物|幽默自嘲|英文混搭|自然意象|日常生活|戰鬥冒險|其他
 // ════════════════════════════════════════════════
 const TEAMS = [
-{id:'16', name:'Innovative!!', track:'創業', school:'臺北醫學大學', region:'北部', dept:'醫學系', deptCat:'法律醫療', nameCat:'英文混搭'},
+{id:'16', name:'Innovative!!', track:'創業', school:'臺北醫學大學', region:'北部', dept:'醫學系', deptCat:'法律醫療', nameCat:'英文混搭', extraSchool:'國立政治大學'},
 {id:'19', name:'Rookie', track:'創意', school:'國立臺北教育大學', region:'北部', dept:'數位科技設計學系', deptCat:'設計藝術', nameCat:'英文混搭'},
-{id:'34', name:'夜行式', track:'創新', school:'國立清華大學', region:'北部', dept:'教育與學習科技學系', deptCat:'教育', nameCat:'自然意象'},
+{id:'34', name:'夜行式', track:'創新', school:'國立清華大學', region:'北部', dept:'教育與學習科技學系', deptCat:'教育', nameCat:'自然意象', extraSchool:'國立臺中教育大學,國立臺灣大學'},
 {id:'37', name:'每個人都想成為我的豎笛', track:'創業', school:'逢甲大學', region:'中部', dept:'資訊工程學系', deptCat:'資工電機', nameCat:'日常生活'},
 {id:'42', name:'語你同行', track:'創意', school:'慈濟科技大學', region:'其他', dept:'行銷與流通管理系', deptCat:'商管', nameCat:'日常生活'},
 {id:'45', name:'夜空軒', track:'創意', school:'東海大學', region:'中部', dept:'資訊工程學系', deptCat:'資工電機', nameCat:'自然意象'},
@@ -141,7 +141,7 @@ const TEAMS = [
 {id:'53', name:'南灣之星', track:'創意', school:'東海大學', region:'中部', dept:'資訊工程學系', deptCat:'資工電機', nameCat:'自然意象'},
 {id:'54', name:'極限星域', track:'創意', school:'東海大學', region:'中部', dept:'資訊工程學系', deptCat:'資工電機', nameCat:'自然意象'},
 {id:'55', name:'哈囉你好嗎', track:'創意', school:'逢甲大學', region:'中部', dept:'財務金融學系', deptCat:'商管', nameCat:'日常生活'},
-{id:'56', name:'狐狸', track:'創新', school:'逢甲大學', region:'中部', dept:'室內設計進修學士班', deptCat:'設計藝術', nameCat:'動物'},
+{id:'56', name:'狐狸', track:'創新', school:'逢甲大學', region:'中部', dept:'室內設計進修學士班', deptCat:'設計藝術', nameCat:'動物', extraSchool:'國立政治大學'},
 {id:'60', name:'青蛙', track:'創意', school:'逢甲大學', region:'中部', dept:'財務金融學系', deptCat:'商管', nameCat:'動物'},
 {id:'62', name:'維度跳躍者', track:'創業', school:'國立清華大學', region:'北部', dept:'科技藝術研究所', deptCat:'設計藝術', nameCat:'日常生活'},
 {id:'63', name:'像素先鋒', track:'創新', school:'國立臺北科技大學', region:'北部', dept:'技術及職業教育研究所', deptCat:'教育', nameCat:'科技梗'},
@@ -168,7 +168,7 @@ const TEAMS = [
 {id:'86', name:'無界之徑', track:'創業', school:'國立清華大學', region:'北部', dept:'數理教育研究所', deptCat:'教育', nameCat:'日常生活'},
 {id:'87', name:'期末前交件', track:'創新', school:'國立臺北科技大學', region:'北部', dept:'電機工程系', deptCat:'資工電機', nameCat:'日常生活'},
 {id:'88', name:'咖啡因驅動', track:'創意', school:'國立臺北科技大學', region:'北部', dept:'機械工程系', deptCat:'理工科學', nameCat:'食物飲料'},
-{id:'89', name:'大展鴻圖', track:'創意', school:'逢甲大學', region:'中部', dept:'會計學系', deptCat:'商管', nameCat:'日常生活'},
+{id:'89', name:'大展鴻圖', track:'創意', school:'逢甲大學', region:'中部', dept:'會計學系', deptCat:'商管', nameCat:'日常生活', extraSchool:'國立政治大學'},
 {id:'90', name:'熬夜部署組', track:'創新', school:'國立臺北科技大學', region:'北部', dept:'機電學士班', deptCat:'資工電機', nameCat:'自然意象'},
 {id:'91', name:'光影疊代', track:'創業', school:'國立清華大學', region:'北部', dept:'電機工程學系', deptCat:'資工電機', nameCat:'自然意象'},
 {id:'92', name:'學生就要闖', track:'創新', school:'國立臺北科技大學', region:'北部', dept:'電機工程系', deptCat:'資工電機', nameCat:'戰鬥冒險'},
@@ -206,7 +206,7 @@ const TEAMS = [
 {id:'131', name:'Sky Swoosh', track:'創意', school:'國立臺灣大學', region:'北部', dept:'哲學系', deptCat:'語文人文', nameCat:'英文混搭'},
 {id:'133', name:'天空', track:'創新', school:'國立臺灣大學', region:'北部', dept:'哲學系', deptCat:'語文人文', nameCat:'自然意象'},
 {id:'134', name:'台北血脈', track:'創新', school:'國立臺灣大學', region:'北部', dept:'社會學系', deptCat:'語文人文', nameCat:'日常生活'},
-{id:'138', name:'貓咪', track:'創意', school:'國立臺中教育大學', region:'中部', dept:'英語學系', deptCat:'教育', nameCat:'動物'},
+{id:'138', name:'貓咪', track:'創意', school:'國立臺中教育大學', region:'中部', dept:'英語學系', deptCat:'教育', nameCat:'動物', extraSchool:'國立政治大學'},
 {id:'139', name:'你好', track:'創業', school:'國立政治大學', region:'北部', dept:'教育學系', deptCat:'教育', nameCat:'日常生活'},
 {id:'140', name:'早安', track:'創意', school:'國立政治大學', region:'北部', dept:'教育學系', deptCat:'教育', nameCat:'日常生活'},
 {id:'143', name:'平安喜樂', track:'創意', school:'逢甲大學', region:'中部', dept:'室內設計進修學士班', deptCat:'設計藝術', nameCat:'日常生活'},
@@ -337,7 +337,7 @@ const TEAMS = [
 {id:'296', name:'猴子', track:'創意', school:'逢甲大學', region:'中部', dept:'財務工程與精算學士學位學程', deptCat:'商管', nameCat:'動物'},
 {id:'297', name:'蚊子', track:'創意', school:'逢甲大學', region:'中部', dept:'文化與社會創新碩士學位學程', deptCat:'語文人文', nameCat:'日常生活'},
 {id:'298', name:'包包', track:'創意', school:'逢甲大學', region:'中部', dept:'合作經濟暨社會事業經營學系', deptCat:'商管', nameCat:'日常生活'},
-{id:'299', name:'信箱', track:'創意', school:'逢甲大學', region:'中部', dept:'會計學系', deptCat:'商管', nameCat:'日常生活'},
+{id:'299', name:'信箱', track:'創意', school:'逢甲大學', region:'中部', dept:'會計學系', deptCat:'商管', nameCat:'日常生活', extraSchool:'靜宜大學'},
 {id:'300', name:'聯絡人', track:'創意', school:'逢甲大學', region:'中部', dept:'合作經濟暨社會事業經營學系', deptCat:'商管', nameCat:'日常生活'},
 {id:'301', name:'電源', track:'創意', school:'逢甲大學', region:'中部', dept:'外國語文學系', deptCat:'語文人文', nameCat:'日常生活'},
 {id:'302', name:'自動', track:'創意', school:'逢甲大學', region:'中部', dept:'外國語文學系', deptCat:'語文人文', nameCat:'日常生活'},
@@ -409,7 +409,7 @@ const TEAMS = [
 {id:'380', name:'綠能科技先行者', track:'創新', school:'中原大學', region:'北部', dept:'電子工程學系', deptCat:'資工電機', nameCat:'科技梗'},
 {id:'381', name:'人機協作新世代', track:'創新', school:'國立中興大學', region:'中部', dept:'圖書資訊學研究所', deptCat:'資工電機', nameCat:'日常生活'},
 {id:'382', name:'TimeNest', track:'創新', school:'亞洲大學', region:'其他', dept:'資訊工程學系', deptCat:'資工電機', nameCat:'英文混搭'},
-{id:'405', name:'6年有始有終', track:'創業', school:'逢甲大學', region:'中部', dept:'資訊工程學系', deptCat:'資工電機', nameCat:'日常生活'},
+{id:'405', name:'6年有始有終', track:'創業', school:'逢甲大學', region:'中部', dept:'資訊工程學系', deptCat:'資工電機', nameCat:'日常生活', extraSchool:'國立中山大學'},
 {id:'410', name:'一起玩', track:'創業', school:'國立臺灣師範大學', region:'北部', dept:'資訊教育研究所', deptCat:'資工電機', nameCat:'日常生活'},
 {id:'412', name:'教育學習熱門APP', track:'創新', school:'國立臺灣師範大學', region:'北部', dept:'社會教育學系', deptCat:'教育', nameCat:'科技梗'},
 {id:'415', name:'豬豬隊友', track:'創意', school:'國立宜蘭大學', region:'北部', dept:'應用經濟與管理學系', deptCat:'商管', nameCat:'動物'},
@@ -431,7 +431,7 @@ const TEAMS = [
 {id:'436', name:'都是手下敗將', track:'創意', school:'國立陽明交通大學', region:'北部', dept:'音樂研究所', deptCat:'設計藝術', nameCat:'戰鬥冒險'},
 {id:'437', name:'爺果奶茶', track:'創意', school:'國立東華大學', region:'其他', dept:'幼兒教育學系', deptCat:'教育', nameCat:'食物飲料'},
 {id:'438', name:'我看倒像一塊綠豆糕', track:'創意', school:'世新大學', region:'北部', dept:'廣播電視電影學系', deptCat:'設計藝術', nameCat:'食物飲料'},
-{id:'439', name:'窩四立本人', track:'創意', school:'國立臺灣科技大學', region:'其他', dept:'專利研究所', deptCat:'其他', nameCat:'日常生活'},
+{id:'439', name:'窩四立本人', track:'創意', school:'國立臺灣科技大學', region:'其他', dept:'專利研究所', deptCat:'其他', nameCat:'日常生活', extraSchool:'國立臺中科技大學'},
 {id:'440', name:'我揮一揮衣袖不帶走一片雲彩', track:'創意', school:'國立彰化師範大學', region:'中部', dept:'運動學系', deptCat:'法律醫療', nameCat:'自然意象'},
 {id:'443', name:'沒吃過綠豆糕', track:'創意', school:'國立暨南國際大學', region:'中部', dept:'國際文教與比較教育學系', deptCat:'教育', nameCat:'食物飲料'},
 {id:'444', name:'束狀紋理燙', track:'創意', school:'元智大學', region:'北部', dept:'應用外語學系', deptCat:'語文人文', nameCat:'日常生活'},
@@ -696,7 +696,7 @@ function insBlock(title, items) {
 function genInsights(t) {
   const total = t.length;
   if(!total) return '';
-  const bySchool = countBy(t,'school');
+  const bySchool = countBySchool(t);
   const byTrack  = countBy(t,'track');
   const byRegion = countBy(t,'region');
   const byDeptCat= countBy(t,'deptCat');
@@ -723,6 +723,15 @@ function genInsights(t) {
 }
 function countBy(arr, key) {
   const r={};arr.forEach(t=>{ r[t[key]]=(r[t[key]]||0)+1; }); return r;
+}
+// 方案B1：學校統計計入 extraSchool（任一成員邏輯）
+function countBySchool(arr) {
+  const r={};
+  arr.forEach(t=>{
+    if(t.school) r[t.school]=(r[t.school]||0)+1;
+    if(t.extraSchool) t.extraSchool.split(',').forEach(s=>{ s=s.trim(); if(s) r[s]=(r[s]||0)+1; });
+  });
+  return r;
 }
 function mbar(label, count, max, color, extra) {
   const w=Math.max(2,Math.round(count/max*100));
@@ -855,7 +864,7 @@ function teamTable(teams, extra) {
 function buildOverview() {
   const w = document.getElementById('w-overview');
   const t = filtered();
-  const byTrack = countBy(t,'track'), byRegion = countBy(t,'region'), bySchool = countBy(t,'school');
+  const byTrack = countBy(t,'track'), byRegion = countBy(t,'region'), bySchool = countBySchool(t);
   const topSchools = Object.entries(bySchool).sort((a,b)=>b[1]-a[1]).slice(0,7);
   const byDeptCat = countBy(t,'deptCat'), byNameCat = countBy(t,'nameCat');
 
@@ -902,7 +911,7 @@ function buildTrack() {
   const trackSchool = {};
   ALL_TRACKS.forEach(tr=>{
     const sub = t.filter(x=>x.track===tr);
-    trackSchool[tr] = countBy(sub,'school');
+    trackSchool[tr] = countBySchool(sub);
   });
 
   w.innerHTML = buildFilterBar({cb:'buildTrack',school:true,region:true,track:true,deptCat:true,nameCat:true,search:false})
@@ -925,7 +934,7 @@ function buildTrack() {
   </div>
   ${ALL_TRACKS.map(tr=>{
     const sub = t.filter(x=>x.track===tr);
-    const byS = countBy(sub,'school');
+    const byS = countBySchool(sub);
     const top5 = Object.entries(byS).sort((a,b)=>b[1]-a[1]).slice(0,5);
     return `<div class="card">
       <div class="card-title">${tr}組 — ${sub.length} 隊詳細</div>
@@ -939,7 +948,7 @@ function buildTrack() {
   w.innerHTML += genInsights(t);
 
   setTimeout(()=>{
-    const top8schools = Object.entries(countBy(t,'school')).sort((a,b)=>b[1]-a[1]).slice(0,8).map(x=>x[0]);
+    const top8schools = Object.entries(countBySchool(t)).sort((a,b)=>b[1]-a[1]).slice(0,8).map(x=>x[0]);
     mkChart('c-tr-school',{type:'bar',data:{labels:top8schools.map(s=>s.replace('國立','')),datasets:ALL_TRACKS.map(tr=>({label:tr,data:top8schools.map(s=>t.filter(x=>x.track===tr&&x.school===s).length),backgroundColor:TRACK_COLORS[tr],borderRadius:3}))},options:{indexAxis:'y',plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{x:{stacked:true},y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'}}}}});
     mkChart('c-tr-dept',{type:'bar',data:{labels:ALL_DEPTCATS,datasets:ALL_TRACKS.map(tr=>({label:tr,data:ALL_DEPTCATS.map(d=>t.filter(x=>x.track===tr&&x.deptCat===d).length),backgroundColor:TRACK_COLORS[tr],borderRadius:3}))},options:{plugins:{legend:{position:'top',labels:{font:{size:11}}}},scales:{x:{stacked:true},y:{stacked:true,grid:{color:'rgba(0,0,0,0.04)'}}}}});
   },50);
@@ -949,7 +958,7 @@ function buildTrack() {
 function buildSchool() {
   const w = document.getElementById('w-school');
   const t = filtered();
-  const bySchool = countBy(t,'school');
+  const bySchool = countBySchool(t);
   const byRegion = countBy(t,'region');
 
   w.innerHTML = buildFilterBar({cb:'buildSchool',school:true,region:true,track:true,deptCat:true,nameCat:false,search:true})
@@ -1038,7 +1047,7 @@ function buildDept() {
         </div>
         <div>
           <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px">學校分佈</div>
-          ${Object.entries(countBy(sub,'school')).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([s,c])=>mbar(s.replace('國立',''),c,sub.length,REGION_COLORS[sub.find(x=>x.school===s)?.region]||'#aaa')).join('')}
+          ${Object.entries(countBySchool(sub)).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([s,c])=>mbar(s.replace('國立',''),c,sub.length,REGION_COLORS[sub.find(x=>x.school===s)?.region]||'#aaa')).join('')}
         </div>
       </div>
       ${teamTable(sub)}
