@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Straight A — 拜訪記錄 Dashboard Q1 2026</title>
+  <title>Straight A — 拜訪記錄 Dashboard Q1–Q2 2026</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -175,7 +175,7 @@
 <div class="page-header">
   <div>
     <h1>📊 Straight A — 拜訪記錄 Dashboard</h1>
-    <p>業務開發概況報告 &nbsp;·&nbsp; 資料期間：2026 年 2 月 – 3 月</p>
+    <p>業務開發概況報告 &nbsp;·&nbsp; 資料期間：2026 年 1 月 – 4 月</p>
   </div>
   <div class="header-pills">
     <div class="pill" id="pill-period">📅 2026/02/01 – 03/31</div>
@@ -214,7 +214,7 @@
     <span class="filter-tag" id="filterTag">已篩選</span>
     <button class="import-btn" onclick="openImportModal()">📂 匯入 CSV</button>
     <button class="pdf-btn" id="pdfBtn" onclick="printDashboard()">📄 下載 PDF</button>
-    <div class="update-time">最後更新：2026/04/30 &nbsp;·&nbsp; 資料來源：拜訪紀錄 PDF</div>
+    <div class="update-time">最後更新：2026/05/11 &nbsp;·&nbsp; 資料來源：拜訪紀錄 PDF</div>
   </div>
 
   <div class="section-label">核心指標 · KPI Overview</div>
@@ -326,7 +326,7 @@
     </div>
     <div class="card">
       <div class="card-title">📋 學校拜訪詳細統計</div>
-      <div class="card-sub" id="tableSub">完整數據（2–3月累計）</div>
+      <div class="card-sub" id="tableSub">完整數據（1–4月累計）</div>
       <table>
         <thead>
           <tr id="schoolThead"><th>#</th><th>學校名稱</th><th>總計</th><th>2月</th><th>3月</th><th>初訪率</th><th>客戶關係</th></tr>
@@ -817,7 +817,7 @@ function updateTable() {
   }).join('');
 
   document.getElementById('tableSub').textContent =
-    (singleMonth ? mLabel + '份' : '2–3月累計') + ' · 共 ' + schools.length + ' 所學校（' + total + ' 次）';
+    (singleMonth ? mLabel + '份' : '1–4月累計') + ' · 共 ' + schools.length + ' 所學校（' + total + ' 次）';
 }
 
 function updateProgressBars() {
