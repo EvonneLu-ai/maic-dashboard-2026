@@ -432,8 +432,8 @@ const DATA = {
   meta: {
     title:       'MAIC Dashboard',
     subtitle:    '行動應用創新賽 · 2026 Season · Straight A × Apple',
-    dataAsOf:    '📅 資料截至 2026/05/06',
-    currentDate: '2026-05-06',  // ← 更新為今日 5/6 (test sync)
+    dataAsOf:    '📅 資料截至 2026/05/11',
+    currentDate: '2026-05-11',  // ← 更新 5/11
   },
 
   // ── OPERATION：報名數據 KPI ───────────────────────────
@@ -443,18 +443,18 @@ const DATA = {
 
     // 第一排 KPI（4格）
     kpi1: [
-      { label: '累計報名隊伍', value: '249', unit: '組', sub: '本週新增 +26 隊', badge: '⏫ 報名進行中', badgeClass: 'bo', color: 'var(--blue)' },
-      { label: '目標達成率',   value: '31.1%', unit: '', sub: 'TW Season 初期階段（249/800）', badge: '🎯 持續衝刺中', badgeClass: 'bo', color: 'var(--orange)' },
-      { label: '累計註冊帳號', value: '353',  unit: '位', sub: '已驗證帳號 353 位', badge: '持續成長中', badgeClass: 'bb', color: 'var(--teal)' },
-      { label: '報名學生人數', value: '353',  unit: '人', sub: '參加過 3 人（1.27%）', badge: '跨校跨系', badgeClass: 'bp', color: 'var(--purple)' },
-      { label: '涵蓋學校數',   value: '22',   unit: '所', sub: '全台各地學校', badge: '全台分佈', badgeClass: 'bb', color: 'var(--blue)' },
+      { label: '累計報名隊伍', value: '318', unit: '組', sub: '本週新增 +69 隊', badge: '⏫ 報名進行中', badgeClass: 'bo', color: 'var(--blue)' },
+      { label: '目標達成率',   value: '39.8%', unit: '', sub: 'TW Season 初期階段（318/800）', badge: '🎯 持續衝刺中', badgeClass: 'bo', color: 'var(--orange)' },
+      { label: '累計註冊帳號', value: '444',  unit: '位', sub: '已驗證帳號 444 位', badge: '持續成長中', badgeClass: 'bb', color: 'var(--teal)' },
+      { label: '報名學生人數', value: '444',  unit: '人', sub: '參加過 3 人（1.27%）', badge: '跨校跨系', badgeClass: 'bp', color: 'var(--purple)' },
+      { label: '涵蓋學校數',   value: '44',   unit: '所', sub: '全台各地學校', badge: '全台分佈', badgeClass: 'bb', color: 'var(--blue)' },
     ],
 
     // 第二排 KPI（3格）- 組別＋網站
     groupBreakdown: {
-      creative: 125,   // 創意組
-      innovative: 86, // 創新組
-      startup: 38,    // 創業組
+      creative: 161,   // 創意組
+      innovative: 118, // 創新組
+      startup: 39,    // 創業組
       submitted: 1,   // 企劃書已繳（1 筆）
       notSubmitted: 248, // 企劃書未繳
     },
@@ -465,14 +465,14 @@ const DATA = {
 
     // 科系分佈 Donut（截至 2026/05/06，249 隊）
     deptChart: {
-      labels: ['教育(24%)', '商管(23%)', '語文人文(20%)', '理工科學(11%)', '資工電機(10%)', '設計藝術(9%)', '法律醫療(2%)', '其他(1%)'],
-      data:   [24, 23, 20, 11, 10, 9, 2, 1],
+      labels: ['教育(21%)', '商管(21%)', '語文人文(19%)', '設計藝術(13%)', '理工科學(10%)', '資工電機(10%)', '其他(4%)', '法律醫療(2%)'],
+      data:   [21, 21, 19, 13, 10, 10, 4, 2],
     },
 
     // 學校分佈 Donut（截至 2026/05/06，249 隊，22 所學校）
     schoolChart: {
-      labels: ['臺灣大學(24%)', '逢甲大學(19%)', '政治大學(15%)', '臺中教育大學(9%)', '高雄科技大學(8%)', '清華大學(6%)', '東海大學(4%)', '陽明交通大學(3%)', '臺灣師範大學(2%)', '其他(10%)'],
-      data:   [24, 19, 15, 9, 8, 6, 4, 3, 2, 10],
+      labels: ['臺灣大學(20%)', '逢甲大學(15%)', '政治大學(11%)', '臺中教育大學(7%)', '高雄科技大學(7%)', '清華大學(5%)', '陽明交通大學(4%)', '東海大學(3%)', '臺灣師範大學(2%)', '其他(26%)'],
+      data:   [20, 15, 11, 7, 7, 5, 4, 3, 2, 26],
     },
 
     // 活動類型分佈 Donut + 進度條
