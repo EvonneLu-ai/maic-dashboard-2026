@@ -518,6 +518,8 @@ const DATA = {
         { type:'tr', date:'5/7(四)',   name:'多元講座 — 【AI Coding】從點子到 App 的最短路徑（上）', meta:'線上 · 18:30–21:30' },
         { type:'tr', date:'5月上旬',  name:'多元講座 — UI/UX設計（實體）', meta:'TBC' },
         { type:'tr', date:'5/8(五)',   name:'RTC｜產品設計思考', meta:'臺灣大學 · 講師：Mia · 14:00–17:00' },
+        { type:'mk', date:'5/8(五)',   name:'國立臺中科技大學宣講會', meta:'講師：Edick 及 YY · 16:30–17:30 · 30人' },
+        { type:'mk', date:'5/8(五)',   name:'線上宣講會', meta:'講師：YY 及 Edick · 19:00–20:00 · 9人 · 線上 Live' },
         { type:'tr', date:'5/15(五)', name:'RTC｜空間體驗設計', meta:'臺灣大學 · 講師：Mia · 14:00–17:00' },
         { type:'mk', date:'5/15',     name:'逢甲大學 AI coding 工作坊', meta:'講師：Peter' },
         { type:'mk', date:'5/20(三)', name:'臺灣大學宣講會 &【AI Coding 驅動創意】從點子到 App 的最短路徑', meta:'講師：13 · 09:30–12:30 · 宣傳：學生iOS club FB / 提醒講師課程框架才能幫忙寫文稿' },
@@ -553,10 +555,10 @@ const DATA = {
   // ── MARKETING：宣講會 KPI ─────────────────────────────
   marketing: {
     kpi1: [
-      { label: '已舉辦場次', value: '9', unit: '場', sub: '線下 7 + 線上 1 + 課程公告 1', badge: '3月～4月', badgeClass: 'bo', color: 'var(--orange)' },
+      { label: '已舉辦場次', value: '10', unit: '場', sub: '線下 8 + 線上 2', badge: '3月～5月', badgeClass: 'bo', color: 'var(--orange)' },
       { label: '最大單場人數', value: '150+', unit: '', sub: '高雄科技大學 3/18', badge: '燕巢校區', badgeClass: 'bb', color: 'var(--blue)' },
-      { label: '宣講累計出席', value: '815+', unit: '', sub: '9 場合計（含資管系課程公告 520 人）', badge: '線上+線下合計', badgeClass: 'bg', color: 'var(--green)' },
-      { label: '下一場（預計）', value: '待定', unit: '', sub: '持續規劃中', badge: '規劃中', badgeClass: 'bp', color: 'var(--purple)', smallVal: true },
+      { label: '宣講累計出席', value: '324', unit: '', sub: '10 場合計', badge: '線上+線下合計', badgeClass: 'bg', color: 'var(--green)' },
+      { label: '最新場次', value: '5/8', unit: '', sub: '臺中科技大學 + 線上', badge: '已完成', badgeClass: 'bp', color: 'var(--purple)', smallVal: true },
     ],
 
     // 宣講會清單
@@ -567,9 +569,10 @@ const DATA = {
       { school:'海洋大學',         date:'3/25', lecturer:'Brandi',         type:'線下', time:'12:20–12:40', people:15,  venue:'資訊工程學系',             note:'分享 Apple 創業基金後，學生興趣大增', color: '#34c759' },
       { school:'慈濟大學',         date:'4/1',  lecturer:'Lynn',           type:'線下', time:'16:10–16:30', people:45,  venue:'經管系 自媒體傳播課程',   note:'老師安排於課程中分享，學校及課程另外提供參賽及獲獎獎勵', color: '#ff3b30' },
       { school:'東華大學（線上）',  date:'4/2+4/9', lecturer:'Lynn',      type:'線上', time:'12:30–13:30', people:10,  venue:'線上',                   note:'學生敢於分享瞭解賽事的原因，積極了解比賽及參賽方式', color: '#5ac8fa' },
-      { school:'東華大學 資管系（課程公告）', date:'4/16', lecturer:'Lynn',  type:'課程公告', time:'',  people:520, venue:'必修 R 語言課程公告區（初中高級程式設計）', note:'資管系老師協助在必修 R 語言課程公告區發佈賽事資訊，受眾學生具程式語言背景，具備高關聯性', color: '#34c759' },
       { school:'逢甲大學',               date:'4/24', lecturer:'Brandi 及逢甲學長姐', type:'線下', time:'15:40–17:00', people:20, venue:'逢甲大學 資電 B29', note:'當日參加的學生皆為資訊背景，大部分為逢甲 iOS Club 社員，具有高度參與動機。認真聆聽賽制解說後，在學長姐分享內容時也有熱烈互動。', color: '#ff9500' },
       { school:'臺灣大學（AI 剪輯工作坊）', date:'4/30', lecturer:'Curly 及 Brandi',   type:'線下', time:'09:30–12:30', people:10, venue:'台灣大學', note:'學生大多數為了解 AI 剪輯影片技巧工作坊前來。講師介紹 Apple 生態系中的剪輯工具 Final Cut Pro，分享剪輯技巧及 App 內建的 AI 工具來輔助剪輯。', color: '#0071e3' },
+      { school:'國立臺中科技大學',          date:'5/8',  lecturer:'Edick 及 YY',        type:'線下', time:'16:30–17:30', people:30, venue:'國立臺中科技大學', note:'學生以資工系學會及社團學生為主。講師講解比賽事項並分享往年獲獎作品特色，同學踴躍發問，尤其對Vision Pro開發感到興趣。', color: '#af52de' },
+      { school:'線上宣講會',                date:'5/8',  lecturer:'YY 及 Edick',         type:'線上', time:'19:00–20:00', people:9,  venue:'線上 Live', note:'講師介紹比賽背景至各賽組詳情，同學積極發問，提出有關組隊安排、App開發方向等問題。', color: '#5ac8fa' },
     ],
 
     // Email KPI（3格）
