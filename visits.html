@@ -308,8 +308,16 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
 <!-- PAGE: DETAIL                  -->
 <!-- ══════════════════════════════ -->
 <div id="pg-detail" class="page hidden">
-  <div class="hdr">
-    <button class="hdr-back" onclick="goOverview()">‹ 全部學校</button>
+  <div class="hdr" style="padding-bottom:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <button class="hdr-back" onclick="goOverview()" style="margin-bottom:0">‹ 全部學校</button>
+      <button id="detail-save-btn" onclick="saveDetail()"
+        style="padding:7px 16px;border-radius:99px;font-size:12px;font-weight:700;
+               background:var(--blue);color:#fff;border:none;cursor:pointer;-webkit-appearance:none;
+               display:flex;align-items:center;gap:5px">
+        💾 儲存
+      </button>
+    </div>
     <div style="font-size:18px;font-weight:700" id="detail-school-name"></div>
     <p class="sub" id="detail-school-sub"></p>
   </div>
@@ -882,6 +890,21 @@ function confirmNewVisit() {
 }
 
 // ══════════════════════════════════════
+// DETAIL PAGE SAVE
+// ══════════════════════════════════════
+async function saveDetail() {
+  const btn = document.getElementById('detail-save-btn');
+  if (btn) { btn.textContent = '⏳ 儲存中…'; btn.disabled = true; }
+  const ok = await ghWrite();
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = ok ? '✅ 已儲存' : '❌ 失敗';
+    setTimeout(() => { btn.textContent = '💾 儲存'; }, 2000);
+  }
+  showToast(ok ? '✅ 資料已儲存到雲端' : '❌ 儲存失敗，請重試');
+}
+
+// ══════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════
 function goDetail(schoolId, jumpVid) {
@@ -914,15 +937,15 @@ function goDetail(schoolId, jumpVid) {
 }
 
 function goOverview() {
-  // 離開學校頁面時自動同步（fire & forget，不阻塞 UI）
+  // 離開時背景同步（不阻塞，但讓 status 有反饋）
   if (getGHToken() && curVisitId) {
     const statusEl = document.getElementById('sync-status');
-    if (statusEl) statusEl.textContent = '☁️ 自動儲存中…';
+    if (statusEl) { statusEl.textContent = '☁️ 自動儲存中…'; statusEl.style.color = 'var(--muted)'; }
     ghWrite().then(ok => {
       if (statusEl) {
         const now = new Date().toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'});
-        statusEl.textContent = ok ? `✅ 已同步 ${now}` : '⚠️ 同步失敗，請手動按儲存';
-        statusEl.style.color = ok ? 'var(--green)' : 'var(--orange)';
+        statusEl.textContent = ok ? `✅ 已同步 ${now}` : '⚠️ 同步失敗，下次開啟可能遺失資料';
+        statusEl.style.color = ok ? 'var(--green)' : 'var(--red)';
       }
     });
   }
