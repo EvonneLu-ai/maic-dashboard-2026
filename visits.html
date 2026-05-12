@@ -331,11 +331,24 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
 
 
   <div class="photo-section" id="photo-section">
-    <div style="display:flex;align-items:center;justify-content:space-between">
-      <div class="note-label">📷 拜訪照片</div>
-      <span id="photo-count" style="font-size:11px;color:var(--sub)"></span>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="note-label" style="margin-bottom:0">📷 拜訪照片</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span id="photo-count" style="font-size:11px;color:var(--sub)"></span>
+        <button onclick="triggerPhotoUpload()"
+          style="padding:6px 14px;border-radius:99px;font-size:12px;font-weight:700;
+                 background:var(--blue);color:#fff;border:none;cursor:pointer;-webkit-appearance:none">
+          ＋ 上傳照片
+        </button>
+      </div>
     </div>
-    <div class="photo-grid" id="photo-grid"></div>
+    <div class="photo-grid" id="photo-grid">
+      <!-- 若無照片顯示提示文字 -->
+      <div id="photo-empty" style="grid-column:1/-1;text-align:center;padding:20px 0;
+           font-size:12px;color:var(--muted)">
+        點右上角「＋ 上傳照片」新增本次拜訪照片
+      </div>
+    </div>
   </div>
 
   <!-- Lightbox -->
@@ -343,7 +356,8 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
     <button class="lightbox-close" onclick="closeLightbox()">✕</button>
     <img id="lightbox-img" src="" alt="">
   </div>
-  <input type="file" id="photo-input" accept="image/*" multiple style="display:none" onchange="handlePhotoSelect(event)">
+  <input type="file" id="photo-input" accept="image/*" capture="environment" multiple
+    style="display:none" onchange="handlePhotoSelect(event)">
 
   <div class="history-section">
     <div class="section-title">📅 歷史拜訪紀錄</div>
@@ -1051,32 +1065,42 @@ function renderThumbHTML(url, idx) {
     <button class="photo-del" onclick="deletePhoto(event,${idx})">✕</button>`;
 }
 
+function triggerPhotoUpload() {
+  if (!curVisitId) { showToast('⚠️ 請先選擇或新增拜訪記錄'); return; }
+  document.getElementById('photo-input').click();
+}
+
 // 渲染照片區
 function renderPhotos() {
-  const grid = document.getElementById('photo-grid');
+  const grid    = document.getElementById('photo-grid');
   const section = document.getElementById('photo-section');
-  if (!curVisitId) { if (section) section.classList.add('hidden'); return; }
+  const empty   = document.getElementById('photo-empty');
+
+  // 無拜訪記錄時隱藏整區
+  if (!curVisitId) {
+    if (section) section.classList.add('hidden');
+    return;
+  }
   if (section) section.classList.remove('hidden');
 
   const d = getVisitData(curVisitId);
   const photos = d._photos || [];
-  grid.innerHTML = '';
 
+  // 清空（保留 photo-empty 元素）
+  Array.from(grid.children).forEach(el => {
+    if (el.id !== 'photo-empty') el.remove();
+  });
+
+  // 顯示 / 隱藏空白提示
+  if (empty) empty.style.display = photos.length ? 'none' : 'block';
+
+  // 渲染縮圖
   photos.forEach((url, i) => {
     const div = document.createElement('div');
     div.className = 'photo-thumb';
     div.innerHTML = renderThumbHTML(url, i);
-    grid.appendChild(div);
+    grid.insertBefore(div, empty);
   });
-
-  // 新增按鈕（最多 12 張）
-  if (photos.length < 12) {
-    const add = document.createElement('div');
-    add.className = 'photo-add';
-    add.innerHTML = `<div class="photo-add-icon">📷</div><div class="photo-add-lbl">新增照片</div>`;
-    add.onclick = () => document.getElementById('photo-input').click();
-    grid.appendChild(add);
-  }
 
   updatePhotoCount();
 }
