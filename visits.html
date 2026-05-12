@@ -56,11 +56,11 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
 
 /* ─── ADD VISIT BTN (FAB) ─── */
 .fab{position:fixed;bottom:28px;right:20px;z-index:100;
-  width:54px;height:54px;border-radius:50%;background:var(--blue);color:#fff;
-  border:none;font-size:26px;line-height:1;cursor:pointer;
-  box-shadow:0 4px 16px rgba(0,113,227,.4);display:flex;align-items:center;justify-content:center;
-  transition:transform .15s;-webkit-appearance:none}
-.fab:active{transform:scale(.92)}
+  height:48px;border-radius:99px;background:var(--blue);color:#fff;
+  border:none;font-size:14px;font-weight:700;padding:0 20px;cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,113,227,.4);display:flex;align-items:center;gap:6px;
+  transition:transform .15s;-webkit-appearance:none;white-space:nowrap}
+.fab:active{transform:scale(.96)}
 
 /* ─── SCHOOL CARDS ─── */
 .school-list{padding:12px 16px 0;display:flex;flex-direction:column;gap:8px}
@@ -350,28 +350,6 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
       placeholder="記錄本次拜訪的重點、需跟進的事項、洽談結果…" oninput="saveNote()"></textarea>
   </div>
 
-
-  <div class="photo-section" id="photo-section">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div class="note-label" style="margin-bottom:0">📷 拜訪照片</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span id="photo-count" style="font-size:11px;color:var(--sub)"></span>
-        <button onclick="triggerPhotoUpload()"
-          style="padding:6px 14px;border-radius:99px;font-size:12px;font-weight:700;
-                 background:var(--blue);color:#fff;border:none;cursor:pointer;-webkit-appearance:none">
-          ＋ 上傳照片
-        </button>
-      </div>
-    </div>
-    <div class="photo-grid" id="photo-grid">
-      <!-- 若無照片顯示提示文字 -->
-      <div id="photo-empty" style="grid-column:1/-1;text-align:center;padding:20px 0;
-           font-size:12px;color:var(--muted)">
-        點右上角「＋ 上傳照片」新增本次拜訪照片
-      </div>
-    </div>
-  </div>
-
   <!-- Lightbox -->
   <div class="lightbox hidden" id="lightbox" onclick="closeLightbox()">
     <button class="lightbox-close" onclick="closeLightbox()">✕</button>
@@ -381,7 +359,15 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
     style="display:none" onchange="handlePhotoSelect(event)">
 
   <div class="history-section">
-    <div class="section-title">📅 歷史拜訪紀錄</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="section-title" style="margin-bottom:0">📅 歷史拜訪紀錄</div>
+      <button onclick="triggerPhotoUpload()"
+        style="padding:6px 14px;border-radius:99px;font-size:11px;font-weight:700;
+               background:var(--fill);color:var(--sub);border:1.5px solid var(--border);
+               cursor:pointer;-webkit-appearance:none;display:flex;align-items:center;gap:4px">
+        📷 上傳照片
+      </button>
+    </div>
     <div id="history-list"></div>
   </div>
 
@@ -398,7 +384,7 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
 </div>
 
 <!-- ── FAB ── -->
-<button class="fab" id="fab-btn" onclick="openAddModal()" title="新增拜訪">＋</button>
+<button class="fab" id="fab-btn" onclick="openAddModal()">＋ 新增拜訪記錄</button>
 
 <!-- ── ADD MODAL ── -->
 <div class="modal-bg hidden" id="modal-bg" onclick="closeModalIfBg(event)">
@@ -1371,7 +1357,32 @@ function renderHistory(schoolId) {
     row.appendChild(info);
     row.appendChild(prog);
     row.appendChild(del);
-    el.appendChild(row);
+
+    // 若此次拜訪有照片，顯示縮圖列
+    const vd = getVisitData(v.id);
+    const vPhotos = vd._photos || [];
+    if (vPhotos.length) {
+      const photoRow = document.createElement('div');
+      photoRow.style.cssText = 'display:flex;gap:5px;padding:8px 0 4px 19px;flex-wrap:wrap';
+      vPhotos.forEach((url, pi) => {
+        const thumb = document.createElement('div');
+        thumb.style.cssText = 'width:48px;height:48px;border-radius:6px;overflow:hidden;flex-shrink:0;cursor:pointer;background:var(--fill)';
+        const img = document.createElement('img');
+        img.src = url;
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+        img.loading = 'lazy';
+        img.onclick = () => openLightbox(url);
+        thumb.appendChild(img);
+        photoRow.appendChild(thumb);
+      });
+      // 包一個完整行放在 row 下面
+      const wrapper = document.createElement('div');
+      wrapper.appendChild(row);
+      wrapper.appendChild(photoRow);
+      el.appendChild(wrapper);
+    } else {
+      el.appendChild(row);
+    }
   });
 }
 
