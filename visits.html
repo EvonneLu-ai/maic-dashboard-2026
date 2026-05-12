@@ -244,6 +244,7 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
   transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;opacity:0;pointer-events:none}
 .save-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -419,6 +420,12 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
       前往 GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)，勾選 repo 權限
     </div>
     <button class="btn-primary" onclick="saveToken()">連線</button>
+    <button id="qr-btn" class="btn-cancel" style="display:none" onclick="toggleQR()">📱 手機掃描設定</button>
+    <div id="qr-section" style="display:none;margin-top:12px;text-align:center">
+      <div style="font-size:12px;color:var(--sub);margin-bottom:8px">用手機掃描，自動填入 Token 並連線</div>
+      <div id="qr-canvas" style="display:inline-block;padding:12px;background:#fff;border-radius:12px;border:1px solid var(--border)"></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px">⚠️ QR Code 含有 Token，請勿截圖分享</div>
+    </div>
     <button class="btn-cancel" onclick="disconnectGH()" style="color:var(--red)">移除連線</button>
     <button class="btn-cancel" onclick="closeTokenModal()">取消</button>
   </div>
@@ -662,15 +669,42 @@ async function syncToGitHub() {
 // Token 設定 modal
 function openTokenModal() {
   document.getElementById('token-modal').classList.remove('hidden');
-  document.getElementById('token-input').value = getGHToken();
+  const t = getGHToken();
+  document.getElementById('token-input').value = t;
+  // 已有 token → 顯示「手機掃描」按鈕
+  const qrBtn = document.getElementById('qr-btn');
+  if (qrBtn) qrBtn.style.display = t ? '' : 'none';
+  // 收起 QR section
+  const qrSec = document.getElementById('qr-section');
+  if (qrSec) qrSec.style.display = 'none';
 }
-function closeTokenModal() { document.getElementById('token-modal').classList.add('hidden'); }
+function closeTokenModal() {
+  document.getElementById('token-modal').classList.add('hidden');
+  const qrSec = document.getElementById('qr-section');
+  if (qrSec) qrSec.style.display = 'none';
+}
 function saveToken() {
   const t = document.getElementById('token-input').value.trim();
   if (!t) { alert('請輸入 Token'); return; }
   setGHToken(t);
   closeTokenModal();
   initSync();
+}
+let _qrVisible = false;
+function toggleQR() {
+  const sec = document.getElementById('qr-section');
+  _qrVisible = !_qrVisible;
+  sec.style.display = _qrVisible ? '' : 'none';
+  if (_qrVisible) generateQR();
+  document.getElementById('qr-btn').textContent = _qrVisible ? '🔼 收起 QR Code' : '📱 手機掃描設定';
+}
+function generateQR() {
+  const token = getGHToken();
+  if (!token) return;
+  const canvas = document.getElementById('qr-canvas');
+  canvas.innerHTML = '';
+  const url = `${location.origin}${location.pathname}?token=${encodeURIComponent(token)}`;
+  new QRCode(canvas, { text: url, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
 }
 function disconnectGH() {
   if (!confirm('確定要移除 GitHub Token？')) return;
@@ -1554,7 +1588,19 @@ async function forceSync() {
   showToast('✅ 同步完成');
 }
 
-window.onload = () => { renderOverview(); initSync(); };
+window.onload = () => {
+  // 偵測 URL ?token= 參數（手機掃 QR Code 後自動設定）
+  const urlParams = new URLSearchParams(location.search);
+  const urlToken  = urlParams.get('token');
+  if (urlToken) {
+    setGHToken(urlToken);
+    // 清除 URL 中的 token，避免留在瀏覽器歷史紀錄
+    history.replaceState(null, '', location.pathname);
+    showToast('📱 Token 已自動設定，連線中…');
+  }
+  renderOverview();
+  initSync();
+};
 </script>
 </body>
 <div style="position:fixed;bottom:24px;left:20px;z-index:9999;background:rgba(255,255,255,0.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(0,0,0,0.10);border-radius:22px;padding:9px 16px;font-family:-apple-system,'PingFang TC',sans-serif;font-size:13px;font-weight:600;color:#1d1d1f;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.12);user-select:none;" onclick="location.href='./portal.html'">◀ Hub</div>
