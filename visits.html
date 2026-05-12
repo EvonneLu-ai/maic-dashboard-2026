@@ -576,13 +576,14 @@ async function ghRead() {
       { headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' } }
     );
     if (res.status === 404) { ghSha = null; return { _empty: true, idx: {}, visits: {} }; }
-    if (res.status === 401) { clearGHToken(); return null; }
+    if (res.status === 401) { return { _authFail: true }; }  // token 失效，保留 token 等使用者手動更新
     if (!res.ok) return null;
     const json = await res.json();
     ghSha = json.sha;
-    // 正確解碼 UTF-8：atob → binary string → escape → decodeURIComponent
+    // 正確解碼 UTF-8：atob → Uint8Array → TextDecoder
     const raw = atob(json.content.replace(/\n/g, ''));
-    const text = decodeURIComponent(escape(raw));
+    const bytes = Uint8Array.from(raw, c => c.charCodeAt(0));
+    const text = new TextDecoder().decode(bytes);
     return JSON.parse(text);
   } catch(e) { return null; }
 }
@@ -598,7 +599,10 @@ async function ghWrite() {
   allVids.forEach(vid => { visits[vid] = getVisitData(vid); });
   const payload = { idx, visits, lastSync: new Date().toLocaleString('zh-TW') };
   try {
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+    // 正確 UTF-8 base64 編碼：Uint8Array → binary string → btoa
+    const jsonStr = JSON.stringify(payload, null, 2);
+    const bytes = new TextEncoder().encode(jsonStr);
+    const content = btoa(String.fromCharCode(...bytes));
     const body = { message: `sync ${new Date().toLocaleString('zh-TW')}`, content, branch: GH_BRANCH };
     if (ghSha) body.sha = ghSha;
     const res = await fetch(
@@ -677,9 +681,10 @@ async function initSync() {
   if (status) { status.textContent = '讀取中…'; status.style.color = 'var(--muted)'; }
   if (btn) btn.classList.add('hidden');
   const data = await ghRead();
-  if (!data) {
-    if (status) { status.textContent = '❌ Token 失效', status.style.color = 'var(--red)'; }
-    if (tBtn) tBtn.textContent = '🔑 重設 Token';
+  if (!data || data._authFail) {
+    if (status) { status.textContent = '❌ Token 已失效，請重新設定', status.style.color = 'var(--red)'; }
+    if (btn)   btn.classList.add('hidden');
+    if (tBtn)  tBtn.textContent = '🔑 重設 Token';
     return;
   }
   // 只在 GitHub 有實際資料時才覆蓋 localStorage
