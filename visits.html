@@ -721,6 +721,7 @@ let curSchoolId  = null;
 let curVisitId   = null;
 let filterVal    = 'all';
 let selectedSid  = null;  // for add modal
+let pendingPhotos = [];   // 待儲存的照片 {blob, localUrl}
 
 // ══════════════════════════════════════
 // TOAST
@@ -883,13 +884,35 @@ function confirmNewVisit() {
 async function saveDetail() {
   const btn = document.getElementById('detail-save-btn');
   if (btn) { btn.textContent = '⏳ 儲存中…'; btn.disabled = true; }
+
+  // 1. 先上傳所有待上傳照片
+  if (pendingPhotos.length) {
+    showToast(`☁️ 上傳 ${pendingPhotos.length} 張照片中…`);
+    for (const p of pendingPhotos) {
+      const ghUrl = await uploadPhoto(p.schoolId, p.visitId, p.blob);
+      if (ghUrl) {
+        const d = getVisitData(p.visitId);
+        if (!d._photos) d._photos = [];
+        d._photos.push(ghUrl);
+        setVisitData(p.visitId, d);
+        URL.revokeObjectURL(p.localUrl);
+      }
+    }
+    pendingPhotos = [];
+  }
+
+  // 2. 同步到 GitHub
   const ok = await ghWrite();
+
   if (btn) {
     btn.disabled = false;
     btn.textContent = ok ? '✅ 已儲存' : '❌ 失敗';
     setTimeout(() => { btn.textContent = '💾 儲存'; }, 2000);
   }
   showToast(ok ? '✅ 資料已儲存到雲端' : '❌ 儲存失敗，請重試');
+
+  // 3. 重新渲染歷史（讓照片出現）
+  if (ok) renderHistory(curSchoolId);
 }
 
 // ══════════════════════════════════════
@@ -901,9 +924,12 @@ function goDetail(schoolId, jumpVid) {
   const visits = getSchoolVisits(schoolId);
   curVisitId = jumpVid || (visits.length ? visits[visits.length-1].id : null);
 
-  // 立即清空備忘欄，避免舊學校的內容殘留
+  // 立即清空備忘欄、清空待上傳照片佇列
   const noteEl = document.getElementById('visit-note');
   if (noteEl) noteEl.value = '';
+  pendingPhotos = [];
+  const savBtn = document.getElementById('detail-save-btn');
+  if (savBtn) savBtn.textContent = '💾 儲存';
 
   document.getElementById('pg-overview').classList.add('hidden');
   document.getElementById('pg-detail').classList.remove('hidden');
@@ -1132,61 +1158,27 @@ async function deletePhotoFromGH(ghPath) {
   );
 }
 
-// 選照片後處理
+// 選照片後處理（只壓縮暫存，按儲存才上傳）
 async function handlePhotoSelect(event) {
   if (!curVisitId) return;
   const files = Array.from(event.target.files);
   event.target.value = '';
   if (!files.length) return;
 
-  if (!getGHToken()) {
-    showToast('⚠️ 請先設定 GitHub Token 才能上傳照片');
-    return;
-  }
-
-  const grid  = document.getElementById('photo-grid');
-  const empty = document.getElementById('photo-empty');
-  if (empty) empty.style.display = 'none';
-
   for (const file of files) {
-    // 壓縮 → 立即用本地 blob URL 顯示縮圖
-    showToast('📷 壓縮上傳中…');
+    showToast('📷 壓縮中…');
     let blob;
     try { blob = await compressImage(file); }
     catch(e) { showToast('❌ 壓縮失敗'); continue; }
-
     const localUrl = URL.createObjectURL(blob);
-    const thumbDiv = document.createElement('div');
-    thumbDiv.className = 'photo-thumb';
-    thumbDiv.innerHTML = `
-      <img src="${localUrl}" style="width:100%;height:100%;object-fit:cover">
-      <div class="photo-uploading"><div class="photo-uploading-spin"></div></div>`;
-    grid.insertBefore(thumbDiv, empty || null);
+    pendingPhotos.push({ blob, localUrl, visitId: curVisitId, schoolId: curSchoolId });
+  }
 
-    // 上傳 GitHub
-    const ghUrl = await uploadPhoto(curSchoolId, curVisitId, blob);
-    if (!ghUrl) {
-      thumbDiv.remove();
-      const d2 = getVisitData(curVisitId);
-      if (!(d2._photos||[]).length && empty) empty.style.display = 'block';
-      showToast('❌ 上傳失敗，請重試');
-      continue;
-    }
-
-    // 儲存 GitHub URL 到 visit data
-    const d = getVisitData(curVisitId);
-    if (!d._photos) d._photos = [];
-    const idx = d._photos.length;
-    d._photos.push(ghUrl);
-    setVisitData(curVisitId, d);
-
-    // 移除 loading overlay，加刪除按鈕（繼續顯示本地 blob 圖）
-    thumbDiv.innerHTML = `
-      <img src="${localUrl}" style="width:100%;height:100%;object-fit:cover"
-        onclick="openLightbox('${ghUrl}')">
-      <button class="photo-del" onclick="deletePhoto(event,${idx})">✕</button>`;
-    updatePhotoCount();
-    showToast('✅ 照片已上傳');
+  if (pendingPhotos.length) {
+    showToast(`📷 已選 ${pendingPhotos.length} 張照片，按「💾 儲存」上傳`);
+    // 在儲存按鈕旁顯示待上傳數量
+    const btn = document.getElementById('detail-save-btn');
+    if (btn) btn.textContent = `💾 儲存（含 ${pendingPhotos.length} 張照片）`;
   }
 }
 
@@ -1209,6 +1201,7 @@ function renderThumbHTML(url, idx) {
 
 function triggerPhotoUpload() {
   if (!curVisitId) { showToast('⚠️ 請先選擇或新增拜訪記錄'); return; }
+  if (!getGHToken()) { showToast('⚠️ 請先設定 GitHub Token'); return; }
   document.getElementById('photo-input').click();
 }
 
