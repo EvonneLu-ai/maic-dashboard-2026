@@ -489,7 +489,17 @@ function getIdx()  { try { return JSON.parse(localStorage.getItem(IDX_KEY)||'{}'
 function setIdx(d) { try { localStorage.setItem(IDX_KEY, JSON.stringify(d)); } catch(e){} }
 function getVisitData(vid) { try { return JSON.parse(localStorage.getItem(VKEY(vid))||'{}'); } catch(e){ return {}; } }
 function setVisitData(vid,d) { try { localStorage.setItem(VKEY(vid), JSON.stringify(d)); } catch(e){} }
-function getSchoolVisits(sid) { const idx=getIdx(); return (idx[sid]&&idx[sid].visits)?idx[sid].visits:[]; }
+function getSchoolVisits(sid) {
+  const idx = getIdx();
+  if (!idx[sid] || !idx[sid].visits) return [];
+  // 收集其他學校的所有 visit ID（防止跨校串資料）
+  const otherVids = new Set();
+  Object.entries(idx).forEach(([s, sv]) => {
+    if (s !== sid) (sv.visits||[]).forEach(v => otherVids.add(v.id));
+  });
+  // 只回傳「不屬於其他學校」的 visits
+  return idx[sid].visits.filter(v => !otherVids.has(v.id));
+}
 
 function createVisit(sid, dateStr) {
   const idx = getIdx();
@@ -912,7 +922,19 @@ async function saveDetail() {
   showToast(ok ? '✅ 資料已儲存到雲端' : '❌ 儲存失敗，請重試');
 
   // 3. 重新渲染歷史（讓照片出現）
-  if (ok) renderHistory(curSchoolId);
+  if (ok) {
+    renderHistory(curSchoolId);
+    // 4. 自動建立下一次的全新空白拜訪記錄
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
+    const newVid = createVisit(curSchoolId, todayStr);
+    curVisitId = newVid;
+    renderVisitTabs();
+    renderChecklist();   // 全空白的 checklist
+    loadNote();          // 空白備忘
+    renderHistory(curSchoolId);  // 歷史更新（含剛儲存的那筆）
+    showToast('✅ 已儲存，新記錄已建立');
+  }
 }
 
 // ══════════════════════════════════════
