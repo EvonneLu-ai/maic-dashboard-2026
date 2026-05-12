@@ -1237,17 +1237,17 @@ async function deletePhoto(event, idx) {
   if (!d._photos || !d._photos[idx]) return;
   const url = d._photos[idx];
 
-  // 從 raw.githubusercontent.com URL 反推 path
-  const match = url.match(/raw\.githubusercontent\.com\/[^\/]+\/[^\/]+\/main\/(.+)/);
-  if (match) {
-    showToast('🗑 刪除中…');
-    await deletePhotoFromGH(match[1]);
-  }
-
+  // 立即從畫面移除（不等 GitHub）
   d._photos.splice(idx, 1);
   setVisitData(curVisitId, d);
   renderPhotos();
   showToast('已刪除照片');
+
+  // 非同步刪除 GitHub 上的檔案（背景執行）
+  const match = url.match(/raw\.githubusercontent\.com\/[^\/]+\/[^\/]+\/main\/(.+)/);
+  if (match) {
+    deletePhotoFromGH(match[1]).catch(e => console.warn('GH photo delete failed:', e));
+  }
 }
 
 // Lightbox
