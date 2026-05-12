@@ -931,7 +931,7 @@ function goDetail(schoolId, jumpVid) {
   renderChecklist();
   loadNote();       // ← 載入當前學校的備忘
   renderPhotos();   // ← 載入當前學校的照片
-  renderHistory();
+  renderHistory(curSchoolId);
   initMAICToggle(); // ← 套用 MAIC 開關狀態
   window.scrollTo(0,0);
 }
@@ -967,7 +967,7 @@ function renderVisitTabs() {
     const btn = document.createElement('button');
     btn.className = 'vtab' + (v.id===curVisitId ? ' active' : '');
     btn.textContent = v.date;
-    btn.onclick = () => { curVisitId = v.id; renderVisitTabs(); renderChecklist(); loadNote(); renderHistory(); };
+    btn.onclick = () => { curVisitId = v.id; renderVisitTabs(); renderChecklist(); loadNote(); renderHistory(curSchoolId); };
     wrap.appendChild(btn);
   });
 
@@ -987,7 +987,7 @@ function openAddVisitInline() {
     `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`);
   if (!dateStr) return;
   curVisitId = createVisit(curSchoolId, dateStr.trim());
-  renderVisitTabs(); renderChecklist(); loadNote(); renderHistory();
+  renderVisitTabs(); renderChecklist(); loadNote(); renderHistory(curSchoolId);
   showToast(`✅ 已建立 ${dateStr} 拜訪記錄`);
 }
 
@@ -1294,10 +1294,15 @@ function closeLightbox() {
 // ══════════════════════════════════════
 // HISTORY
 // ══════════════════════════════════════
-function renderHistory() {
-  const visits = getSchoolVisits(curSchoolId);
+function renderHistory(schoolId) {
+  schoolId = schoolId || curSchoolId;  // 確保一定有 schoolId
+  const visits = getSchoolVisits(schoolId);
   const el = document.getElementById('history-list');
   el.innerHTML = '';
+  // 把 section 標題加上學校名，方便確認
+  const school = SCHOOLS.find(s => s.id === schoolId);
+  const titleEl = el.closest ? el.closest('.history-section')?.querySelector('.section-title') : null;
+  if (titleEl) titleEl.textContent = school ? `📅 ${school.name} 拜訪記錄` : '📅 歷史拜訪紀錄';
 
   if (!visits.length) {
     const empty = document.createElement('div');
@@ -1350,7 +1355,7 @@ function renderHistory() {
     // 點擊切換到該次拜訪
     const switchVisit = () => {
       curVisitId = v.id;
-      renderVisitTabs(); renderChecklist(); loadNote(); renderPhotos(); renderHistory();
+      renderVisitTabs(); renderChecklist(); loadNote(); renderPhotos(); renderHistory(curSchoolId);
     };
     dot.onclick  = switchVisit;
     info.onclick = switchVisit;
@@ -1370,7 +1375,7 @@ function handleDelVisit(vid) {
   deleteVisit(curSchoolId, vid);
   const remaining = getSchoolVisits(curSchoolId);
   curVisitId = remaining.length ? remaining[remaining.length-1].id : null;
-  renderVisitTabs(); renderChecklist(); loadNote(); renderPhotos(); renderHistory();
+  renderVisitTabs(); renderChecklist(); loadNote(); renderPhotos(); renderHistory(curSchoolId);
   showToast('已刪除拜訪記錄');
 }
 
@@ -1442,7 +1447,7 @@ function importSchool(event) {
       Object.entries(data.visits||{}).forEach(([vid,vd]) => localStorage.setItem(VKEY(vid), JSON.stringify(vd)));
       const visits = getSchoolVisits(curSchoolId);
       curVisitId = visits.length ? visits[visits.length-1].id : null;
-      renderVisitTabs(); renderChecklist(); loadNote(); renderHistory();
+      renderVisitTabs(); renderChecklist(); loadNote(); renderHistory(curSchoolId);
       setStatus('det-backup-status','✅ 匯入成功','var(--green)');
     } catch(err) { setStatus('det-backup-status','❌ 格式錯誤','var(--red)'); }
   };
