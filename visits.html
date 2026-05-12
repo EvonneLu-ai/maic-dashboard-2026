@@ -963,6 +963,7 @@ function renderChecklist() {
   const d = getVisitData(curVisitId);
   const cl = document.createElement('div');
   cl.className = 'checklist';
+  const maicOn = getMAICOn();
 
   let curPhase = null;
   ITEMS_DEF.forEach(item => {
