@@ -319,18 +319,15 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
       <div class="card-region detail-region" id="detail-region"></div>
       <div class="detail-visit-cnt" id="detail-visit-cnt"></div>
     </div>
-    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600;color:var(--sub)">
+    <div style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600;color:var(--sub)"
+      onclick="toggleMAIC(!getMAICOn())">
       <span>MAIC 活動期間</span>
-      <div style="position:relative;width:38px;height:22px">
-        <input type="checkbox" id="maic-toggle" style="opacity:0;width:0;height:0;position:absolute"
-          onchange="toggleMAIC(this.checked)">
-        <div id="maic-track" style="position:absolute;inset:0;border-radius:99px;background:var(--border);
-          transition:background .2s;cursor:pointer" onclick="document.getElementById('maic-toggle').click()"></div>
+      <div style="position:relative;width:38px;height:22px;flex-shrink:0">
+        <div id="maic-track" style="position:absolute;inset:0;border-radius:99px;background:var(--border);transition:background .2s"></div>
         <div id="maic-thumb" style="position:absolute;top:2px;left:2px;width:18px;height:18px;
-          border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);
-          transition:transform .2s;pointer-events:none"></div>
+          border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .2s"></div>
       </div>
-    </label>
+    </div>
   </div>
 
   <div class="visit-tabs-wrap" id="visit-tabs-wrap"></div>
@@ -544,13 +541,11 @@ function applyMAICToggle(on) {
   document.querySelectorAll('.maic-phase-item').forEach(el => {
     el.style.display = on ? '' : 'none';
   });
-  // track 顏色
+  // 更新 toggle 外觀
   const track = document.getElementById('maic-track');
   const thumb = document.getElementById('maic-thumb');
-  const chk   = document.getElementById('maic-toggle');
   if (track) track.style.background = on ? 'var(--purple)' : 'var(--border)';
-  if (thumb) thumb.style.transform = on ? 'translateX(16px)' : 'translateX(0)';
-  if (chk)   chk.checked = on;
+  if (thumb) thumb.style.transform  = on ? 'translateX(16px)' : 'translateX(0)';
 }
 function initMAICToggle() {
   const on = getMAICOn();
@@ -751,12 +746,19 @@ function renderOverview() {
 
   if (!visited.length) {
     const hasAny = SCHOOLS.some(s => getSchoolVisits(s.id).length > 0);
+    const hasToken = !!getGHToken();
     list.innerHTML = `
       <div class="empty-state">
         <div class="e">${hasAny ? '🔍' : '🏫'}</div>
         <h3>${hasAny ? '沒有符合條件的學校' : '尚無拜訪記錄'}</h3>
-        <p>${hasAny ? '試試調整篩選條件' : '點擊右下角 ＋ 按鈕\n開始記錄你的第一次拜訪'}</p>
-        ${!hasAny ? '<button class="empty-cta" onclick="openAddModal()">＋ 新增拜訪</button>' : ''}
+        <p>${hasAny
+          ? '試試調整篩選條件'
+          : hasToken
+            ? '頁面載入中…若資料仍未出現，請點下方「☁️ 重新同步」'
+            : '點擊右下角 ＋ 按鈕開始記錄，或設定 Token 從 GitHub 還原資料'
+        }</p>
+        ${!hasAny && hasToken ? '<button class="empty-cta" onclick="forceSync()" style="background:var(--purple)">☁️ 重新同步</button>' : ''}
+        ${!hasAny ? '<button class="empty-cta" onclick="openAddModal()" style="margin-top:8px">＋ 新增拜訪</button>' : ''}
       </div>`;
   } else {
     visited.forEach(s => {
@@ -1384,6 +1386,19 @@ function tryRecoverData() {
   const result = diagnoseLocalStorage();
   alert(`診斷結果：\n找到 ${visitKeys.length} 筆拜訪資料\n索引有 ${result.schoolsWithData.length} 所學校\n\n詳細請看 Console（F12）`);
   return true;
+}
+
+
+// 強制從 GitHub 重新同步（資料不見時使用）
+async function forceSync() {
+  if (!getGHToken()) { showToast('請先設定 Token'); return; }
+  showToast('☁️ 重新同步中…');
+  const data = await ghRead();
+  if (!data) { showToast('❌ 無法連線，請確認 Token'); return; }
+  if (data._empty) { showToast('⚠️ GitHub 上尚無資料'); return; }
+  applyGHData(data);
+  renderOverview();
+  showToast('✅ 同步完成');
 }
 
 window.onload = () => { renderOverview(); initSync(); };
