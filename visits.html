@@ -205,6 +205,36 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
   border:1.5px solid #ffd0cc;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;-webkit-appearance:none}
 .backup-status{font-size:11px;color:var(--sub);margin-top:7px;min-height:14px}
 
+
+/* ─── PHOTO SECTION ─── */
+.photo-section{margin:12px 16px 0;background:var(--card);border-radius:14px;
+  padding:14px;box-shadow:0 1px 5px rgba(0,0,0,.05)}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.photo-thumb{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;
+  background:var(--fill);cursor:pointer}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-del{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;
+  background:rgba(0,0,0,.55);color:#fff;border:none;font-size:11px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;-webkit-appearance:none}
+.photo-add{aspect-ratio:1;border-radius:10px;border:2px dashed var(--border);
+  background:var(--fill);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;cursor:pointer;gap:4px;transition:all .18s}
+.photo-add:active{background:rgba(0,113,227,.06);border-color:var(--blue)}
+.photo-add-icon{font-size:24px;line-height:1}
+.photo-add-lbl{font-size:10px;font-weight:700;color:var(--sub)}
+.photo-uploading{position:absolute;inset:0;background:rgba(0,0,0,.45);
+  display:flex;align-items:center;justify-content:center;border-radius:10px}
+.photo-uploading-spin{width:24px;height:24px;border:3px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* ─── LIGHTBOX ─── */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:500;
+  display:flex;align-items:center;justify-content:center}
+.lightbox img{max-width:100%;max-height:90vh;border-radius:8px;object-fit:contain}
+.lightbox-close{position:absolute;top:20px;right:20px;width:36px;height:36px;
+  border-radius:50%;background:rgba(255,255,255,.15);color:#fff;border:none;
+  font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
 /* ─── TOAST ─── */
 .save-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(80px);
   background:#1d1d1f;color:#fff;padding:9px 18px;border-radius:99px;
@@ -298,6 +328,22 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
     <textarea class="note-area" id="visit-note"
       placeholder="記錄本次拜訪的重點、需跟進的事項、洽談結果…" oninput="saveNote()"></textarea>
   </div>
+
+
+  <div class="photo-section" id="photo-section">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="note-label">📷 拜訪照片</div>
+      <span id="photo-count" style="font-size:11px;color:var(--sub)"></span>
+    </div>
+    <div class="photo-grid" id="photo-grid"></div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox hidden" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightbox-img" src="" alt="">
+  </div>
+  <input type="file" id="photo-input" accept="image/*" multiple style="display:none" onchange="handlePhotoSelect(event)">
 
   <div class="history-section">
     <div class="section-title">📅 歷史拜訪紀錄</div>
@@ -891,6 +937,189 @@ function saveNote() {
   showToast();
 }
 
+
+// ══════════════════════════════════════
+// PHOTO FEATURE
+// ══════════════════════════════════════
+
+// 壓縮圖片（canvas resize）
+async function compressImage(file, maxPx = 1200, quality = 0.78) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const ratio = Math.min(maxPx / img.width, maxPx / img.height, 1);
+      const canvas = document.createElement('canvas');
+      canvas.width  = Math.round(img.width  * ratio);
+      canvas.height = Math.round(img.height * ratio);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+    };
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+// 上傳單張照片到 GitHub
+async function uploadPhoto(schoolId, visitId, blob) {
+  const token = getGHToken();
+  if (!token) return null;
+  const ts   = Date.now();
+  const ghPath = `visit-photos/${schoolId}/${visitId}_${ts}.jpg`;
+  const b64  = await new Promise(r => {
+    const reader = new FileReader();
+    reader.onload = e => r(e.target.result.split(',')[1]);
+    reader.readAsDataURL(blob);
+  });
+  const res = await fetch(
+    `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${ghPath}`,
+    { method: 'PUT',
+      headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json',
+                 Accept: 'application/vnd.github.v3+json' },
+      body: JSON.stringify({ message: `photo ${schoolId} ${ts}`, content: b64, branch: GH_BRANCH }) }
+  );
+  if (!res.ok) return null;
+  const result = await res.json();
+  // 用 raw.githubusercontent.com 直連（不受 CDN 快取影響）
+  return `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/main/${ghPath}`;
+}
+
+// 刪除 GitHub 上的照片
+async function deletePhotoFromGH(ghPath) {
+  const token = getGHToken();
+  if (!token) return;
+  // 先取得 SHA
+  const res = await fetch(
+    `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${ghPath}`,
+    { headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' } }
+  );
+  if (!res.ok) return;
+  const { sha } = await res.json();
+  await fetch(
+    `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${ghPath}`,
+    { method: 'DELETE',
+      headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json',
+                 Accept: 'application/vnd.github.v3+json' },
+      body: JSON.stringify({ message: `del photo ${ghPath}`, sha, branch: GH_BRANCH }) }
+  );
+}
+
+// 選照片後處理
+async function handlePhotoSelect(event) {
+  if (!curVisitId) return;
+  const files = Array.from(event.target.files);
+  event.target.value = '';
+  if (!files.length) return;
+
+  const hasToken = !!getGHToken();
+  if (!hasToken) {
+    showToast('⚠️ 請先設定 GitHub Token 才能上傳照片');
+    return;
+  }
+
+  for (const file of files) {
+    const thumbDiv = document.createElement('div');
+    thumbDiv.className = 'photo-thumb';
+    thumbDiv.innerHTML = `<div class="photo-uploading"><div class="photo-uploading-spin"></div></div>`;
+    const grid = document.getElementById('photo-grid');
+    const addBtn = grid.querySelector('.photo-add');
+    grid.insertBefore(thumbDiv, addBtn);
+
+    try {
+      showToast('📷 壓縮上傳中…');
+      const blob = await compressImage(file);
+      const url  = await uploadPhoto(curSchoolId, curVisitId, blob);
+      if (!url) throw new Error('upload failed');
+
+      // 儲存到 visit data
+      const d = getVisitData(curVisitId);
+      if (!d._photos) d._photos = [];
+      d._photos.push(url);
+      setVisitData(curVisitId, d);
+
+      // 更新縮圖
+      thumbDiv.innerHTML = renderThumbHTML(url, d._photos.length - 1);
+      updatePhotoCount();
+      showToast('✅ 照片已上傳');
+    } catch(e) {
+      thumbDiv.remove();
+      showToast('❌ 上傳失敗，請重試');
+    }
+  }
+}
+
+function renderThumbHTML(url, idx) {
+  return `<img src="${url}" loading="lazy" onclick="openLightbox('${url}')">
+    <button class="photo-del" onclick="deletePhoto(event,${idx})">✕</button>`;
+}
+
+// 渲染照片區
+function renderPhotos() {
+  const grid = document.getElementById('photo-grid');
+  const section = document.getElementById('photo-section');
+  if (!curVisitId) { if (section) section.classList.add('hidden'); return; }
+  if (section) section.classList.remove('hidden');
+
+  const d = getVisitData(curVisitId);
+  const photos = d._photos || [];
+  grid.innerHTML = '';
+
+  photos.forEach((url, i) => {
+    const div = document.createElement('div');
+    div.className = 'photo-thumb';
+    div.innerHTML = renderThumbHTML(url, i);
+    grid.appendChild(div);
+  });
+
+  // 新增按鈕（最多 12 張）
+  if (photos.length < 12) {
+    const add = document.createElement('div');
+    add.className = 'photo-add';
+    add.innerHTML = `<div class="photo-add-icon">📷</div><div class="photo-add-lbl">新增照片</div>`;
+    add.onclick = () => document.getElementById('photo-input').click();
+    grid.appendChild(add);
+  }
+
+  updatePhotoCount();
+}
+
+function updatePhotoCount() {
+  const d = getVisitData(curVisitId);
+  const n = (d._photos || []).length;
+  const el = document.getElementById('photo-count');
+  if (el) el.textContent = n ? `${n} 張` : '';
+}
+
+// 刪除照片
+async function deletePhoto(event, idx) {
+  event.stopPropagation();
+  if (!confirm('確定要刪除這張照片嗎？')) return;
+  const d = getVisitData(curVisitId);
+  if (!d._photos || !d._photos[idx]) return;
+  const url = d._photos[idx];
+
+  // 從 raw.githubusercontent.com URL 反推 path
+  const match = url.match(/raw\.githubusercontent\.com\/[^\/]+\/[^\/]+\/main\/(.+)/);
+  if (match) {
+    showToast('🗑 刪除中…');
+    await deletePhotoFromGH(match[1]);
+  }
+
+  d._photos.splice(idx, 1);
+  setVisitData(curVisitId, d);
+  renderPhotos();
+  showToast('已刪除照片');
+}
+
+// Lightbox
+function openLightbox(url) {
+  document.getElementById('lightbox-img').src = url;
+  document.getElementById('lightbox').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
 // ══════════════════════════════════════
 // HISTORY
 // ══════════════════════════════════════
@@ -919,7 +1148,7 @@ function renderHistory() {
     row.querySelector('.hist-dot').onclick =
     row.querySelector('.hist-info').onclick = () => {
       curVisitId = v.id;
-      renderVisitTabs(); renderChecklist(); loadNote(); renderHistory();
+      renderVisitTabs(); renderChecklist(); loadNote(); renderPhotos(); renderHistory();
     };
     el.appendChild(row);
   });
@@ -932,7 +1161,7 @@ function handleDelVisit(vid) {
   deleteVisit(curSchoolId, vid);
   const remaining = getSchoolVisits(curSchoolId);
   curVisitId = remaining.length ? remaining[remaining.length-1].id : null;
-  renderVisitTabs(); renderChecklist(); loadNote(); renderHistory();
+  renderVisitTabs(); renderChecklist(); loadNote(); renderPhotos(); renderHistory();
   showToast('已刪除拜訪記錄');
 }
 
