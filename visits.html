@@ -155,6 +155,8 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
 .cb.done{background:var(--green);border-color:var(--green)}
 .cb-tick{font-size:12px;color:#fff;opacity:0;transition:opacity .18s}
 .cb.done .cb-tick{opacity:1}
+.cb.fail{background:var(--red);border-color:var(--red)}
+.cb.fail .cb-tick{opacity:1}
 .cl-text{flex:1}
 .cl-title{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;transition:color .2s}
 .cl-item.done-item .cl-title{color:var(--muted)}
@@ -1021,7 +1023,8 @@ function renderChecklist() {
       ph.innerHTML = `<span>${item.phase}</span>`;
       cl.appendChild(ph);
     }
-    const isDone = !!d[item.id+'_c'];
+    const state  = d[item.id+'_c'] || 0;  // 0=空, 1=✓, 2=✗
+    const isDone = state > 0;
     const isMaicPhase = (item.phase && item.phase.includes('MAIC')) ||
       (item.id && item.id.startsWith('p4_'));
     const wrap = document.createElement('div');
@@ -1029,8 +1032,8 @@ function renderChecklist() {
     if (isMaicPhase) wrap.style.display = maicOn ? '' : 'none';
     wrap.innerHTML = `
       <div class="cl-main">
-        <div class="cb${isDone?' done':''}" onclick="toggleItem(event,'${item.id}')">
-          <span class="cb-tick">✓</span>
+        <div class="${state===1?'cb done':state===2?'cb fail':'cb'}" onclick="toggleItem(event,'${item.id}')">
+          <span class="cb-tick">${state===2?'✕':'✓'}</span>
         </div>
         <div class="cl-text">
           <div class="cl-title">${item.title}</div>
@@ -1046,13 +1049,17 @@ function renderChecklist() {
 function toggleItem(e, itemId) {
   e.stopPropagation();
   const d = getVisitData(curVisitId);
-  d[itemId+'_c'] = !d[itemId+'_c'];
+  const cur  = d[itemId+'_c'] || 0;
+  const next = (cur + 1) % 3;     // 0→1→2→0（空→✓→✗→空）
+  d[itemId+'_c'] = next;
   setVisitData(curVisitId, d);
   // Update UI
   const cb = e.currentTarget;
-  cb.classList.toggle('done');
+  cb.className = next===1 ? 'cb done' : next===2 ? 'cb fail' : 'cb';
+  const tick = cb.querySelector('.cb-tick');
+  if (tick) tick.textContent = next===2 ? '✕' : '✓';
   const card = cb.closest('.cl-item');
-  card.classList.toggle('done-item');
+  if (card) card.className = 'cl-item' + (next>0?' done-item':'') + (card.className.includes('maic-phase-item')?' maic-phase-item':'');
   showToast();
 }
 
