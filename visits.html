@@ -580,7 +580,10 @@ async function ghRead() {
     if (!res.ok) return null;
     const json = await res.json();
     ghSha = json.sha;
-    return JSON.parse(atob(json.content.replace(/\n/g, '')));
+    // 正確解碼 UTF-8：atob → binary string → escape → decodeURIComponent
+    const raw = atob(json.content.replace(/\n/g, ''));
+    const text = decodeURIComponent(escape(raw));
+    return JSON.parse(text);
   } catch(e) { return null; }
 }
 
@@ -683,6 +686,7 @@ async function initSync() {
   const hasGHData = data && !data._empty && data.idx && Object.keys(data.idx).length > 0;
   if (hasGHData) {
     applyGHData(data);
+    renderOverview();  // 確保資料載入後重新渲染
   }
   if (status) {
     const t = data.lastSync || '—';
