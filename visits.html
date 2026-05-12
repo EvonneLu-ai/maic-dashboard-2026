@@ -1023,19 +1023,22 @@ async function handlePhotoSelect(event) {
   event.target.value = '';
   if (!files.length) return;
 
-  const hasToken = !!getGHToken();
-  if (!hasToken) {
+  if (!getGHToken()) {
     showToast('⚠️ 請先設定 GitHub Token 才能上傳照片');
     return;
   }
 
+  // 顯示上傳中提示
+  const empty = document.getElementById('photo-empty');
+  if (empty) empty.style.display = 'none';
+
   for (const file of files) {
+    // 先塞入 loading 佔位縮圖
     const thumbDiv = document.createElement('div');
     thumbDiv.className = 'photo-thumb';
     thumbDiv.innerHTML = `<div class="photo-uploading"><div class="photo-uploading-spin"></div></div>`;
     const grid = document.getElementById('photo-grid');
-    const addBtn = grid.querySelector('.photo-add');
-    grid.insertBefore(thumbDiv, addBtn);
+    grid.insertBefore(thumbDiv, empty || null);
 
     try {
       showToast('📷 壓縮上傳中…');
@@ -1049,12 +1052,14 @@ async function handlePhotoSelect(event) {
       d._photos.push(url);
       setVisitData(curVisitId, d);
 
-      // 更新縮圖
-      thumbDiv.innerHTML = renderThumbHTML(url, d._photos.length - 1);
-      updatePhotoCount();
+      // 完全重新渲染（確保畫面正確）
+      renderPhotos();
       showToast('✅ 照片已上傳');
     } catch(e) {
       thumbDiv.remove();
+      // 若全部失敗且無照片，顯示空白提示
+      const d = getVisitData(curVisitId);
+      if (!(d._photos || []).length && empty) empty.style.display = 'block';
       showToast('❌ 上傳失敗，請重試');
     }
   }
