@@ -21,7 +21,24 @@
   },
   "visits": {
     "v_1777358767326": {
-      "i4_c": true
+      "i4_c": true,
+      "p1_1_c": true,
+      "p1_2_c": true,
+      "p1_3_c": true,
+      "p1_4_c": true,
+      "p2_1_c": true,
+      "p2_2_c": true,
+      "p2_3_c": true,
+      "p3_1_c": true,
+      "p3_2_c": true,
+      "p3_3_c": true,
+      "p4_1_c": true,
+      "p4_2_c": true,
+      "p5_1_c": true,
+      "p5_2_c": true,
+      "p5_3_c": true,
+      "p5_4_c": true,
+      "p6_3_c": true
     },
     "v_1777534033372": {
       "i4_s1": true,
@@ -108,5 +125,5 @@
       ]
     }
   },
-  "lastSync": "2026/5/12 下午2:32:02"
+  "lastSync": "2026/5/12 下午2:32:50"
 }
