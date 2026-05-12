@@ -702,6 +702,8 @@ async function initSync() {
   if (hasGHData) {
     applyGHData(data);
     renderOverview();  // 確保資料載入後重新渲染
+    // 若目前在 detail 頁，也重新渲染照片與 checklist
+    if (curVisitId) { renderPhotos(); }
   }
   if (status) {
     const t = data.lastSync || '—';
@@ -1151,8 +1153,20 @@ async function handlePhotoSelect(event) {
 }
 
 function renderThumbHTML(url, idx) {
-  return `<img src="${url}" loading="lazy" onclick="openLightbox('${url}')">
-    <button class="photo-del" onclick="deletePhoto(event,${idx})">✕</button>`;
+  const div = document.createElement('div');
+  div.className = 'photo-thumb';
+  const img = document.createElement('img');
+  img.src = url;
+  img.loading = 'lazy';
+  img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+  img.onclick = () => openLightbox(url);
+  const btn = document.createElement('button');
+  btn.className = 'photo-del';
+  btn.textContent = '✕';
+  btn.onclick = (e) => deletePhoto(e, idx);
+  div.appendChild(img);
+  div.appendChild(btn);
+  return div;  // 回傳 DOM 元素而非 HTML 字串
 }
 
 function triggerPhotoUpload() {
@@ -1184,12 +1198,10 @@ function renderPhotos() {
   // 顯示 / 隱藏空白提示
   if (empty) empty.style.display = photos.length ? 'none' : 'block';
 
-  // 渲染縮圖
+  // 渲染縮圖（renderThumbHTML 回傳 DOM 元素）
   photos.forEach((url, i) => {
-    const div = document.createElement('div');
-    div.className = 'photo-thumb';
-    div.innerHTML = renderThumbHTML(url, i);
-    grid.insertBefore(div, empty);
+    const el = renderThumbHTML(url, i);
+    grid.insertBefore(el, empty);
   });
 
   updatePhotoCount();
