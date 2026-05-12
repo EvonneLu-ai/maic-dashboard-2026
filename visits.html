@@ -244,6 +244,11 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
     </div>
   </div>
 
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 16px 0;flex-wrap:wrap">
+    <button id="sync-btn" class="btn-exp hidden" style="flex-shrink:0;padding:8px 16px;border-radius:99px;font-size:12px" onclick="syncToGitHub()">☁️ 儲存同步</button>
+    <span id="sync-status" style="font-size:11px;color:var(--muted);flex:1">載入中…</span>
+    <button id="token-btn" style="padding:6px 12px;border-radius:99px;font-size:11px;font-weight:600;border:1.5px solid var(--border);background:var(--fill);color:var(--sub);cursor:pointer;-webkit-appearance:none" onclick="openTokenModal()">🔑 Token 設定</button>
+  </div>
   <div class="filter-wrap">
     <button class="filter-btn active" onclick="setFilter('all',this)">全部</button>
     <button class="filter-btn" onclick="setFilter('北部',this)">🔵 北部</button>
@@ -332,6 +337,25 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
   </div>
 </div>
 
+
+<!-- TOKEN MODAL -->
+<div id="token-modal" class="modal-bg hidden" onclick="if(event.target===this)closeTokenModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">GitHub Token 設定</div>
+    <div class="modal-sub">輸入 GitHub Personal Access Token（repo 權限）<br>每台裝置輸入一次，存在本機，不會上傳</div>
+    <div class="modal-label" style="margin-bottom:8px">Personal Access Token</div>
+    <input id="token-input" type="password" class="date-input"
+      style="width:100%;margin-bottom:6px;font-family:monospace;font-size:12px"
+      placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+    <div style="font-size:11px;color:var(--sub);margin-bottom:16px">
+      前往 GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)，勾選 repo 權限
+    </div>
+    <button class="btn-primary" onclick="saveToken()">連線</button>
+    <button class="btn-cancel" onclick="disconnectGH()" style="color:var(--red)">移除連線</button>
+    <button class="btn-cancel" onclick="closeTokenModal()">取消</button>
+  </div>
+</div>
 <div class="save-toast" id="toast">已自動儲存 ✓</div>
 
 <script>
@@ -419,6 +443,145 @@ function getSchoolStatus(sid) {
   if (done===0) return 'new';
   if (done===total) return 'done';
   return 'wip';
+}
+
+
+// ══════════════════════════════════════
+// GITHUB SYNC
+// ══════════════════════════════════════
+const GH_OWNER  = 'EvonneLu-ai';
+const GH_REPO   = 'maic-dashboard-2026';
+const GH_FILE   = 'visits-data.json';
+const GH_BRANCH = 'main';
+const GH_TOKEN_KEY = 'gh_visits_token';
+let   ghSha = null;  // 目前檔案的 SHA（寫入時需要）
+
+function getGHToken() { return localStorage.getItem(GH_TOKEN_KEY) || ''; }
+function setGHToken(t) { localStorage.setItem(GH_TOKEN_KEY, t); }
+function clearGHToken() { localStorage.removeItem(GH_TOKEN_KEY); }
+
+// 從 GitHub 讀取全部資料
+async function ghRead() {
+  const token = getGHToken();
+  if (!token) return null;
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`,
+      { headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' } }
+    );
+    if (res.status === 404) { ghSha = null; return { idx: {}, visits: {} }; }
+    if (res.status === 401) { clearGHToken(); return null; }
+    if (!res.ok) return null;
+    const json = await res.json();
+    ghSha = json.sha;
+    return JSON.parse(atob(json.content.replace(/\n/g, '')));
+  } catch(e) { return null; }
+}
+
+// 把全部 localStorage 資料寫入 GitHub
+async function ghWrite() {
+  const token = getGHToken();
+  if (!token) return false;
+  const idx = getIdx();
+  const allVids = [];
+  Object.values(idx).forEach(s => (s.visits||[]).forEach(v => allVids.push(v.id)));
+  const visits = {};
+  allVids.forEach(vid => { visits[vid] = getVisitData(vid); });
+  const payload = { idx, visits, lastSync: new Date().toLocaleString('zh-TW') };
+  try {
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+    const body = { message: `sync ${new Date().toLocaleString('zh-TW')}`, content, branch: GH_BRANCH };
+    if (ghSha) body.sha = ghSha;
+    const res = await fetch(
+      `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`,
+      { method: 'PUT',
+        headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json', Accept: 'application/vnd.github.v3+json' },
+        body: JSON.stringify(body) }
+    );
+    if (res.status === 409) {
+      // SHA conflict: re-read and retry
+      await ghRead();
+      return await ghWrite();
+    }
+    if (!res.ok) return false;
+    const result = await res.json();
+    ghSha = result.content.sha;
+    return true;
+  } catch(e) { return false; }
+}
+
+// 把 GitHub 資料載入 localStorage
+function applyGHData(data) {
+  if (!data) return;
+  if (data.idx) localStorage.setItem(IDX_KEY, JSON.stringify(data.idx));
+  Object.entries(data.visits||{}).forEach(([vid,vd]) => localStorage.setItem(VKEY(vid), JSON.stringify(vd)));
+}
+
+// 同步按鈕
+async function syncToGitHub() {
+  const btn = document.getElementById('sync-btn');
+  const status = document.getElementById('sync-status');
+  if (btn) { btn.disabled = true; btn.textContent = '☁️ 同步中…'; }
+  const ok = await ghWrite();
+  if (btn) { btn.disabled = false; btn.textContent = '☁️ 儲存同步'; }
+  if (status) {
+    const now = new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+    status.textContent = ok ? `✅ 已同步 ${now}` : '❌ 同步失敗，請檢查 Token';
+    status.style.color = ok ? 'var(--green)' : 'var(--red)';
+  }
+  if (ok) showToast('☁️ 已同步到 GitHub');
+}
+
+// Token 設定 modal
+function openTokenModal() {
+  document.getElementById('token-modal').classList.remove('hidden');
+  document.getElementById('token-input').value = getGHToken();
+}
+function closeTokenModal() { document.getElementById('token-modal').classList.add('hidden'); }
+function saveToken() {
+  const t = document.getElementById('token-input').value.trim();
+  if (!t) { alert('請輸入 Token'); return; }
+  setGHToken(t);
+  closeTokenModal();
+  initSync();
+}
+function disconnectGH() {
+  if (!confirm('確定要移除 GitHub Token？')) return;
+  clearGHToken();
+  ghSha = null;
+  document.getElementById('sync-btn').classList.add('hidden');
+  document.getElementById('sync-status').textContent = '未連線';
+  document.getElementById('token-btn').textContent = '🔑 設定 Token';
+}
+
+// 初始化同步（頁面載入時呼叫）
+async function initSync() {
+  const btn    = document.getElementById('sync-btn');
+  const status = document.getElementById('sync-status');
+  const tBtn   = document.getElementById('token-btn');
+  if (!getGHToken()) {
+    if (status) { status.textContent = '未連線'; status.style.color = 'var(--muted)'; }
+    if (btn) btn.classList.add('hidden');
+    if (tBtn) tBtn.textContent = '🔑 設定 Token';
+    return;
+  }
+  if (status) { status.textContent = '讀取中…'; status.style.color = 'var(--muted)'; }
+  if (btn) btn.classList.add('hidden');
+  const data = await ghRead();
+  if (!data) {
+    if (status) { status.textContent = '❌ Token 失效', status.style.color = 'var(--red)'; }
+    if (tBtn) tBtn.textContent = '🔑 重設 Token';
+    return;
+  }
+  applyGHData(data);
+  if (status) {
+    const t = data.lastSync || '—';
+    status.textContent = `上次：${t}`;
+    status.style.color = 'var(--sub)';
+  }
+  if (btn) btn.classList.remove('hidden');
+  if (tBtn) tBtn.textContent = '🔑 Token 設定';
+  renderOverview();
 }
 
 // ══════════════════════════════════════
@@ -861,7 +1024,7 @@ function setStatus(id, msg, color) {
 // ══════════════════════════════════════
 // INIT
 // ══════════════════════════════════════
-window.onload = () => { renderOverview(); };
+window.onload = () => { renderOverview(); initSync(); };
 </script>
 </body>
 <div style="position:fixed;bottom:24px;left:20px;z-index:9999;background:rgba(255,255,255,0.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(0,0,0,0.10);border-radius:22px;padding:9px 16px;font-family:-apple-system,'PingFang TC',sans-serif;font-size:13px;font-weight:600;color:#1d1d1f;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.12);user-select:none;" onclick="location.href='./portal.html'">◀ Hub</div>
