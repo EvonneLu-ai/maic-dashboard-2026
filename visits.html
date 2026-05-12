@@ -1297,30 +1297,68 @@ function closeLightbox() {
 function renderHistory() {
   const visits = getSchoolVisits(curSchoolId);
   const el = document.getElementById('history-list');
+  el.innerHTML = '';
+
   if (!visits.length) {
-    el.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:4px 0">尚無拜訪記錄</div>';
+    const empty = document.createElement('div');
+    empty.style.cssText = 'font-size:12px;color:var(--muted);padding:4px 0';
+    empty.textContent = '尚無拜訪記錄';
+    el.appendChild(empty);
     return;
   }
-  el.innerHTML = '';
+
   [...visits].reverse().forEach(v => {
-    const {done,total} = getVisitProgress(v.id);
-    const pct = total ? Math.round(done/total*100) : 0;
-    const color = pct===100 ? 'var(--green)' : pct>0 ? 'var(--orange)' : 'var(--muted)';
-    const isCur = v.id===curVisitId;
-    const row = document.createElement('div');
+    const {done, total} = getVisitProgress(v.id);
+    const pct   = total ? Math.round(done / total * 100) : 0;
+    const color = pct === 100 ? 'var(--green)' : pct > 0 ? 'var(--orange)' : 'var(--muted)';
+    const isCur = v.id === curVisitId;
+
+    const row  = document.createElement('div');
     row.className = 'hist-row';
-    row.innerHTML = `
-      <div class="hist-dot" style="background:${color}"></div>
-      <div class="hist-info">
-        <div class="hist-date">${v.date}${isCur?' <span style="font-size:10px;color:var(--blue)">(目前)</span>':''}</div>
-      </div>
-      <div class="hist-prog" style="color:${color}">${done}/${total} · ${pct}%</div>
-      <button class="hist-del" onclick="handleDelVisit('${v.id}')">🗑</button>`;
-    row.querySelector('.hist-dot').onclick =
-    row.querySelector('.hist-info').onclick = () => {
+
+    // 點狀指示器
+    const dot = document.createElement('div');
+    dot.className = 'hist-dot';
+    dot.style.background = color;
+
+    // 日期資訊
+    const info = document.createElement('div');
+    info.className = 'hist-info';
+    const dateDiv = document.createElement('div');
+    dateDiv.className = 'hist-date';
+    dateDiv.textContent = v.date;
+    if (isCur) {
+      const cur = document.createElement('span');
+      cur.style.cssText = 'font-size:10px;color:var(--blue);margin-left:4px';
+      cur.textContent = '(目前)';
+      dateDiv.appendChild(cur);
+    }
+    info.appendChild(dateDiv);
+
+    // 進度
+    const prog = document.createElement('div');
+    prog.className = 'hist-prog';
+    prog.style.color = color;
+    prog.textContent = `${done}/${total} · ${pct}%`;
+
+    // 刪除按鈕
+    const del = document.createElement('button');
+    del.className = 'hist-del';
+    del.textContent = '🗑';
+    del.onclick = () => handleDelVisit(v.id);
+
+    // 點擊切換到該次拜訪
+    const switchVisit = () => {
       curVisitId = v.id;
       renderVisitTabs(); renderChecklist(); loadNote(); renderPhotos(); renderHistory();
     };
+    dot.onclick  = switchVisit;
+    info.onclick = switchVisit;
+
+    row.appendChild(dot);
+    row.appendChild(info);
+    row.appendChild(prog);
+    row.appendChild(del);
     el.appendChild(row);
   });
 }
