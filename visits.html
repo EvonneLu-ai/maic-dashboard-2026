@@ -890,6 +890,10 @@ function goDetail(schoolId, jumpVid) {
   const visits = getSchoolVisits(schoolId);
   curVisitId = jumpVid || (visits.length ? visits[visits.length-1].id : null);
 
+  // 立即清空備忘欄，避免舊學校的內容殘留
+  const noteEl = document.getElementById('visit-note');
+  if (noteEl) noteEl.value = '';
+
   document.getElementById('pg-overview').classList.add('hidden');
   document.getElementById('pg-detail').classList.remove('hidden');
   document.getElementById('fab-btn').classList.add('hidden');
@@ -902,7 +906,10 @@ function goDetail(schoolId, jumpVid) {
 
   renderVisitTabs();
   renderChecklist();
+  loadNote();       // ← 載入當前學校的備忘
+  renderPhotos();   // ← 載入當前學校的照片
   renderHistory();
+  initMAICToggle(); // ← 套用 MAIC 開關狀態
   window.scrollTo(0,0);
 }
 
