@@ -443,24 +443,37 @@ const SCHOOLS = [
 
 // 精簡 checklist（3 phase × 4 項 = 12 項）
 const ITEMS_DEF = [
-  // Phase 1
-  {id:'p1_1', phase:'出發前準備', title:'查閱近期銷售數據',     hint:'MBP/iPad 佔比、銷售趨勢', tag:{t:'數據',c:'tag-data'}},
-  {id:'p1_2', phase:'',          title:'確認校園促銷方案',       hint:'BTS 截止日期、授權細節',   tag:{t:'文件',c:'tag-data'}},
-  {id:'p1_3', phase:'',          title:'與負責人確認到達時間',   hint:'避開 12–14h、17–19h 尖峰', tag:{t:'必做',c:'tag-must'}},
-  {id:'p1_4', phase:'',          title:'設備電量 & 裝備確認',    hint:'手機 80%+、已開啟拜訪頁面', tag:{t:'準備',c:'tag-tip'}},
-  // Phase 2
-  {id:'p2_1', phase:'店內執行',  title:'POP & 陳列品質檢查',    hint:'入口 POP 是否過期、展售機螢幕', tag:{t:'VM',c:'tag-vm'}},
-  {id:'p2_2', phase:'',          title:'店長訪談',               hint:'業務阻礙、學生價格敏感帶', tag:{t:'核心',c:'tag-must'}},
-  {id:'p2_3', phase:'',          title:'確認 MAIC 宣傳品 & 張貼', hint:'海報/立牌/QR Code 是否顯眼', tag:{t:'MAIC',c:'tag-maic'}},
-  {id:'p2_4', phase:'',          title:'介紹 MAIC & 收集名單',   hint:'三大組別說明、Email/LINE', tag:{t:'MAIC',c:'tag-maic'}},
-  // Phase 3
-  {id:'p3_1', phase:'拜訪後',    title:'即時回報群組',           hint:'傳陳列照 + 洽談摘要', tag:{t:'MAIC',c:'tag-maic'}},
-  {id:'p3_2', phase:'',          title:'記錄 Action Items',      hint:'標記負責人 & 截止日期', tag:{t:'必做',c:'tag-must'}},
-  {id:'p3_3', phase:'',          title:'更新 Dashboard & 決議',  hint:'宣講會場次 + push GitHub', tag:{t:'報告',c:'tag-report'}},
-  {id:'p3_4', phase:'',          title:'寄送感謝訊息',           hint:'拜訪後一個工作天內完成', tag:{t:'禮儀',c:'tag-tip'}},
+  // ── Phase 1：出發前準備 ──
+  {id:'p1_1', phase:'出發前準備',       title:'查閱近期銷售數據',       hint:'MBP/iPad 佔比、教育熱銷款趨勢',                        tag:{t:'數據',  c:'tag-data'}},
+  {id:'p1_2', phase:'',                title:'確認校園促銷方案',         hint:'BTS 截止日期、教育優惠資格條件',                        tag:{t:'文件',  c:'tag-data'}},
+  {id:'p1_3', phase:'',                title:'與負責人確認到達時間',     hint:'避開 12–14h、17–19h 尖峰',                             tag:{t:'必做',  c:'tag-must'}},
+  {id:'p1_4', phase:'',                title:'設備電量 & 裝備確認',      hint:'手機 80%+、已開啟拜訪頁面',                             tag:{t:'準備',  c:'tag-tip'}},
+  // ── Phase 2：VMD 視覺陳列與品牌形象 ──
+  {id:'p2_1', phase:'VMD 視覺陳列',    title:'文宣時效性',               hint:'海報/布條是否最新教育方案，過期者需撤除',                tag:{t:'VMD',   c:'tag-vm'}},
+  {id:'p2_2', phase:'',                title:'展示機狀態',               hint:'通電清潔、Demo 符合教育情境（iPad 教育 App 等）',        tag:{t:'VMD',   c:'tag-vm'}},
+  {id:'p2_3', phase:'',                title:'店面整潔度',               hint:'櫥窗玻璃、地板、維修收件櫃檯整潔情況',                  tag:{t:'VMD',   c:'tag-vm'}},
+  // ── Phase 3：庫存與品項管理 ──
+  {id:'p3_1', phase:'庫存管理',        title:'教育熱銷款庫存抽檢',       hint:'MacBook Air、iPad Air 是否有斷貨風險',                  tag:{t:'庫存',  c:'tag-report'}},
+  {id:'p3_2', phase:'',                title:'配件週邊陳列',             hint:'保護殼、觸控筆、轉接頭是否充足且整齊',                  tag:{t:'庫存',  c:'tag-report'}},
+  {id:'p3_3', phase:'',                title:'進銷存數據準確性',         hint:'抽查現場實物 vs 後台系統庫存數是否一致',                 tag:{t:'庫存',  c:'tag-report'}},
+  // ── Phase 4：校園關係 & MAIC ──
+  {id:'p4_1', phase:'校園關係 & MAIC', title:'校內合作進度詢問',         hint:'近期與社團、系學會、電算中心的合作狀況',                 tag:{t:'校園',  c:'tag-maic'}},
+  {id:'p4_2', phase:'',                title:'工作坊 & 講座排程',        hint:'師生軟體教學（Keynote 簡報、AI 工具應用）是否已排定',    tag:{t:'校園',  c:'tag-maic'}},
+  {id:'p4_3', phase:'',                title:'MAIC 宣傳品確認 & 張貼',   hint:'海報/QR Code 立牌是否顯眼，取得店長同意',               tag:{t:'MAIC',  c:'tag-maic'}},
+  {id:'p4_4', phase:'',                title:'介紹 MAIC & 收集名單',     hint:'三大組別說明（創意/創新/創業），收集 Email/LINE',         tag:{t:'MAIC',  c:'tag-maic'}},
+  // ── Phase 5：人員表現 & 設備安全 ──
+  {id:'p5_1', phase:'人員 & 設備',     title:'教育方案熟悉度確認',       hint:'隨機提問教育優惠資格審核流程、教職員採購專案細節',       tag:{t:'人員',  c:'tag-must'}},
+  {id:'p5_2', phase:'',                title:'服務流程觀察',             hint:'對學生客群態度，是否能提供專業且具親和力的產品建議',     tag:{t:'人員',  c:'tag-tip'}},
+  {id:'p5_3', phase:'',                title:'硬體設備檢查',             hint:'POS 系統、門市網路、冷氣設備是否運作正常',               tag:{t:'設備',  c:'tag-data'}},
+  {id:'p5_4', phase:'',                title:'資產安全確認',             hint:'展示機防盜線完好、庫存區進出管理是否嚴格執行',           tag:{t:'安全',  c:'tag-must'}},
+  // ── Phase 6：拜訪後 ──
+  {id:'p6_1', phase:'拜訪後',          title:'即時回報群組',             hint:'傳陳列照片 + 洽談摘要至 MAIC Marketing 群組',            tag:{t:'MAIC',  c:'tag-maic'}},
+  {id:'p6_2', phase:'',                title:'記錄 Action Items',        hint:'標記負責人 & 截止日期',                                  tag:{t:'必做',  c:'tag-must'}},
+  {id:'p6_3', phase:'',                title:'更新 Dashboard & 決議',    hint:'宣講會場次 + push GitHub',                               tag:{t:'報告',  c:'tag-report'}},
+  {id:'p6_4', phase:'',                title:'寄送感謝訊息',             hint:'拜訪後一個工作天內完成',                                 tag:{t:'禮儀',  c:'tag-tip'}},
 ];
 
-const TOTAL = ITEMS_DEF.length; // 12
+const TOTAL = ITEMS_DEF.length; // 22
 
 // ══════════════════════════════════════
 // STORAGE（Key 結構與舊版完全相容）
