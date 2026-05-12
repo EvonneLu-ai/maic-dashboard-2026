@@ -702,8 +702,11 @@ async function initSync() {
   if (hasGHData) {
     applyGHData(data);
     renderOverview();  // 確保資料載入後重新渲染
-    // 若目前在 detail 頁，也重新渲染照片與 checklist
-    if (curVisitId) { renderPhotos(); }
+    // 若目前在 detail 頁，重新渲染（但用當下正確的 curVisitId）
+    if (curVisitId && !document.getElementById('pg-detail').classList.contains('hidden')) {
+      renderChecklist();
+      renderPhotos();
+    }
   }
   if (status) {
     const t = data.lastSync || '—';
@@ -904,6 +907,18 @@ function goDetail(schoolId, jumpVid) {
 }
 
 function goOverview() {
+  // 離開學校頁面時自動同步（fire & forget，不阻塞 UI）
+  if (getGHToken() && curVisitId) {
+    const statusEl = document.getElementById('sync-status');
+    if (statusEl) statusEl.textContent = '☁️ 自動儲存中…';
+    ghWrite().then(ok => {
+      if (statusEl) {
+        const now = new Date().toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'});
+        statusEl.textContent = ok ? `✅ 已同步 ${now}` : '⚠️ 同步失敗，請手動按儲存';
+        statusEl.style.color = ok ? 'var(--green)' : 'var(--orange)';
+      }
+    });
+  }
   document.getElementById('pg-detail').classList.add('hidden');
   document.getElementById('pg-overview').classList.remove('hidden');
   document.getElementById('fab-btn').classList.remove('hidden');
