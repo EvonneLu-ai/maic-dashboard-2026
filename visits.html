@@ -469,7 +469,7 @@ async function ghRead() {
       `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`,
       { headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' } }
     );
-    if (res.status === 404) { ghSha = null; return { idx: {}, visits: {} }; }
+    if (res.status === 404) { ghSha = null; return { _empty: true, idx: {}, visits: {} }; }
     if (res.status === 401) { clearGHToken(); return null; }
     if (!res.ok) return null;
     const json = await res.json();
@@ -573,7 +573,11 @@ async function initSync() {
     if (tBtn) tBtn.textContent = '🔑 重設 Token';
     return;
   }
-  applyGHData(data);
+  // 只在 GitHub 有實際資料時才覆蓋 localStorage
+  const hasGHData = data && !data._empty && data.idx && Object.keys(data.idx).length > 0;
+  if (hasGHData) {
+    applyGHData(data);
+  }
   if (status) {
     const t = data.lastSync || '—';
     status.textContent = `上次：${t}`;
@@ -1024,6 +1028,43 @@ function setStatus(id, msg, color) {
 // ══════════════════════════════════════
 // INIT
 // ══════════════════════════════════════
+
+// ══════════════════════════════════════
+// DATA RESCUE（診斷 + 救援）
+// ══════════════════════════════════════
+function diagnoseLocalStorage() {
+  const idx = getIdx();
+  const schoolsWithData = Object.keys(idx).filter(sid => idx[sid]?.visits?.length > 0);
+  const allSAKeys = Object.keys(localStorage).filter(k => k.startsWith('sa_'));
+  console.log('=== localStorage 診斷 ===');
+  console.log('sa_idx_v1:', JSON.stringify(idx));
+  console.log('所有 sa_ keys:', allSAKeys);
+  console.log('有拜訪資料的學校:', schoolsWithData);
+  // 找所有 sa_v_ 開頭的 key（visit 資料）
+  const visitKeys = allSAKeys.filter(k => k.startsWith('sa_v_'));
+  console.log('找到的 visit 記錄數:', visitKeys.length);
+  visitKeys.forEach(k => {
+    try {
+      const d = JSON.parse(localStorage.getItem(k) || '{}');
+      const keys = Object.keys(d);
+      console.log(`  ${k}: ${keys.length} 筆資料`, keys.slice(0, 5));
+    } catch(e) {}
+  });
+  return { idx, schoolsWithData, visitKeys, allSAKeys };
+}
+
+// 如果 idx 空了但 visit 資料還在，嘗試救援
+function tryRecoverData() {
+  const visitKeys = Object.keys(localStorage).filter(k => k.startsWith('sa_v_'));
+  if (!visitKeys.length) {
+    showToast('⚠️ 找不到任何拜訪資料');
+    return false;
+  }
+  const result = diagnoseLocalStorage();
+  alert(`診斷結果：\n找到 ${visitKeys.length} 筆拜訪資料\n索引有 ${result.schoolsWithData.length} 所學校\n\n詳細請看 Console（F12）`);
+  return true;
+}
+
 window.onload = () => { renderOverview(); initSync(); };
 </script>
 </body>
