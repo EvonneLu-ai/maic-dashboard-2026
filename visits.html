@@ -731,7 +731,7 @@ let selectedSid  = null;  // for add modal
 // ══════════════════════════════════════
 function showToast(msg) {
   const t = document.getElementById('toast');
-  if (msg) t.textContent = msg;
+  t.textContent = msg || '已自動儲存 ✓';  // 無訊息時顯示預設
   t.classList.add('show');
   clearTimeout(t._tid);
   t._tid = setTimeout(() => t.classList.remove('show'), 1800);
