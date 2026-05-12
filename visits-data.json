@@ -1,0 +1,112 @@
+{
+  "idx": {
+    "ntcu": {
+      "visits": [
+        {
+          "id": "v_1777358767326",
+          "date": "2026/04/24",
+          "label": "第 1 次拜訪"
+        }
+      ]
+    },
+    "ntu": {
+      "visits": [
+        {
+          "id": "v_1777534033372",
+          "date": "2026/04/30",
+          "label": "第 1 次拜訪"
+        }
+      ]
+    }
+  },
+  "visits": {
+    "v_1777358767326": {
+      "i4_c": true
+    },
+    "v_1777534033372": {
+      "i4_s1": true,
+      "i4_s0": true,
+      "i4_s2": true,
+      "i4_s4": true,
+      "n-i4": "Abbie",
+      "i4_s3": true,
+      "i5_c": true,
+      "i5_s0": true,
+      "i5_s1": true,
+      "i5_s2": true,
+      "i5_s3": true,
+      "i5_s4": true,
+      "i7_c": true,
+      "i7_s0": true,
+      "i7_s1": true,
+      "i7_s2": true,
+      "i7_s3": true,
+      "i7_s4": true,
+      "i8_c": true,
+      "i8_s0": true,
+      "i8_s1": true,
+      "i8_s2": true,
+      "i8_s3": true,
+      "i8_s4": true,
+      "i9_c": false,
+      "i10_c": true,
+      "star-display": 5,
+      "star-clean": 5,
+      "star-traffic": 5,
+      "i11_s0": true,
+      "i11_s4": true,
+      "n-i11": "Mac mini ",
+      "i12_c": true,
+      "i14_c": true,
+      "i15_c": true,
+      "i19_c": true,
+      "rstar-overall": 5,
+      "rstar-display": 5,
+      "rstar-traffic": 5,
+      "i4_c": true,
+      "i13_c": true,
+      "i13_s0": true,
+      "n-i13": "Mac mini 缺貨",
+      "i15_s0": false,
+      "i21_c": false,
+      "i2_s0": true,
+      "i2_s1": true,
+      "i2_s2": true,
+      "i2_s3": true,
+      "i2_s4": true,
+      "i2_c": true,
+      "n-i9": "Mac mini 目前缺貨",
+      "i20_s0": false,
+      "p3_1_c": true,
+      "p3_3_c": true,
+      "p2_2_c": true,
+      "p2_1_c": true,
+      "p2_3_c": true,
+      "p1_2_c": true,
+      "p1_3_c": true,
+      "p1_4_c": true,
+      "p3_2_c": true,
+      "p2_4_c": true,
+      "p1_1_c": true,
+      "_photos": [
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778555907833.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778555910432.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778555913163.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778555915320.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778555936823.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556048073.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556051341.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556053557.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556056029.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556058659.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556324631.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556327003.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556328979.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556331524.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556334139.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556336586.jpg"
+      ]
+    }
+  },
+  "lastSync": "2026/5/12 上午11:40:44"
+}
