@@ -314,9 +314,23 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
     <p class="sub" id="detail-school-sub"></p>
   </div>
 
-  <div class="detail-meta">
-    <div class="card-region detail-region" id="detail-region"></div>
-    <div class="detail-visit-cnt" id="detail-visit-cnt"></div>
+  <div class="detail-meta" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="card-region detail-region" id="detail-region"></div>
+      <div class="detail-visit-cnt" id="detail-visit-cnt"></div>
+    </div>
+    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600;color:var(--sub)">
+      <span>MAIC 活動期間</span>
+      <div style="position:relative;width:38px;height:22px">
+        <input type="checkbox" id="maic-toggle" style="opacity:0;width:0;height:0;position:absolute"
+          onchange="toggleMAIC(this.checked)">
+        <div id="maic-track" style="position:absolute;inset:0;border-radius:99px;background:var(--border);
+          transition:background .2s;cursor:pointer" onclick="document.getElementById('maic-toggle').click()"></div>
+        <div id="maic-thumb" style="position:absolute;top:2px;left:2px;width:18px;height:18px;
+          border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);
+          transition:transform .2s;pointer-events:none"></div>
+      </div>
+    </label>
   </div>
 
   <div class="visit-tabs-wrap" id="visit-tabs-wrap"></div>
@@ -467,13 +481,10 @@ const ITEMS_DEF = [
   {id:'p5_3', phase:'',                title:'硬體設備檢查',             hint:'POS 系統、門市網路、冷氣設備是否運作正常',               tag:{t:'設備',  c:'tag-data'}},
   {id:'p5_4', phase:'',                title:'資產安全確認',             hint:'展示機防盜線完好、庫存區進出管理是否嚴格執行',           tag:{t:'安全',  c:'tag-must'}},
   // ── Phase 6：拜訪後 ──
-  {id:'p6_1', phase:'拜訪後',          title:'即時回報群組',             hint:'傳陳列照片 + 洽談摘要至 MAIC Marketing 群組',            tag:{t:'MAIC',  c:'tag-maic'}},
-  {id:'p6_2', phase:'',                title:'記錄 Action Items',        hint:'標記負責人 & 截止日期',                                  tag:{t:'必做',  c:'tag-must'}},
-  {id:'p6_3', phase:'',                title:'更新 Dashboard & 決議',    hint:'宣講會場次 + push GitHub',                               tag:{t:'報告',  c:'tag-report'}},
-  {id:'p6_4', phase:'',                title:'寄送感謝訊息',             hint:'拜訪後一個工作天內完成',                                 tag:{t:'禮儀',  c:'tag-tip'}},
+  {id:'p6_3', phase:'拜訪後',          title:'更新 Dashboard',             hint:'宣講會場次 + push GitHub',                               tag:{t:'必做',  c:'tag-must'}},
 ];
 
-const TOTAL = ITEMS_DEF.length; // 22
+const TOTAL = ITEMS_DEF.length; // 20
 
 // ══════════════════════════════════════
 // STORAGE（Key 結構與舊版完全相容）
@@ -518,6 +529,33 @@ function getSchoolStatus(sid) {
   return 'wip';
 }
 
+
+// ══════════════════════════════════════
+// MAIC TOGGLE
+// ══════════════════════════════════════
+const MAIC_KEY = 'sa_maic_on';
+function getMAICOn() { return localStorage.getItem(MAIC_KEY) !== 'off'; }
+function toggleMAIC(on) {
+  localStorage.setItem(MAIC_KEY, on ? 'on' : 'off');
+  applyMAICToggle(on);
+}
+function applyMAICToggle(on) {
+  // 切換 phase 4 顯示（校園關係 & MAIC）
+  document.querySelectorAll('.maic-phase-item').forEach(el => {
+    el.style.display = on ? '' : 'none';
+  });
+  // track 顏色
+  const track = document.getElementById('maic-track');
+  const thumb = document.getElementById('maic-thumb');
+  const chk   = document.getElementById('maic-toggle');
+  if (track) track.style.background = on ? 'var(--purple)' : 'var(--border)';
+  if (thumb) thumb.style.transform = on ? 'translateX(16px)' : 'translateX(0)';
+  if (chk)   chk.checked = on;
+}
+function initMAICToggle() {
+  const on = getMAICOn();
+  applyMAICToggle(on);
+}
 
 // ══════════════════════════════════════
 // GITHUB SYNC
@@ -915,8 +953,11 @@ function renderChecklist() {
       cl.appendChild(ph);
     }
     const isDone = !!d[item.id+'_c'];
+    const isMaicPhase = (item.phase && item.phase.includes('MAIC')) ||
+      (item.id && item.id.startsWith('p4_'));
     const wrap = document.createElement('div');
-    wrap.className = 'cl-item' + (isDone?' done-item':'');
+    wrap.className = 'cl-item' + (isDone?' done-item':'') + (isMaicPhase?' maic-phase-item':'');
+    if (isMaicPhase) wrap.style.display = maicOn ? '' : 'none';
     wrap.innerHTML = `
       <div class="cl-main">
         <div class="cb${isDone?' done':''}" onclick="toggleItem(event,'${item.id}')">
@@ -1041,40 +1082,49 @@ async function handlePhotoSelect(event) {
     return;
   }
 
-  // 顯示上傳中提示
+  const grid  = document.getElementById('photo-grid');
   const empty = document.getElementById('photo-empty');
   if (empty) empty.style.display = 'none';
 
   for (const file of files) {
-    // 先塞入 loading 佔位縮圖
+    // 壓縮 → 立即用本地 blob URL 顯示縮圖
+    showToast('📷 壓縮上傳中…');
+    let blob;
+    try { blob = await compressImage(file); }
+    catch(e) { showToast('❌ 壓縮失敗'); continue; }
+
+    const localUrl = URL.createObjectURL(blob);
     const thumbDiv = document.createElement('div');
     thumbDiv.className = 'photo-thumb';
-    thumbDiv.innerHTML = `<div class="photo-uploading"><div class="photo-uploading-spin"></div></div>`;
-    const grid = document.getElementById('photo-grid');
+    thumbDiv.innerHTML = `
+      <img src="${localUrl}" style="width:100%;height:100%;object-fit:cover">
+      <div class="photo-uploading"><div class="photo-uploading-spin"></div></div>`;
     grid.insertBefore(thumbDiv, empty || null);
 
-    try {
-      showToast('📷 壓縮上傳中…');
-      const blob = await compressImage(file);
-      const url  = await uploadPhoto(curSchoolId, curVisitId, blob);
-      if (!url) throw new Error('upload failed');
-
-      // 儲存到 visit data
-      const d = getVisitData(curVisitId);
-      if (!d._photos) d._photos = [];
-      d._photos.push(url);
-      setVisitData(curVisitId, d);
-
-      // 完全重新渲染（確保畫面正確）
-      renderPhotos();
-      showToast('✅ 照片已上傳');
-    } catch(e) {
+    // 上傳 GitHub
+    const ghUrl = await uploadPhoto(curSchoolId, curVisitId, blob);
+    if (!ghUrl) {
       thumbDiv.remove();
-      // 若全部失敗且無照片，顯示空白提示
-      const d = getVisitData(curVisitId);
-      if (!(d._photos || []).length && empty) empty.style.display = 'block';
+      const d2 = getVisitData(curVisitId);
+      if (!(d2._photos||[]).length && empty) empty.style.display = 'block';
       showToast('❌ 上傳失敗，請重試');
+      continue;
     }
+
+    // 儲存 GitHub URL 到 visit data
+    const d = getVisitData(curVisitId);
+    if (!d._photos) d._photos = [];
+    const idx = d._photos.length;
+    d._photos.push(ghUrl);
+    setVisitData(curVisitId, d);
+
+    // 移除 loading overlay，加刪除按鈕（繼續顯示本地 blob 圖）
+    thumbDiv.innerHTML = `
+      <img src="${localUrl}" style="width:100%;height:100%;object-fit:cover"
+        onclick="openLightbox('${ghUrl}')">
+      <button class="photo-del" onclick="deletePhoto(event,${idx})">✕</button>`;
+    updatePhotoCount();
+    showToast('✅ 照片已上傳');
   }
 }
 
