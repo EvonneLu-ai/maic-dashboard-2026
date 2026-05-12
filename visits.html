@@ -576,16 +576,18 @@ async function ghRead() {
       { headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' } }
     );
     if (res.status === 404) { ghSha = null; return { _empty: true, idx: {}, visits: {} }; }
-    if (res.status === 401) { return { _authFail: true }; }  // token 失效，保留 token 等使用者手動更新
+    if (res.status === 401) { return { _authFail: true }; }
     if (!res.ok) return null;
     const json = await res.json();
     ghSha = json.sha;
-    // 正確解碼 UTF-8：atob → Uint8Array → TextDecoder
-    const raw = atob(json.content.replace(/\n/g, ''));
-    const bytes = Uint8Array.from(raw, c => c.charCodeAt(0));
-    const text = new TextDecoder().decode(bytes);
+    // 安全解碼 UTF-8：逐字元迴圈避免 stack overflow
+    const b64 = json.content.replace(/\n/g, '');
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const text = new TextDecoder('utf-8').decode(bytes);
     return JSON.parse(text);
-  } catch(e) { return null; }
+  } catch(e) { console.error('ghRead:', e); return null; }
 }
 
 // 把全部 localStorage 資料寫入 GitHub
@@ -601,8 +603,14 @@ async function ghWrite() {
   try {
     // 正確 UTF-8 base64 編碼：Uint8Array → binary string → btoa
     const jsonStr = JSON.stringify(payload, null, 2);
+    // 分塊轉換，避免 String.fromCharCode(...大陣列) stack overflow
     const bytes = new TextEncoder().encode(jsonStr);
-    const content = btoa(String.fromCharCode(...bytes));
+    let bin = '';
+    const chunk = 8192;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      bin += String.fromCharCode(...bytes.subarray(i, i + chunk));
+    }
+    const content = btoa(bin);
     const body = { message: `sync ${new Date().toLocaleString('zh-TW')}`, content, branch: GH_BRANCH };
     if (ghSha) body.sha = ghSha;
     const res = await fetch(
@@ -682,9 +690,11 @@ async function initSync() {
   if (btn) btn.classList.add('hidden');
   const data = await ghRead();
   if (!data || data._authFail) {
-    if (status) { status.textContent = '❌ Token 已失效，請重新設定', status.style.color = 'var(--red)'; }
+    const msg = data && data._authFail ? '❌ Token 已失效，請重新設定' : '❌ 連線失敗，請確認網路';
+    if (status) { status.textContent = msg; status.style.color = 'var(--red)'; }
     if (btn)   btn.classList.add('hidden');
     if (tBtn)  tBtn.textContent = '🔑 重設 Token';
+    showToast(msg);
     return;
   }
   // 只在 GitHub 有實際資料時才覆蓋 localStorage
