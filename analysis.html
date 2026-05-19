@@ -1160,15 +1160,21 @@ function buildName() {
 
 // ── 時程 / 漏斗 ──────────────────────────────────────────────────────
 const TL_DATA = [
-  {date:'3月初 (3/7-3/29)',count:4,  event:'早鳥報名',      color:'#aeaeb2'},
-  {date:'4/5',             count:1,  event:'',              color:'#aeaeb2'},
-  {date:'4/10 🔥',        count:57, event:'說明會後大爆發', color:'#0071e3'},
-  {date:'4/11',            count:28, event:'',              color:'#5ac8fa'},
-  {date:'4/12–13',         count:38, event:'政大/逢甲擴散', color:'#5ac8fa'},
-  {date:'4/15',            count:27, event:'臺中教大批次',  color:'#5ac8fa'},
-  {date:'4/22–23 🔥',     count:36, event:'第二波爆發',    color:'#0071e3'},
-  {date:'4/24–27',         count:4,  event:'收尾',          color:'#aeaeb2'},
-  {date:'4/28–5/2 🆕',   count:24, event:'師大/中正/藝大/中興/中原批次', color:'#30d158'},
+  {date:'3月初 (3/7-3/29)',count:4,  event:'早鳥報名',                     color:'#aeaeb2'},
+  {date:'4/5',             count:1,  event:'',                             color:'#aeaeb2'},
+  {date:'4/10 🔥',        count:80, event:'說明會後大爆發（東海/北科大/清大/政大/台大）', color:'#0071e3'},
+  {date:'4/11',            count:22, event:'台大大波段持續',                 color:'#5ac8fa'},
+  {date:'4/12–13',         count:65, event:'政大/逢甲/北教大擴散',          color:'#5ac8fa'},
+  {date:'4/15',            count:25, event:'臺中教大批次',                  color:'#5ac8fa'},
+  {date:'4/18',            count:1,  event:'',                             color:'#aeaeb2'},
+  {date:'4/22–23 🔥',     count:61, event:'第二波爆發（逢甲/高科大/台大）', color:'#0071e3'},
+  {date:'4/24–27',         count:4,  event:'收尾',                         color:'#aeaeb2'},
+  {date:'4/28–5/2',        count:25, event:'師大/中正/藝大/中興/中原批次',  color:'#30d158'},
+  {date:'5/4–5 🆕',       count:1,  event:'',                             color:'#aeaeb2'},
+  {date:'5/6–7 🔥',       count:59, event:'第三波爆發（東吳/北市大/長榮/東華/聯大/大葉/元培等）', color:'#0071e3'},
+  {date:'5/8–12 🆕',      count:36, event:'元智/世新/宜蘭大/高雄大批次',   color:'#30d158'},
+  {date:'5/15–16 🆕',     count:29, event:'玄奘/明新/元培/嘉義大/暨南批次',color:'#30d158'},
+  {date:'5/17–19 🆕',     count:2,  event:'義守/臺北商大',                 color:'#aeaeb2'},
 ];
 function buildTimeline() {
   const w = document.getElementById('w-timeline');
@@ -1183,29 +1189,29 @@ function buildTimeline() {
     <tbody>${TL_DATA.map(t=>`<tr>
       <td class="fw">${t.date}</td>
       <td class="tc"><div style="display:flex;align-items:center;gap:6px;justify-content:center">
-        <div style="width:${Math.round(t.count/57*72)}px;height:10px;border-radius:5px;background:${t.color};min-width:4px"></div>
+        <div style="width:${Math.round(t.count/80*72)}px;height:10px;border-radius:5px;background:${t.color};min-width:4px"></div>
         <span class="fw" style="color:${t.color}">${t.count}</span>
       </div></td>
-      <td class="tc tgray">${(t.count/195*100).toFixed(1)}%</td>
+      <td class="tc tgray">${(t.count/415*100).toFixed(1)}%</td>
       <td style="font-size:11.5px;color:var(--text2)">${t.event||'—'}</td>
     </tr>`).join('')}</tbody></table>
   </div>
   <div class="card" style="max-width:620px">
     <div class="card-title">📋 報名轉換漏斗</div>
     ${[
-      {label:'已完成基本報名',count:225,pct:100,color:'#0071e3'},
-      {label:'年級/系所填寫齊全',count:91,pct:40,color:'#5ac8fa'},
-      {label:'分工欄位填寫',count:106,pct:47,color:'#34c759'},
-      {label:'企畫書已上傳',count:1,pct:0.4,color:'#ff3b30'},
+      {label:'已完成基本報名',count:415,pct:100,color:'#0071e3'},
+      {label:'年級/系所填寫齊全',count:91,pct:22,color:'#5ac8fa'},
+      {label:'分工欄位填寫',count:106,pct:26,color:'#34c759'},
+      {label:'企畫書已上傳',count:3,pct:0.7,color:'#ff3b30'},
     ].map((f,i,arr)=>`
       <div style="background:${f.color};color:#fff;border-radius:7px;padding:11px;text-align:center;font-size:12px;font-weight:700;margin:0 ${i*20}px">
         ${f.label}：${f.count} 隊 (${f.pct}%)
       </div>
       ${i<arr.length-1?'<div style="text-align:center;font-size:16px;color:var(--text2);margin:3px 0">▼</div>':''}`).join('')}
   </div>
-  ${ins('📅','4/10 單日57隊（29%）是全程最大爆發點，應深入追查觸發管道作為明年預算依據。','ins-blue')}
-  ${ins('⚠️','企畫書上傳率僅0.4%（1/225），是最嚴重的轉換瓶頸。建議設「提交企畫書才確認資格」門檻。','ins-red')}
-  ${ins('🔄','兩波浪潮（4/10 & 4/22）顯示學生高度受外部觸發。應在說明會後24-48h內推送填報提醒。','ins-orange')}`;
+  ${ins('📅','4/10 單日80隊（19%）仍是全程最大爆發點；5/6 單日也達59隊（14%），共出現三波浪潮，應持續追查宣講觸發管道。','ins-blue')}
+  ${ins('⚠️','企畫書上傳率僅0.7%（3/415），是最嚴重的轉換瓶頸。建議設「提交企畫書才確認資格」門檻。','ins-red')}
+  ${ins('🔄','三波浪潮（4/10、4/22、5/6）均在說明會後爆發。應在說明會後24-48h內推送填報提醒，效果最佳。','ins-orange')}`;
 
   setTimeout(()=>{
     mkChart('c-tl-bar',{type:'bar',data:{labels:TL_DATA.map(t=>t.date),datasets:[{label:'報名隊數',data:TL_DATA.map(t=>t.count),backgroundColor:TL_DATA.map(t=>t.color),borderRadius:6}]},options:{plugins:{legend:{display:false},tooltip:{callbacks:{afterLabel:ctx=>{const ev=TL_DATA[ctx.dataIndex].event;return ev?'→ '+ev:'';}}},},scales:{y:{grid:{color:'rgba(0,0,0,0.04)'}}}}});
