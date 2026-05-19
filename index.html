@@ -661,18 +661,18 @@ const DATA = {
 
     // 多元講座總覽
     workshopSummary: {
-      total: 14,
-      inPerson: 10,
+      total: 15,
+      inPerson: 11,
       online: 4,
       general: 11,
-      summerCamp: 3,
-      summerCampDates: '3/14 · 5/31 · 7/16–17',
+      summerCamp: 4,
+      summerCampDates: '3/14 · 5/31 · 7/15–17',
     },
 
     // 多元講座月份分組
     workshops: [
       { month: '3月', color: '#0071e3', items: [
-        { date:'3/14(六)', name:'AI Coding Summer Camp\n第一次宣傳體驗活動', format:'實體', done:true },
+        { date:'3/14(六)', name:'AI Coding Summer Camp\n第一次宣傳體驗活動', format:'實體', people:70, done:true },
       ]},
       { month: '4月', color: '#ff9500', items: [
         { date:'4/23(四)', name:'多元講座 — 【AI Coding】從點子到 App 的最短路徑（上）', format:'線上', lecturer:'黃光裕（Guang-Yu Huang）| 全端＋iOS 業師', done:true },
@@ -692,8 +692,9 @@ const DATA = {
         { date:'6/17(三)', name:'簡報設計與答辯技巧', format:'實體', done:false },
       ]},
       { month: '7月', color: '#5ac8fa', items: [
-        { date:'7/16(四)', name:'AI Coding Student Summer Camp Day1', format:'實體', done:false },
-        { date:'7/17(五)', name:'AI Coding Student Summer Camp Day2', format:'實體', done:false },
+        { date:'7/15(二)', name:'AI Coding Student Summer Camp\nDay 1 — AI App 開發入門', format:'實體', meta:'從點子發想開始，學習如何利用 AI 工具與現代 iOS 開發流程快速開始一個 App 專案。', done:false },
+        { date:'7/16(三)', name:'AI Coding Student Summer Camp\nDay 2 — 團隊開發與產品落地', format:'實體', meta:'了解 AI 時代的團隊開發模式，並學習如何讓 App 走向真正的產品。', done:false },
+        { date:'7/17(四)', name:'AI Coding Student Summer Camp\nDay 3 — Hackathon', format:'實體', meta:'現場組隊，限時打造 AI App，成果展示。設有 iOS 資深 Team Lead、Codex Ambassador、外商市場策略經理 3 個 1:1 Mentor 指導區。', done:false },
       ]},
     ],
   },
@@ -1180,7 +1181,8 @@ new Chart(document.getElementById('rtcThemeChart'), {
         <div style="font-size:11px;font-weight:700;color:${m.color};margin-bottom:6px">${w.date}</div>
         <div style="font-size:12px;font-weight:600;color:${w.done?'var(--text2)':'var(--text)'};line-height:1.5;padding-right:52px;margin-bottom:8px">${nameDisp}</div>
         ${w.lecturer ? `<div style="font-size:11px;color:var(--text2);margin-bottom:4px">👤 ${w.lecturer}</div>` : ''}
-        ${w.people   ? `<div style="font-size:11px;color:var(--text2);margin-bottom:8px">👥 ${w.people} 人</div>` : ''}
+        ${w.people   ? `<div style="font-size:11px;color:var(--text2);margin-bottom:4px">👥 ${w.people} 人</div>` : ''}
+        ${w.meta     ? `<div style="font-size:10.5px;color:var(--text2);line-height:1.5;margin-bottom:8px;border-top:1px solid var(--border);padding-top:7px">${w.meta}</div>` : ''}
         ${fmtBadge(w.format)}</div>`;
     });
     html += '</div></div>';
