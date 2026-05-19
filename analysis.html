@@ -94,7 +94,7 @@ footer{text-align:center;font-size:11px;color:var(--text2);padding:16px;border-t
   <div class="header-top">
     <div class="header-left">
       <h1>📊 MAIC 報名分析中心</h1>
-      <p>行動應用創新賽 2026 ｜ 249 支隊伍 × 22 所學校 ｜ 資料截至 2026/05/06</p>
+      <p>行動應用創新賽 2026 ｜ 415 支隊伍 × 51 所學校 ｜ 資料截至 2026/05/19</p>
     </div>
     <a href="./portal.html" class="back-btn">← 返回 Hub</a>
   </div>
@@ -482,6 +482,64 @@ const TEAMS = [
 {id:'495', name:'淡水娃娃', track:'創意', school:'真理大學', region:'北部', dept:'資訊管理學系', deptCat:'資工電機', nameCat:'自然意象'},
 {id:'496', name:'神的指意', track:'創新', school:'真理大學', region:'北部', dept:'資訊管理學系', deptCat:'資工電機', nameCat:'日常生活'},
 {id:'497', name:'面面俱到', track:'創新', school:'逢甲大學', region:'中部', dept:'資訊工程學系', deptCat:'資工電機', nameCat:'日常生活'},
+{id:'499', name:'Octane', track:'創意', school:'國立東華大學', region:'其他', dept:'教育與潛能開發學系', deptCat:'教育', nameCat:'英文混搭'},
+{id:'500', name:'申論題全隊', track:'創新', school:'國立陽明交通大學', region:'北部', dept:'智慧與綠能產學研究所', deptCat:'資工電機', nameCat:'日常生活'},
+{id:'501', name:'神經網路新兵', track:'創新', school:'元智大學', region:'北部', dept:'藝術與設計學系', deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'502', name:'Token用完了', track:'創新', school:'元智大學', region:'北部', dept:'藝術與設計學系', deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'503', name:'Fine-tune我的人生', track:'創新', school:'元智大學', region:'北部', dept:'應用外語學系', deptCat:'語文人文', nameCat:'科技梗'},
+{id:'504', name:'向量資料庫守門員', track:'創新', school:'元智大學', region:'北部', dept:'中國語文學系', deptCat:'語文人文', nameCat:'科技梗'},
+{id:'505', name:'Hallucination終結者', track:'創新', school:'元智大學', region:'北部', dept:'電機工程學系', deptCat:'資工電機', nameCat:'科技梗'},
+{id:'506', name:'AI簽到打卡隊', track:'創新', school:'世新大學', region:'北部', dept:'傳播管理學系', deptCat:'商管', nameCat:'科技梗'},
+{id:'507', name:'不只會用ChatGPT', track:'創新', school:'世新大學', region:'北部', dept:'廣播電視電影學系', deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'508', name:'Embedding深度玩家', track:'創新', school:'世新大學', region:'北部', dept:'廣播電視電影學系', deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'509', name:'從零開始學推理', track:'創新', school:'世新大學', region:'北部', dept:'廣播電視電影學系', deptCat:'設計藝術', nameCat:'日常生活'},
+{id:'510', name:'context window夠大', track:'創新', school:'世新大學', region:'北部', dept:'廣播電視電影學系', deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'511', name:'多代理人特攻組', track:'創新', school:'東吳大學', region:'北部', dept:'歷史學系', deptCat:'語文人文', nameCat:'科技梗'},
+{id:'512', name:'AI伴讀小書僮', track:'創新', school:'東吳大學', region:'北部', dept:'日本語文學系', deptCat:'語文人文', nameCat:'科技梗'},
+{id:'513', name:'提示詞詩人', track:'創新', school:'東吳大學', region:'北部', dept:'政治學系', deptCat:'其他', nameCat:'科技梗'},
+{id:'514', name:'AutoGen自動化先鋒', track:'創新', school:'東吳大學', region:'北部', dept:'法律學系', deptCat:'語文人文', nameCat:'科技梗'},
+{id:'515', name:'模型壓縮研究所', track:'創新', school:'東吳大學', region:'北部', dept:'日本語文學系', deptCat:'語文人文', nameCat:'科技梗'},
+{id:'516', name:'LoRA微調冠軍', track:'創新', school:'國立宜蘭大學', region:'北部', dept:'外國語文學系', deptCat:'語文人文', nameCat:'英文混搭'},
+{id:'517', name:'Nobody用舊方法', track:'創新', school:'國立宜蘭大學', region:'北部', dept:'外國語文學系', deptCat:'語文人文', nameCat:'英文混搭'},
+{id:'518', name:'全端AI開發者', track:'創新', school:'國立宜蘭大學', region:'北部', dept:'外國語文學系', deptCat:'語文人文', nameCat:'科技梗'},
+{id:'519', name:'語意搜尋救星', track:'創新', school:'國立宜蘭大學', region:'北部', dept:'環境工程學系', deptCat:'理工科學', nameCat:'科技梗'},
+{id:'520', name:'LangChain串接師', track:'創新', school:'國立宜蘭大學', region:'北部', dept:'外國語文學系', deptCat:'語文人文', nameCat:'英文混搭'},
+{id:'521', name:'零樣本學習挑戰者', track:'創新', school:'國立高雄大學', region:'南部', dept:'法律學系', deptCat:'語文人文', nameCat:'科技梗'},
+{id:'522', name:'AI倫理糾察隊', track:'創新', school:'國立高雄大學', region:'南部', dept:'工藝與創意設計學系', deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'523', name:'知識圖譜探索家', track:'創新', school:'國立高雄大學', region:'南部', dept:'工藝與創意設計學系', deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'524', name:'擴散模型設計師', track:'創新', school:'國立高雄大學', region:'南部', dept:'工藝與創意設計學系', deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'525', name:'強化學習特訓班', track:'創新', school:'國立高雄大學', region:'南部', dept:'工藝與創意設計學系', deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'528', name:'這組有料', track:'創業', school:'中華大學', region:'北部', dept:'管理學院', deptCat:'商管', nameCat:'日常生活'},
+{id:'529', name:'Midnight Coders', track:'創新', school:'玄奘大學', region:'北部', dept:'視覺傳達設計學系', deptCat:'設計藝術', nameCat:'英文混搭'},
+{id:'530', name:'沒有 Bug 的世界', track:'創新', school:'玄奘大學', region:'北部', dept:'藝術設計學院碩士班', deptCat:'設計藝術', nameCat:'科技梗'},
+{id:'531', name:'熬夜研究院', track:'創新', school:'玄奘大學', region:'北部', dept:'時尚設計學系', deptCat:'設計藝術', nameCat:'日常生活'},
+{id:'532', name:'先睡工作室', track:'創新', school:'玄奘大學', region:'北部', dept:'視覺傳達設計學系', deptCat:'設計藝術', nameCat:'日常生活'},
+{id:'533', name:'這組很可以', track:'創意', school:'元培醫事科技大學', region:'北部', dept:'觀光與休閒管理系', deptCat:'商管', nameCat:'日常生活'},
+{id:'535', name:'願景實作室', track:'創新', school:'元培醫事科技大學', region:'北部', dept:'健康休閒管理系', deptCat:'商管', nameCat:'日常生活'},
+{id:'536', name:'下一個冠軍', track:'創新', school:'明新科技大學', region:'北部', dept:'多媒體與遊戲發展系', deptCat:'設計藝術', nameCat:'戰鬥冒險'},
+{id:'537', name:'從零', track:'創新', school:'明新科技大學', region:'北部', dept:'多媒體與遊戲發展系', deptCat:'設計藝術', nameCat:'日常生活'},
+{id:'538', name:'腦內宇宙', track:'創意', school:'明新科技大學', region:'北部', dept:'多媒體與遊戲發展系', deptCat:'設計藝術', nameCat:'自然意象'},
+{id:'539', name:'無限可能', track:'創新', school:'明新科技大學', region:'北部', dept:'多媒體與遊戲發展系', deptCat:'設計藝術', nameCat:'日常生活'},
+{id:'540', name:'腦袋升級', track:'創新', school:'元培醫事科技大學', region:'北部', dept:'資訊管理系', deptCat:'資工電機', nameCat:'日常生活'},
+{id:'541', name:'硬幹到底', track:'創意', school:'玄奘大學', region:'北部', dept:'視覺傳達設計學系', deptCat:'設計藝術', nameCat:'幽默自嘲'},
+{id:'542', name:'全力輸出', track:'創新', school:'明新科技大學', region:'北部', dept:'資訊管理系', deptCat:'資工電機', nameCat:'日常生活'},
+{id:'545', name:'烤五花肉飯', track:'創意', school:'國立政治大學', region:'北部', dept:'教育學系', deptCat:'教育', nameCat:'食物飲料'},
+{id:'546', name:'黑馬王子黑馬公主要顛覆童話', track:'創意', school:'國立成功大學', region:'南部', dept:'心理學系', deptCat:'其他', nameCat:'戰鬥冒險'},
+{id:'547', name:'Gone gone my love is gone', track:'創意', school:'國立臺北大學', region:'北部', dept:'會計學系', deptCat:'商管', nameCat:'英文混搭'},
+{id:'548', name:'Bring the boys out', track:'創意', school:'國立臺灣師範大學', region:'北部', dept:'音樂學系', deptCat:'設計藝術', nameCat:'英文混搭'},
+{id:'549', name:'害怕什麼愛就愛', track:'創意', school:'國立中興大學', region:'中部', dept:'化學系', deptCat:'理工科學', nameCat:'日常生活'},
+{id:'550', name:'怎麼承認我非你不可', track:'創意', school:'世新大學', region:'北部', dept:'廣播電視電影學系', deptCat:'設計藝術', nameCat:'日常生活'},
+{id:'551', name:'你失戀了', track:'創意', school:'國立嘉義大學', region:'中部', dept:'外國語言學系', deptCat:'語文人文', nameCat:'日常生活'},
+{id:'552', name:'Hands up drinks down', track:'創意', school:'國立嘉義大學', region:'中部', dept:'財務金融學系', deptCat:'商管', nameCat:'英文混搭'},
+{id:'553', name:'Turn up', track:'創意', school:'國立嘉義大學', region:'中部', dept:'中國文學系', deptCat:'語文人文', nameCat:'英文混搭'},
+{id:'554', name:'對我表現你的愛', track:'創意', school:'國立嘉義大學', region:'中部', dept:'應用經濟學系', deptCat:'商管', nameCat:'日常生活'},
+{id:'555', name:'Gangster', track:'創意', school:'國立嘉義大學', region:'中部', dept:'資訊工程學系', deptCat:'資工電機', nameCat:'英文混搭'},
+{id:'556', name:'nightmares', track:'創意', school:'國立暨南國際大學', region:'中部', dept:'國際文教與比較教育學系', deptCat:'教育', nameCat:'英文混搭'},
+{id:'557', name:'layers', track:'創意', school:'國立暨南國際大學', region:'中部', dept:'經濟學系', deptCat:'商管', nameCat:'英文混搭'},
+{id:'558', name:'七宗罪先開刀', track:'創意', school:'國立暨南國際大學', region:'中部', dept:'國際企業學系', deptCat:'商管', nameCat:'日常生活'},
+{id:'559', name:'罪惡溫存我想要急速快樂', track:'創意', school:'國立暨南國際大學', region:'中部', dept:'歷史學系', deptCat:'語文人文', nameCat:'日常生活'},
+{id:'601', name:'數位雙生尋味組', track:'創業', school:'義守大學', region:'南部', dept:'資訊管理學系', deptCat:'資工電機', nameCat:'日常生活'},
+{id:'603', name:'夢境回聲', track:'創意', school:'國立臺北商業大學', region:'北部', dept:'資訊管理系', deptCat:'資工電機', nameCat:'日常生活'},
 ];
 
 // ════════════════════════════════════════════════
@@ -1186,6 +1244,6 @@ function showDim(dim) {
 // ── 初始化 ──
 showDim('overview');
 </script>
-<footer>MAIC 行動應用創新賽 2026 ｜ 報名分析中心 ｜ 資料截至 2026/05/05</footer>
+<footer>MAIC 行動應用創新賽 2026 ｜ 報名分析中心 ｜ 資料截至 2026/05/19</footer>
 </body>
 </html>
