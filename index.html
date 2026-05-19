@@ -676,15 +676,15 @@ const DATA = {
         { date:'3/14(六)', name:'AI Coding Summer Camp\n第一次宣傳體驗活動', format:'實體', done:true },
       ]},
       { month: '4月', color: '#ff9500', items: [
-        { date:'4/23(四)', name:'多元講座 — 【AI Coding】從點子到 App 的最短路徑（上）', format:'實體', done:true },
+        { date:'4/23(四)', name:'多元講座 — 【AI Coding】從點子到 App 的最短路徑（上）', format:'線上', lecturer:'黃光裕（Guang-Yu Huang）| 全端＋iOS 業師', done:true },
         { date:'4月下旬', name:'AI Coding 與 Swift 開發入門', format:'實體', done:false },
-        { date:'4/30(四)', name:'【UI/UX 設計】讓點子落地的介面設計與交互魔法', format:'線上', done:true },
+        { date:'4/30(四)', name:'【UI/UX 設計】讓點子落地的介面設計與交互魔法', format:'線上', lecturer:'Jess Hsu | UX UI 學姊', done:true },
       ]},
       { month: '5月', color: '#34c759', items: [
-        { date:'5/7(四)',  name:'AI Coding 從點子到 App 的最短路徑（下）', format:'線上', done:true },
-        { date:'5/13(二)', name:'中教大宣講會暨實體工作坊 — AI Coding', format:'實體', done:true },
-        { date:'5/15(四)', name:'逢甲大學宣講會暨實體工作坊 — AI Coding', format:'實體', done:true },
-        { date:'5/21(四)', name:'AI 模型整合實務：把 AI 變成 App 的大腦', format:'線上', done:false },
+        { date:'5/7(四)',  name:'AI Coding 從點子到 App 的最短路徑（下）', format:'線上', lecturer:'黃光裕（Guang-Yu Huang）| 全端＋iOS 業師', done:true },
+        { date:'5/13(二)', name:'中教大宣講會暨實體工作坊 — AI Coding', format:'實體', lecturer:'Harry', people:30, done:true },
+        { date:'5/15(四)', name:'逢甲大學宣講會暨實體工作坊 — AI Coding', format:'實體', lecturer:'彼得潘 及 YY', people:10, done:true },
+        { date:'5/21(四)', name:'AI 模型整合實務：把 AI 變成 App 的大腦', format:'線上', lecturer:'黃光裕（Guang-Yu Huang）| 全端＋iOS 業師', done:false },
         { date:'5月下旬', name:'行銷與影片剪輯（實體）', format:'實體', done:false },
         { date:'5/31(日)', name:'AI Coding Summer Camp\n第二次宣傳體驗活動', format:'實體', done:false },
       ]},
@@ -1162,7 +1162,9 @@ new Chart(document.getElementById('rtcThemeChart'), {
           : '<span style="font-size:10px;padding:2px 8px;border-radius:100px;background:#fff3cd;color:#92400e;font-weight:600">⏳ 待辦</span>'
         }</div>
         <div style="font-size:11px;font-weight:700;color:${m.color};margin-bottom:6px">${w.date}</div>
-        <div style="font-size:12px;font-weight:600;color:${w.done?'var(--text2)':'var(--text)'};line-height:1.5;padding-right:52px;margin-bottom:10px">${nameDisp}</div>
+        <div style="font-size:12px;font-weight:600;color:${w.done?'var(--text2)':'var(--text)'};line-height:1.5;padding-right:52px;margin-bottom:8px">${nameDisp}</div>
+        ${w.lecturer ? `<div style="font-size:11px;color:var(--text2);margin-bottom:4px">👤 ${w.lecturer}</div>` : ''}
+        ${w.people   ? `<div style="font-size:11px;color:var(--text2);margin-bottom:8px">👥 ${w.people} 人</div>` : ''}
         ${fmtBadge(w.format)}</div>`;
     });
     html += '</div></div>';
