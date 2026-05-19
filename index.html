@@ -555,10 +555,10 @@ const DATA = {
   // ── MARKETING：宣講會 KPI ─────────────────────────────
   marketing: {
     kpi1: [
-      { label: '已舉辦場次', value: '10', unit: '場', sub: '線下 8 + 線上 2', badge: '3月～5月', badgeClass: 'bo', color: 'var(--orange)' },
+      { label: '已舉辦場次', value: '12', unit: '場', sub: '線下 9 + 線上 3', badge: '3月～5月', badgeClass: 'bo', color: 'var(--orange)' },
       { label: '最大單場人數', value: '150+', unit: '', sub: '高雄科技大學 3/18', badge: '燕巢校區', badgeClass: 'bb', color: 'var(--blue)' },
-      { label: '宣講累計出席', value: '324', unit: '', sub: '10 場合計', badge: '線上+線下合計', badgeClass: 'bg', color: 'var(--green)' },
-      { label: '最新場次', value: '5/8', unit: '', sub: '臺中科技大學 + 線上', badge: '已完成', badgeClass: 'bp', color: 'var(--purple)', smallVal: true },
+      { label: '宣講累計出席', value: '364', unit: '', sub: '12 場合計', badge: '線上+線下合計', badgeClass: 'bg', color: 'var(--green)' },
+      { label: '最新場次', value: '5/15', unit: '', sub: '逢甲大學工作坊', badge: '已完成', badgeClass: 'bp', color: 'var(--purple)', smallVal: true },
     ],
 
     // 宣講會清單
@@ -573,6 +573,8 @@ const DATA = {
       { school:'臺灣大學（AI 剪輯工作坊）', date:'4/30', lecturer:'Curly 及 Brandi',   type:'線下', time:'09:30–12:30', people:10, venue:'台灣大學', note:'學生大多數為了解 AI 剪輯影片技巧工作坊前來。講師介紹 Apple 生態系中的剪輯工具 Final Cut Pro，分享剪輯技巧及 App 內建的 AI 工具來輔助剪輯。', color: '#0071e3' },
       { school:'國立臺中科技大學',          date:'5/8',  lecturer:'Edick 及 YY',        type:'線下', time:'16:30–17:30', people:30, venue:'國立臺中科技大學', note:'學生以資工系學會及社團學生為主。講師講解比賽事項並分享往年獲獎作品特色，同學踴躍發問，尤其對Vision Pro開發感到興趣。', color: '#af52de' },
       { school:'線上宣講會',                date:'5/8',  lecturer:'YY 及 Edick',         type:'線上', time:'19:00–20:00', people:9,  venue:'線上 Live', note:'講師介紹比賽背景至各賽組詳情，同學積極發問，提出有關組隊安排、App開發方向等問題。', color: '#5ac8fa' },
+      { school:'台中教育大學（工作坊）',     date:'5/13', lecturer:'Harry',               type:'線下', time:'12:30–14:00', people:30, venue:'台中教育大學', note:'大部份學生沒有資訊背景，但課堂中都專注、主動提問。講師按學生背景由淺入深講解 AI Coding 技巧。', color: '#34c759' },
+      { school:'逢甲大學（工作坊）',         date:'5/15', lecturer:'彼得潘 及 YY',         type:'線下', time:'15:00–18:00', people:10, venue:'逢甲大學', note:'講師教學生使用 Google AI Studio 建立 App，以訂飲料 App 為例練習，並介紹 codex build iOS apps plugin 上架流程。學生積極發問、投入參與。', color: '#ff9500' },
     ],
 
     // Email KPI（3格）
@@ -633,7 +635,7 @@ const DATA = {
   training: {
     kpi1: [
       { label: 'RTC 課程總場次', value: '10', unit: '場', sub: '3月 ~ 6月，每週五', badge: '台灣大學', badgeClass: 'bg', color: 'var(--green)' },
-      { label: '已完成場次', value: '5', unit: '/ 10', sub: '截至 4/10（含今日課程）', badge: '50% 完成', badgeClass: 'bb', color: 'var(--blue)' },
+      { label: '已完成場次', value: '7', unit: '/ 10', sub: '截至 5/15（含 Mia 兩堂）', badge: '70% 完成', badgeClass: 'bb', color: 'var(--blue)' },
       { label: '課程時段', value: '週五下午', unit: '', sub: '每場 14:00–17:00（3小時）', badge: '實體課程', badgeClass: 'bp', color: 'var(--purple)', smallVal: true },
       { label: '授課講師數', value: '5', unit: '', sub: '13 / Raymond / Mia / Curly / Apple專家', badge: '多元背景', badgeClass: 'bb', color: 'var(--teal)' },
     ],
@@ -645,8 +647,8 @@ const DATA = {
       { date:'3/20(五)', name:'行動裝置本地端原生AI功能開發實務',           lecturer:'13',              done:true  },
       { date:'3/27(五)', name:'裝置端開源模型AI功能開發實務',              lecturer:'13',              done:true  },
       { date:'4/10(五)', name:'多模態AI技術在教學情境中的應用',            lecturer:'Raymond（侯智薰）', done:true  },
-      { date:'5/8(五)',  name:'產品設計思考',                              lecturer:'Mia',             done:false },
-      { date:'5/15(五)', name:'空間體驗設計',                              lecturer:'Mia',             done:false },
+      { date:'5/8(五)',  name:'產品設計思考',                              lecturer:'Mia',             done:true  },
+      { date:'5/15(五)', name:'空間體驗設計',                              lecturer:'Mia',             done:true  },
       { date:'5/22(五)', name:'空間應用元件設計',                          lecturer:'Mia',             done:false },
       { date:'5/29(五)', name:'表達與溝通協商技巧',                        lecturer:'Apple 專業學習專家', done:false },
       { date:'6/5(五)',  name:'AI剪輯新紀元：把時間還給創意，FCP AI助你說好故事', lecturer:'Curly',  done:false },
@@ -660,10 +662,10 @@ const DATA = {
 
     // 多元講座總覽
     workshopSummary: {
-      total: 12,
-      inPerson: 8,
+      total: 14,
+      inPerson: 10,
       online: 4,
-      general: 9,
+      general: 11,
       summerCamp: 3,
       summerCampDates: '3/14 · 5/31 · 7/16–17',
     },
@@ -676,11 +678,12 @@ const DATA = {
       { month: '4月', color: '#ff9500', items: [
         { date:'4/23(四)', name:'多元講座 — 【AI Coding】從點子到 App 的最短路徑（上）', format:'實體', done:true },
         { date:'4月下旬', name:'AI Coding 與 Swift 開發入門', format:'實體', done:false },
-        { date:'4/30(四)', name:'【UI/UX 設計】讓點子落地的介面設計與交互魔法', format:'線上', done:false },
+        { date:'4/30(四)', name:'【UI/UX 設計】讓點子落地的介面設計與交互魔法', format:'線上', done:true },
       ]},
       { month: '5月', color: '#34c759', items: [
-        { date:'5/7(四)',  name:'AI Coding 從點子到 App 的最短路徑（上）', format:'線上', done:false },
-        { date:'5月上旬', name:'UI/UX 設計（實體）', format:'實體', done:false },
+        { date:'5/7(四)',  name:'AI Coding 從點子到 App 的最短路徑（下）', format:'線上', done:true },
+        { date:'5/13(二)', name:'中教大宣講會暨實體工作坊 — AI Coding', format:'實體', done:true },
+        { date:'5/15(四)', name:'逢甲大學宣講會暨實體工作坊 — AI Coding', format:'實體', done:true },
         { date:'5/21(四)', name:'AI 模型整合實務：把 AI 變成 App 的大腦', format:'線上', done:false },
         { date:'5月下旬', name:'行銷與影片剪輯（實體）', format:'實體', done:false },
         { date:'5/31(日)', name:'AI Coding Summer Camp\n第二次宣傳體驗活動', format:'實體', done:false },
