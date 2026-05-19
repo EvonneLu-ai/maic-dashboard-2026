@@ -1722,9 +1722,10 @@ async function syncSheets() {
     const k = DATA.operation.kpi1;
     if (cfg.teams)       { k[0].value = cfg.teams;       if (cfg.teamsSub)       k[0].sub = cfg.teamsSub; }
     if (cfg.targetRate)  { k[1].value = cfg.targetRate;  if (cfg.targetRateSub)  k[1].sub = cfg.targetRateSub; }
-    if (cfg.accounts)    { k[2].value = cfg.accounts;    if (cfg.accountsSub)    k[2].sub = cfg.accountsSub; }
-    if (cfg.students)    { k[3].value = cfg.students;    if (cfg.studentsSub)    k[3].sub = cfg.studentsSub; }
-    if (cfg.schools)     { k[4].value = cfg.schools;     if (cfg.schoolsSub)     k[4].sub = cfg.schoolsSub; }
+    // accounts / students / schools 已移除 Sheet 覆蓋，直接使用 JS 內建值
+    // if (cfg.accounts)    { k[2].value = cfg.accounts; ... }
+    // if (cfg.students)    { k[3].value = cfg.students; ... }
+    // if (cfg.schools)     { k[4].value = cfg.schools;  ... }
 
     // groupBreakdown
     const gb = DATA.operation.groupBreakdown;
