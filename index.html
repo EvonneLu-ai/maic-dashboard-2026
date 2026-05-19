@@ -364,6 +364,7 @@ hr{border:none;border-top:1px solid var(--border);margin:20px 0}
   <div class="sec">📚 RTC 課程 <span class="pill pill-tr">Training</span></div>
 
   <div class="krow k4" id="tr-kpi-row1"></div>
+  <div class="krow k3" id="tr-kpi-row2"></div>
 
   <div class="g2">
     <div class="card">
@@ -642,16 +643,16 @@ const DATA = {
 
     // RTC 課程清單
     rtc: [
-      { date:'3/6(五)',  name:'趨勢AI置感助理：說出想法，形成計畫',        lecturer:'13',              done:true  },
-      { date:'3/13(五)', name:'與AI一起開發：Agentic CLI 實作',            lecturer:'13',              done:true  },
-      { date:'3/20(五)', name:'行動裝置本地端原生AI功能開發實務',           lecturer:'13',              done:true  },
-      { date:'3/27(五)', name:'裝置端開源模型AI功能開發實務',              lecturer:'13',              done:true  },
-      { date:'4/10(五)', name:'多模態AI技術在教學情境中的應用',            lecturer:'Raymond（侯智薰）', done:true  },
-      { date:'5/8(五)',  name:'產品設計思考',                              lecturer:'Mia',             done:true  },
-      { date:'5/15(五)', name:'空間體驗設計',                              lecturer:'Mia',             done:true  },
-      { date:'5/22(五)', name:'空間應用元件設計',                          lecturer:'Mia',             done:false },
-      { date:'5/29(五)', name:'表達與溝通協商技巧',                        lecturer:'Apple 專業學習專家', done:false },
-      { date:'6/5(五)',  name:'AI剪輯新紀元：把時間還給創意，FCP AI助你說好故事', lecturer:'Curly',  done:false },
+      { date:'3/6(五)',  name:'趨勢AI置感助理：說出想法，形成計畫',        lecturer:'13',              done:true,  people:0 },
+      { date:'3/13(五)', name:'與AI一起開發：Agentic CLI 實作',            lecturer:'13',              done:true,  people:0 },
+      { date:'3/20(五)', name:'行動裝置本地端原生AI功能開發實務',           lecturer:'13',              done:true,  people:0 },
+      { date:'3/27(五)', name:'裝置端開源模型AI功能開發實務',              lecturer:'13',              done:true,  people:0 },
+      { date:'4/10(五)', name:'多模態AI技術在教學情境中的應用',            lecturer:'Raymond（侯智薰）', done:true,  people:0 },
+      { date:'5/8(五)',  name:'產品設計思考',                              lecturer:'Mia',             done:true,  people:0 },
+      { date:'5/15(五)', name:'空間體驗設計',                              lecturer:'Mia',             done:true,  people:0 },
+      { date:'5/22(五)', name:'空間應用元件設計',                          lecturer:'Mia',             done:false, people:0 },
+      { date:'5/29(五)', name:'表達與溝通協商技巧',                        lecturer:'Apple 專業學習專家', done:false, people:0 },
+      { date:'6/5(五)',  name:'AI剪輯新紀元：把時間還給創意，FCP AI助你說好故事', lecturer:'Curly',  done:false, people:0 },
     ],
 
     // RTC Radar 圖
@@ -1080,6 +1081,23 @@ autoMarkTrainingDone();
 
 document.getElementById('tr-kpi-row1').innerHTML = buildKPI(DATA.training.kpi1);
 
+// ── 培訓出席統計 KPI（自動加總 rtc + workshops 的 people 欄位）
+(function buildTrainingAttendanceKPI() {
+  const rtcPeople = DATA.training.rtc.reduce((s, c) => s + (c.people || 0), 0);
+  const wsPeople  = DATA.training.workshops.reduce((s, wg) =>
+    s + wg.items.reduce((ss, item) => ss + (item.people || 0), 0), 0);
+  const total = rtcPeople + wsPeople;
+  const rtcDone  = DATA.training.rtc.filter(c => c.done && c.people > 0).length;
+  const wsDone   = DATA.training.workshops.reduce((s, wg) =>
+    s + wg.items.filter(i => i.done && i.people > 0).length, 0);
+  const kpi2 = [
+    { label: 'RTC 課程出席',   value: rtcPeople > 0 ? String(rtcPeople) : '—', unit: '人', sub: `${rtcDone} 場已登錄`, badge: '每週五台大', badgeClass: 'bg', color: 'var(--green)' },
+    { label: '多元講座出席',   value: wsPeople  > 0 ? String(wsPeople)  : '—', unit: '人', sub: `${wsDone} 場已登錄`, badge: '公開培訓', badgeClass: 'bb', color: 'var(--teal)' },
+    { label: '培訓累計出席',   value: total > 0 ? String(total) : '—', unit: '人', sub: 'RTC ＋ 多元講座合計', badge: '持續累積中', badgeClass: 'bp', color: 'var(--purple)' },
+  ];
+  document.getElementById('tr-kpi-row2').innerHTML = buildKPI(kpi2);
+})();
+
 // RTC 課程列表
 (function buildRTC(){
   document.getElementById('rtcList').innerHTML = DATA.training.rtc.map((c,i) =>
@@ -1087,7 +1105,7 @@ document.getElementById('tr-kpi-row1').innerHTML = buildKPI(DATA.training.kpi1);
       <div class="rnum" style="background:${c.done ? C.green : '#c7c7cc'}">${i+1}</div>
       <div class="rinfo">
         <div class="rname" style="color:${c.done ? 'var(--text)' : 'var(--text2)'}">${c.name}</div>
-        <div class="rmeta">${c.date} · 14:00–17:00 · 臺灣大學 · 講師：${c.lecturer}</div>
+        <div class="rmeta">${c.date} · 14:00–17:00 · 臺灣大學 · 講師：${c.lecturer}${c.people > 0 ? ` · 👥 ${c.people} 人` : ''}</div>
       </div>
       <span class="bdg ${c.done?'bg':'bo'}" style="flex-shrink:0">${c.done?'✅ 已完成':'⏳ 待舉辦'}</span>
     </div>`
