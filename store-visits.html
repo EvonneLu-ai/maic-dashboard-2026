@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Straight A — 拜訪記錄 Dashboard Q1–Q2 2026</title>
+  <title>Straight A — 拜訪記錄 Dashboard Q1–Q2 2026 (1–5月)</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -175,7 +175,7 @@
 <div class="page-header">
   <div>
     <h1>📊 Straight A — 拜訪記錄 Dashboard</h1>
-    <p>業務開發概況報告 &nbsp;·&nbsp; 資料期間：2026 年 1 月 – 4 月</p>
+    <p>業務開發概況報告 &nbsp;·&nbsp; 資料期間：2026 年 1 月 – 5 月</p>
   </div>
   <div class="header-pills">
     <div class="pill" id="pill-period">📅 2026/02/01 – 03/31</div>
@@ -198,11 +198,12 @@
   <div class="filter-bar">
     <label>篩選月份</label>
     <select id="monthFilter">
-      <option value="all">全部（1–4月）</option>
+      <option value="all">全部（1–5月）</option>
       <option value="jan">1月</option>
       <option value="feb">2月</option>
       <option value="mar">3月</option>
       <option value="apr">4月</option>
+      <option value="may">5月</option>
     </select>
     <label>地區</label>
     <select id="regionFilter">
@@ -214,7 +215,7 @@
     <span class="filter-tag" id="filterTag">已篩選</span>
     <button class="import-btn" onclick="openImportModal()">📂 匯入 CSV</button>
     <button class="pdf-btn" id="pdfBtn" onclick="printDashboard()">📄 下載 PDF</button>
-    <div class="update-time">最後更新：2026/05/11 &nbsp;·&nbsp; 資料來源：拜訪紀錄 PDF</div>
+    <div class="update-time">最後更新：2026/06/11 &nbsp;·&nbsp; 資料來源：拜訪紀錄 PDF</div>
   </div>
 
   <div class="section-label">核心指標 · KPI Overview</div>
@@ -382,6 +383,16 @@
       <div class="sp"><span class="sp-k">長期採購</span><span class="sp-v" style="color:#28b84e" id="apr-v5">24 次（32.0%）</span></div>
       <div class="sp"><span class="sp-k">從未採購</span><span class="sp-v" style="color:#ff453a" id="apr-v6">9 次（12.0%）</span></div>
     </div>
+    <div class="card" id="mayCard" style="display:none">
+      <div class="card-title">📊 5月詳細統計</div>
+      <div class="card-sub">May 2026 breakdown</div>
+      <div class="sp"><span class="sp-k">拜訪次數</span><span class="sp-v" id="may-v1">50 次 <span class="up">↓-33%</span></span></div>
+      <div class="sp"><span class="sp-k">初訪</span><span class="sp-v" style="color:#0071e3" id="may-v2">11 次（22.0%）</span></div>
+      <div class="sp"><span class="sp-k">再訪</span><span class="sp-v" id="may-v3">39 次（78.0%）</span></div>
+      <div class="sp"><span class="sp-k">拜訪學校數</span><span class="sp-v" id="may-v4">11 所</span></div>
+      <div class="sp"><span class="sp-k">長期採購</span><span class="sp-v" style="color:#28b84e" id="may-v5">–</span></div>
+      <div class="sp"><span class="sp-k">從未採購</span><span class="sp-v" style="color:#ff453a" id="may-v6">–</span></div>
+    </div>
   </div>
 
   <div class="section-label">關鍵洞察 · Key Insights</div>
@@ -399,7 +410,7 @@
 </div>
 
 <footer>
-  資料來源：Straight A 2026.02 &amp; 2026.03 &amp; 2026.04 拜訪紀錄 PDF &nbsp;·&nbsp; Dashboard by Enchanté &nbsp;·&nbsp; 僅供內部參考
+  資料來源：Straight A 2026.02 &amp; 2026.03 &amp; 2026.04 &amp; 2026.05 拜訪紀錄 PDF &nbsp;·&nbsp; Dashboard by Enchanté &nbsp;·&nbsp; 僅供內部參考
 </footer>
 
 <!-- ═══ CSV IMPORT MODAL ═══ -->
@@ -469,38 +480,38 @@ Chart.defaults.plugins.legend.labels.padding = 11;
 
 // All schools with region, monthly breakdown, first/return visits
 let ALL_SCHOOLS = [
-  {name:'臺中教育大學', region:'central', jan:3, feb:5, mar:6, apr:3,  first:9,  ret:11, badge:'b-orange', status:'開發中',   total:17},
-  {name:'台北大學',     region:'north',   jan:5, feb:5, mar:5, apr:5,  first:2,  ret:18, badge:'b-green',  status:'長期夥伴', total:20},
-  {name:'輔仁大學',     region:'north',   jan:5, feb:5, mar:5, apr:5,  first:4,  ret:16, badge:'b-blue',   status:'穩定客戶', total:20},
-  {name:'中興大學',     region:'central', jan:4, feb:5, mar:5, apr:4,  first:3,  ret:15, badge:'b-blue',   status:'穩定客戶', total:18},
-  {name:'淡江大學',     region:'north',   jan:6, feb:5, mar:5, apr:8,  first:6,  ret:18, badge:'b-blue',   status:'穩定客戶', total:24},
-  {name:'逢甲大學',     region:'central', jan:5, feb:3, mar:5, apr:5,  first:10, ret:8,  badge:'b-orange', status:'積極開發', total:18},
-  {name:'政治大學',     region:'north',   jan:5, feb:1, mar:5, apr:4,  first:0,  ret:15, badge:'b-green',  status:'長期夥伴', total:15},
-  {name:'清華大學',     region:'north',   jan:2, feb:3, mar:3, apr:3,  first:1,  ret:10, badge:'b-green',  status:'長期夥伴', total:11},
-  {name:'東海大學',     region:'central', jan:7, feb:2, mar:3, apr:5,  first:1,  ret:16, badge:'b-blue',   status:'穩定客戶', total:17},
-  {name:'成功大學',     region:'south',   jan:5, feb:1, mar:1, apr:0,  first:3,  ret:4,  badge:'b-green',  status:'長期夥伴', total:7},
-  {name:'亞洲大學',     region:'central', jan:0, feb:0, mar:4, apr:5,  first:7,  ret:2,  badge:'b-blue',   status:'穩定客戶', total:9},
-  {name:'中央大學',     region:'north',   jan:0, feb:0, mar:4, apr:1,  first:2,  ret:3,  badge:'b-blue',   status:'穩定客戶', total:5},
-  {name:'中山大學',     region:'south',   jan:0, feb:2, mar:2, apr:0,  first:2,  ret:2,  badge:'b-blue',   status:'穩定客戶', total:4},
-  {name:'台中科技大學', region:'central', jan:0, feb:2, mar:1, apr:0,  first:2,  ret:1,  badge:'b-teal',   status:'偶爾往來', total:3},
-  {name:'暨南大學',     region:'central', jan:0, feb:1, mar:2, apr:0,  first:1,  ret:2,  badge:'b-blue',   status:'穩定客戶', total:3},
+  {name:'臺中教育大學', region:'central', jan:3, feb:5, mar:6, apr:3,  may:7,  first:10, ret:17, badge:'b-orange', status:'開發中',   total:24},
+  {name:'台北大學',     region:'north',   jan:5, feb:5, mar:5, apr:5,  may:5,  first:4,  ret:21, badge:'b-green',  status:'長期夥伴', total:25},
+  {name:'輔仁大學',     region:'north',   jan:5, feb:5, mar:5, apr:5,  may:9,  first:6,  ret:23, badge:'b-blue',   status:'穩定客戶', total:29},
+  {name:'中興大學',     region:'central', jan:4, feb:5, mar:5, apr:4,  may:0,  first:3,  ret:15, badge:'b-blue',   status:'穩定客戶', total:18},
+  {name:'淡江大學',     region:'north',   jan:6, feb:5, mar:5, apr:8,  may:5,  first:6,  ret:23, badge:'b-blue',   status:'穩定客戶', total:29},
+  {name:'逢甲大學',     region:'central', jan:5, feb:3, mar:5, apr:5,  may:5,  first:13, ret:10, badge:'b-orange', status:'積極開發', total:23},
+  {name:'政治大學',     region:'north',   jan:5, feb:1, mar:5, apr:4,  may:3,  first:1,  ret:17, badge:'b-green',  status:'長期夥伴', total:18},
+  {name:'清華大學',     region:'north',   jan:2, feb:3, mar:3, apr:3,  may:4,  first:2,  ret:13, badge:'b-green',  status:'長期夥伴', total:15},
+  {name:'東海大學',     region:'central', jan:7, feb:2, mar:3, apr:5,  may:2,  first:1,  ret:18, badge:'b-blue',   status:'穩定客戶', total:19},
+  {name:'成功大學',     region:'south',   jan:5, feb:1, mar:1, apr:0,  may:0,  first:3,  ret:4,  badge:'b-green',  status:'長期夥伴', total:7},
+  {name:'亞洲大學',     region:'central', jan:0, feb:0, mar:4, apr:5,  may:4,  first:7,  ret:6,  badge:'b-blue',   status:'穩定客戶', total:13},
+  {name:'中央大學',     region:'north',   jan:0, feb:0, mar:4, apr:1,  may:0,  first:2,  ret:3,  badge:'b-blue',   status:'穩定客戶', total:5},
+  {name:'中山大學',     region:'south',   jan:0, feb:2, mar:2, apr:0,  may:0,  first:2,  ret:2,  badge:'b-blue',   status:'穩定客戶', total:4},
+  {name:'台中科技大學', region:'central', jan:0, feb:2, mar:1, apr:0,  may:0,  first:2,  ret:1,  badge:'b-teal',   status:'偶爾往來', total:3},
+  {name:'暨南大學',     region:'central', jan:0, feb:1, mar:2, apr:0,  may:0,  first:1,  ret:2,  badge:'b-blue',   status:'穩定客戶', total:3},
   // ── 1月新增學校 ──
-  {name:'海洋大學',         region:'north',   jan:3, feb:0, mar:0, apr:2,  first:1, ret:4, badge:'b-blue',   status:'穩定客戶', total:5},
-  {name:'陽明交通大學',     region:'north',   jan:2, feb:0, mar:0, apr:2,  first:1, ret:3, badge:'b-blue',   status:'穩定客戶', total:4},
-  {name:'崇右影藝科技大學', region:'north',   jan:1, feb:0, mar:0, apr:0,  first:0, ret:1, badge:'b-blue',   status:'穩定客戶', total:1},
-  {name:'苗栗縣立大同高中', region:'central', jan:1, feb:0, mar:0, apr:0,  first:0, ret:1, badge:'b-blue',   status:'穩定客戶', total:1},
-  {name:'中山醫學大學',     region:'central', jan:1, feb:0, mar:0, apr:0,  first:0, ret:1, badge:'b-blue',   status:'穩定客戶', total:1},
-  {name:'爽文國中',         region:'central', jan:1, feb:0, mar:0, apr:0,  first:1, ret:0, badge:'b-orange', status:'新開發',   total:1},
-  {name:'臺中市立臺中第一高中', region:'central', jan:1, feb:0, mar:0, apr:0, first:1, ret:0, badge:'b-orange', status:'開發中', total:1},
+  {name:'海洋大學',         region:'north',   jan:3, feb:0, mar:0, apr:2,  may:4,  first:1, ret:8,  badge:'b-blue',   status:'穩定客戶', total:9},
+  {name:'陽明交通大學',     region:'north',   jan:2, feb:0, mar:0, apr:2,  may:0,  first:1, ret:3,  badge:'b-blue',   status:'穩定客戶', total:4},
+  {name:'崇右影藝科技大學', region:'north',   jan:1, feb:0, mar:0, apr:0,  may:0,  first:0, ret:1,  badge:'b-blue',   status:'穩定客戶', total:1},
+  {name:'苗栗縣立大同高中', region:'central', jan:1, feb:0, mar:0, apr:0,  may:0,  first:0, ret:1,  badge:'b-blue',   status:'穩定客戶', total:1},
+  {name:'中山醫學大學',     region:'central', jan:1, feb:0, mar:0, apr:0,  may:0,  first:0, ret:1,  badge:'b-blue',   status:'穩定客戶', total:1},
+  {name:'爽文國中',         region:'central', jan:1, feb:0, mar:0, apr:0,  may:0,  first:1, ret:0,  badge:'b-orange', status:'新開發',   total:1},
+  {name:'臺中市立臺中第一高中', region:'central', jan:1, feb:0, mar:0, apr:0, may:0, first:1, ret:0, badge:'b-orange', status:'開發中', total:1},
   // ── 4月新增學校 ──
-  {name:'臺灣大學',             region:'north',   jan:0, feb:0, mar:0, apr:5,  first:5, ret:0,  badge:'b-orange', status:'新開發',   total:5},
-  {name:'高雄科技大學',         region:'south',   jan:0, feb:0, mar:0, apr:8,  first:3, ret:5,  badge:'b-blue',   status:'穩定客戶', total:8},
-  {name:'高雄師範大學',         region:'south',   jan:0, feb:0, mar:0, apr:4,  first:2, ret:2,  badge:'b-blue',   status:'穩定客戶', total:4},
-  {name:'僑光科技大學',         region:'central', jan:0, feb:0, mar:0, apr:1,  first:1, ret:0,  badge:'b-orange', status:'新開發',   total:1},
-  {name:'弘光科技大學',         region:'central', jan:0, feb:0, mar:0, apr:1,  first:1, ret:0,  badge:'b-teal',   status:'偶爾往來', total:1},
-  {name:'臺中市私立致用高中',   region:'central', jan:0, feb:0, mar:0, apr:1,  first:0, ret:1,  badge:'b-teal',   status:'偶爾往來', total:1},
-  {name:'勤益科技大學',         region:'central', jan:0, feb:0, mar:0, apr:1,  first:1, ret:0,  badge:'b-orange', status:'新開發',   total:1},
-  {name:'臺灣體育運動大學',     region:'central', jan:0, feb:0, mar:0, apr:2,  first:0, ret:2,  badge:'b-blue',   status:'穩定客戶', total:2},
+  {name:'臺灣大學',             region:'north',   jan:0, feb:0, mar:0, apr:5,  may:0,  first:5, ret:0,  badge:'b-orange', status:'新開發',   total:5},
+  {name:'高雄科技大學',         region:'south',   jan:0, feb:0, mar:0, apr:8,  may:2,  first:4, ret:6,  badge:'b-blue',   status:'穩定客戶', total:10},
+  {name:'高雄師範大學',         region:'south',   jan:0, feb:0, mar:0, apr:4,  may:0,  first:2, ret:2,  badge:'b-blue',   status:'穩定客戶', total:4},
+  {name:'僑光科技大學',         region:'central', jan:0, feb:0, mar:0, apr:1,  may:0,  first:1, ret:0,  badge:'b-orange', status:'新開發',   total:1},
+  {name:'弘光科技大學',         region:'central', jan:0, feb:0, mar:0, apr:1,  may:0,  first:1, ret:0,  badge:'b-teal',   status:'偶爾往來', total:1},
+  {name:'臺中市私立致用高中',   region:'central', jan:0, feb:0, mar:0, apr:1,  may:0,  first:0, ret:1,  badge:'b-teal',   status:'偶爾往來', total:1},
+  {name:'勤益科技大學',         region:'central', jan:0, feb:0, mar:0, apr:1,  may:0,  first:1, ret:0,  badge:'b-orange', status:'新開發',   total:1},
+  {name:'臺灣體育運動大學',     region:'central', jan:0, feb:0, mar:0, apr:2,  may:0,  first:0, ret:2,  badge:'b-blue',   status:'穩定客戶', total:2},
 ];
 
 // Pre-computed stats per [month_region]
@@ -509,10 +520,10 @@ let STATS = {
   jan_north:   {v:29, s:8,  f:1,  r:28, lt:12, occ:17, nv:0},
   jan_central: {v:23, s:8,  f:7,  r:16, lt:2,  occ:16, nv:5},
   jan_south:   {v:5,  s:1,  f:2,  r:3,  lt:1,  occ:3,  nv:1},
-  all_all:     {v:228, s:30, f:69, r:159, lt:59, occ:146, nv:23, janV:57, janF:10, janR:47, febV:37, marV:59, aprV:75, febF:14, febR:23, marF:18, marR:41, aprF:27, aprR:48},
-  all_north:   {v:110, s:10, f:25, r:85,  lt:39, occ:68,  nv:8,  janV:29, janF:1,  janR:28, febV:17, marV:29, aprV:35, febF:5,  febR:12, marF:6,  marR:23, aprF:13, aprR:22},
-  all_central: {v:95,  s:16, f:35, r:60,  lt:16, occ:70,  nv:9,  janV:23, janF:7,  janR:16, febV:18, marV:26, aprV:28, febF:8,  febR:10, marF:11, marR:15, aprF:9,  aprR:19},
-  all_south:   {v:23,  s:4,  f:9,  r:14,  lt:4,  occ:12,  nv:2,  janV:5,  janF:2,  janR:3,  febV:2,  marV:4,  aprV:12, febF:1,  febR:1,  marF:1,  marR:3,  aprF:5,  aprR:7},
+  all_all:     {v:278, s:30, f:80, r:198, lt:59, occ:196, nv:23, janV:57, janF:10, janR:47, febV:37, marV:59, aprV:75, mayV:50, febF:14, febR:23, marF:18, marR:41, aprF:27, aprR:48, mayF:11, mayR:39},
+  all_north:   {v:136, s:10, f:31, r:105, lt:39, occ:89,  nv:8,  janV:29, janF:1,  janR:28, febV:17, marV:29, aprV:35, mayV:26, febF:5,  febR:12, marF:6,  marR:23, aprF:13, aprR:22, mayF:4,  mayR:22},
+  all_central: {v:113, s:16, f:39, r:74,  lt:16, occ:88,  nv:9,  janV:23, janF:7,  janR:16, febV:18, marV:26, aprV:28, mayV:18, febF:8,  febR:10, marF:11, marR:15, aprF:9,  aprR:19, mayF:4,  mayR:14},
+  all_south:   {v:29,  s:4,  f:10, r:19,  lt:4,  occ:19,  nv:2,  janV:5,  janF:2,  janR:3,  febV:2,  marV:4,  aprV:12, mayV:6,  febF:1,  febR:1,  marF:1,  marR:3,  aprF:5,  aprR:7,  mayF:3,  mayR:3},
   feb_all:     {v:37, s:12, f:14, r:23, lt:8,  occ:27, nv:2},
   feb_north:   {v:17, s:6,  f:5,  r:12, lt:5,  occ:11, nv:1},
   feb_central: {v:18, s:7,  f:8,  r:10, lt:3,  occ:14, nv:1},
@@ -525,6 +536,10 @@ let STATS = {
   apr_north:   {v:35, s:9,  f:13, r:22, lt:15, occ:15, nv:5},
   apr_central: {v:28, s:10, f:9,  r:19, lt:7,  occ:21, nv:0},
   apr_south:   {v:12, s:2,  f:5,  r:7,  lt:2,  occ:10, nv:0},
+  may_all:     {v:50, s:11, f:11, r:39, lt:20, occ:26, nv:4},
+  may_north:   {v:26, s:7,  f:4,  r:22, lt:12, occ:13, nv:1},
+  may_central: {v:18, s:3,  f:4,  r:14, lt:6,  occ:11, nv:1},
+  may_south:   {v:6,  s:1,  f:3,  r:3,  lt:2,  occ:2,  nv:2},
 };
 
 // School type distribution per region [國立,私立,師範,科技,K12,醫學]
@@ -560,9 +575,11 @@ function filteredSchools() {
     list = list.map(s => ({...s, total: s.mar})).filter(s => s.total > 0).sort((a,b) => b.total - a.total);
   } else if (curMonth === 'apr') {
     list = list.map(s => ({...s, total: s.apr || 0})).filter(s => s.total > 0).sort((a,b) => b.total - a.total);
+  } else if (curMonth === 'may') {
+    list = list.map(s => ({...s, total: s.may || 0})).filter(s => s.total > 0).sort((a,b) => b.total - a.total);
   } else {
-    // 全部模式：依 1+2+3+4 月合計排序
-    list = list.map(s => ({...s, total: (s.jan||0) + s.feb + s.mar + (s.apr||0)}))
+    // 全部模式：依 1+2+3+4+5 月合計排序
+    list = list.map(s => ({...s, total: (s.jan||0) + s.feb + s.mar + (s.apr||0) + (s.may||0)}))
                .filter(s => s.total > 0)
                .sort((a,b) => b.total - a.total);
   }
@@ -581,16 +598,16 @@ function updateKPIs() {
   document.getElementById('kv1').textContent = s.v;
   if (curMonth === 'all' && s.febV !== undefined) {
     const janInfo = s.janV > 0 ? '1月 <b>' + s.janV + '</b> → ' : '';
-    document.getElementById('ks1').innerHTML = janInfo + '2月 <b>' + s.febV + '</b> → 3月 <b>' + s.marV + '</b> → 4月 <b class="up">' + s.aprV + '</b> 次';
+    document.getElementById('ks1').innerHTML = janInfo + '2月 <b>' + s.febV + '</b> → 3月 <b>' + s.marV + '</b> → 4月 <b>' + s.aprV + '</b> → 5月 <b class="up">' + s.mayV + '</b> 次';
   } else {
-    const mName = {jan:'1月', feb:'2月', mar:'3月', apr:'4月'}[curMonth] || '';
+    const mName = {jan:'1月', feb:'2月', mar:'3月', apr:'4月', may:'5月'}[curMonth] || '';
     document.getElementById('ks1').innerHTML = mName + ' 共 <b>' + s.v + '</b> 次拜訪';
   }
   // KPI 2: growth
-  if (curMonth === 'all' && s.marV && s.aprV) {
-    const g = Math.round((s.aprV - s.marV) / s.marV * 100);
+  if (curMonth === 'all' && s.aprV && s.mayV) {
+    const g = Math.round((s.mayV - s.aprV) / s.aprV * 100);
     document.getElementById('kv2').textContent = (g >= 0 ? '+' : '') + g + '%';
-    document.getElementById('ks2').innerHTML = '3→4月 ' + (g >= 0 ? '增加' : '減少') + ' <b>' + Math.abs(s.aprV - s.marV) + ' 次</b>，開學季延續';
+    document.getElementById('ks2').innerHTML = '4→5月 ' + (g >= 0 ? '增加' : '減少') + ' <b>' + Math.abs(s.mayV - s.aprV) + ' 次</b>，深耕維護期';
   } else if (curMonth === 'feb') {
     const g = Math.round((STATS['feb_'+curRegion].v - STATS['jan_'+curRegion].v) / STATS['jan_'+curRegion].v * 100);
     document.getElementById('kv2').textContent = (g >= 0 ? '+' : '') + g + '%';
@@ -603,6 +620,10 @@ function updateKPIs() {
     const g = Math.round((STATS['apr_'+curRegion].v - STATS['mar_'+curRegion].v) / STATS['mar_'+curRegion].v * 100);
     document.getElementById('kv2').textContent = (g >= 0 ? '+' : '') + g + '%';
     document.getElementById('ks2').innerHTML = '3→4月 <b>' + Math.abs(STATS['apr_'+curRegion].v - STATS['mar_'+curRegion].v) + ' 次</b>，校園拜訪延續';
+  } else if (curMonth === 'may') {
+    const g = Math.round((STATS['may_'+curRegion].v - STATS['apr_'+curRegion].v) / STATS['apr_'+curRegion].v * 100);
+    document.getElementById('kv2').textContent = (g >= 0 ? '+' : '') + g + '%';
+    document.getElementById('ks2').innerHTML = '4→5月 <b>' + Math.abs(STATS['may_'+curRegion].v - STATS['apr_'+curRegion].v) + ' 次</b>，深耕關係維護';
   } else {
     document.getElementById('kv2').textContent = '–';
     document.getElementById('ks2').innerHTML = '單月數據';
@@ -610,8 +631,8 @@ function updateKPIs() {
   // KPI 3: schools
   document.getElementById('kv3').textContent = s.s;
   if (curMonth === 'all') {
-    const mS = STATS['mar_'+curRegion]; const aS = STATS['apr_'+curRegion];
-    document.getElementById('ks3').innerHTML = '3月 <b>' + mS.s + '</b> 所 → 4月 <b class="up">' + aS.s + '</b> 所';
+    const mS = STATS['mar_'+curRegion]; const aS = STATS['apr_'+curRegion]; const myS = STATS['may_'+curRegion];
+    document.getElementById('ks3').innerHTML = '4月 <b>' + aS.s + '</b> 所 → 5月 <b>' + myS.s + '</b> 所';
   } else {
     document.getElementById('ks3').innerHTML = '本期 <b>' + s.s + '</b> 所學校';
   }
@@ -630,7 +651,7 @@ function updateKPIs() {
 
 function updateHeaderPills() {
   const s = st();
-  const periodMap = {all:'📅 2026/01/01 – 04/30', jan:'📅 2026 年 1 月', feb:'📅 2026 年 2 月', mar:'📅 2026 年 3 月', apr:'📅 2026 年 4 月'};
+  const periodMap = {all:'📅 2026/01/01 – 05/31', jan:'📅 2026 年 1 月', feb:'📅 2026 年 2 月', mar:'📅 2026 年 3 月', apr:'📅 2026 年 4 月', may:'📅 2026 年 5 月'};
   const regionMap  = {all:'', north:'（北部）', central:'（中部）', south:'（南部）'};
   document.getElementById('pill-period').textContent = periodMap[curMonth];
   document.getElementById('pill-schools').textContent = '🏫 ' + s.s + ' 所學校' + regionMap[curRegion];
@@ -638,7 +659,7 @@ function updateHeaderPills() {
   const tag = document.getElementById('filterTag');
   tag.classList.toggle('show', curMonth !== 'all' || curRegion !== 'all');
   const parts = [];
-  if (curMonth !== 'all') parts.push({jan:'1月', feb:'2月', mar:'3月', apr:'4月'}[curMonth]);
+  if (curMonth !== 'all') parts.push({jan:'1月', feb:'2月', mar:'3月', apr:'4月', may:'5月'}[curMonth]);
   if (curRegion !== 'all') parts.push({north:'北部', central:'中部', south:'南部'}[curRegion]);
   tag.textContent = '✦ 已篩選：' + parts.join(' · ');
 }
@@ -647,15 +668,25 @@ function updateMonthlyChart() {
   const s = st(); const c = charts.monthly;
   if (curMonth === 'all') {
     const hasJan = (s.janV || 0) > 0;
-    c.data.labels = hasJan ? ['1月（Jan）','2月（Feb）','3月（Mar）','4月（Apr）'] : ['2月（Feb）','3月（Mar）','4月（Apr）'];
-    c.data.datasets[0].data = hasJan ? [s.janF||0, s.febF, s.marF, s.aprF||0] : [s.febF, s.marF, s.aprF||0];
-    if (c.data.datasets[1]) c.data.datasets[1].data = hasJan ? [s.janR||0, s.febR, s.marR, s.aprR||0] : [s.febR, s.marR, s.aprR||0];
+    c.data.labels = hasJan
+      ? ['1月（Jan）','2月（Feb）','3月（Mar）','4月（Apr）','5月（May）']
+      : ['2月（Feb）','3月（Mar）','4月（Apr）','5月（May）'];
+    c.data.datasets[0].data = hasJan
+      ? [s.janF||0, s.febF, s.marF, s.aprF||0, s.mayF||0]
+      : [s.febF, s.marF, s.aprF||0, s.mayF||0];
+    if (c.data.datasets[1]) c.data.datasets[1].data = hasJan
+      ? [s.janR||0, s.febR, s.marR, s.aprR||0, s.mayR||0]
+      : [s.febR, s.marR, s.aprR||0, s.mayR||0];
   } else if (curMonth === 'jan') {
     c.data.labels = ['1月（Jan）'];
     c.data.datasets[0].data = [s.f];
     if (c.data.datasets[1]) c.data.datasets[1].data = [s.r]; else c.data.datasets.push({label:'再訪',data:[s.r],backgroundColor:'#32ade6',borderRadius:7,borderSkipped:false});
   } else if (curMonth === 'apr') {
     c.data.labels = ['4月（Apr）'];
+    c.data.datasets[0].data = [s.f];
+    if (c.data.datasets[1]) c.data.datasets[1].data = [s.r]; else c.data.datasets.push({label:'再訪',data:[s.r],backgroundColor:'#32ade6',borderRadius:7,borderSkipped:false});
+  } else if (curMonth === 'may') {
+    c.data.labels = ['5月（May）'];
     c.data.datasets[0].data = [s.f];
     if (c.data.datasets[1]) c.data.datasets[1].data = [s.r]; else c.data.datasets.push({label:'再訪',data:[s.r],backgroundColor:'#32ade6',borderRadius:7,borderSkipped:false});
   } else {
@@ -679,11 +710,13 @@ function updateTopSchoolsChart() {
       {label:'1月', data:schools.map(s=>s.jan||0), backgroundColor:'#e8c7f5', borderRadius:4, borderSkipped:false},
       {label:'2月', data:schools.map(s=>s.feb||0), backgroundColor:'#bfd9f5', borderRadius:4, borderSkipped:false},
       {label:'3月', data:schools.map(s=>s.mar||0), backgroundColor:'#0071e3', borderRadius:4, borderSkipped:false},
-      {label:'4月', data:schools.map(s=>s.apr||0), backgroundColor:'#30d158', borderRadius:4, borderSkipped:false}
+      {label:'4月', data:schools.map(s=>s.apr||0), backgroundColor:'#30d158', borderRadius:4, borderSkipped:false},
+      {label:'5月', data:schools.map(s=>s.may||0), backgroundColor:'#ff9f0a', borderRadius:4, borderSkipped:false}
     ] : [
       {label:'2月', data:schools.map(s=>s.feb||0), backgroundColor:'#bfd9f5', borderRadius:4, borderSkipped:false},
       {label:'3月', data:schools.map(s=>s.mar||0), backgroundColor:'#0071e3', borderRadius:4, borderSkipped:false},
-      {label:'4月', data:schools.map(s=>s.apr||0), backgroundColor:'#30d158', borderRadius:4, borderSkipped:false}
+      {label:'4月', data:schools.map(s=>s.apr||0), backgroundColor:'#30d158', borderRadius:4, borderSkipped:false},
+      {label:'5月', data:schools.map(s=>s.may||0), backgroundColor:'#ff9f0a', borderRadius:4, borderSkipped:false}
     ];
   } else if (curMonth === 'jan') {
     const vals = schools.map(s => s.jan || 0);
@@ -691,6 +724,9 @@ function updateTopSchoolsChart() {
   } else if (curMonth === 'apr') {
     const vals = schools.map(s => s.apr || 0);
     c.data.datasets = [{label:'4月', data:vals, backgroundColor:'#30d158', borderRadius:4, borderSkipped:false}];
+  } else if (curMonth === 'may') {
+    const vals = schools.map(s => s.may || 0);
+    c.data.datasets = [{label:'5月', data:vals, backgroundColor:'#ff9f0a', borderRadius:4, borderSkipped:false}];
   } else {
     const vals = schools.map(s => curMonth === 'feb' ? s.feb : s.mar);
     c.data.datasets = [{label: curMonth==='feb'?'2月':'3月', data:vals, backgroundColor:'#0071e3', borderRadius:4, borderSkipped:false}];
@@ -704,7 +740,7 @@ function updateGeoChart() {
   const c = charts.geo;
   let geoData;
   if (curMonth === 'all') {
-    geoData = [110, 95, 23];
+    geoData = [136, 113, 29];
   } else {
     geoData = [STATS[curMonth+'_north'].v, STATS[curMonth+'_central'].v, STATS[curMonth+'_south'].v];
   }
@@ -745,7 +781,7 @@ function updatePurchaseChart() {
 }
 
 function updateScaledCharts() {
-  const ratio = st().v / 96;
+  const ratio = st().v / 278;
   const scaled = (base) => scale(base, ratio);
   charts.dept.data.datasets[0].data = scaled(BASE_DEPT); charts.dept.update('none');
   charts.product.data.datasets[0].data = scaled(BASE_PRODUCT); charts.product.update('none');
@@ -762,7 +798,7 @@ function updateTable() {
   const total = schools.reduce((a, s) => a + s.total, 0);
   const showRegion = curRegion === 'all';
   const singleMonth = curMonth !== 'all';
-  const mLabel = curMonth === 'feb' ? '2月' : '3月';
+  const mLabel = {feb:'2月', mar:'3月', apr:'4月', may:'5月'}[curMonth] || '本月';
 
   const hasJanData = ALL_SCHOOLS.some(s => (s.jan || 0) > 0);
 
@@ -817,7 +853,7 @@ function updateTable() {
   }).join('');
 
   document.getElementById('tableSub').textContent =
-    (singleMonth ? mLabel + '份' : '1–4月累計') + ' · 共 ' + schools.length + ' 所學校（' + total + ' 次）';
+    (singleMonth ? mLabel + '份' : '1–5月累計') + ' · 共 ' + schools.length + ' 所學校（' + total + ' 次）';
 }
 
 function updateProgressBars() {
@@ -840,26 +876,30 @@ function updateMonthlyCards() {
   const febCard  = document.getElementById('febCard');
   const marCard  = document.getElementById('marCard');
   const aprCard  = document.getElementById('aprCard');
+  const mayCard  = document.getElementById('mayCard');
   const statsGrid = document.getElementById('statsGrid');
 
   if (curMonth === 'jan') {
-    janCard.style.display = ''; febCard.style.display = 'none'; marCard.style.display = 'none'; aprCard.style.display = 'none';
+    janCard.style.display = ''; febCard.style.display = 'none'; marCard.style.display = 'none'; aprCard.style.display = 'none'; mayCard.style.display = 'none';
     statsGrid.style.gridTemplateColumns = '1fr 1fr';
   } else if (curMonth === 'feb') {
-    janCard.style.display = 'none'; febCard.style.display = ''; marCard.style.display = 'none'; aprCard.style.display = 'none';
+    janCard.style.display = 'none'; febCard.style.display = ''; marCard.style.display = 'none'; aprCard.style.display = 'none'; mayCard.style.display = 'none';
     statsGrid.style.gridTemplateColumns = '1fr 1fr';
   } else if (curMonth === 'mar') {
-    janCard.style.display = 'none'; febCard.style.display = 'none'; marCard.style.display = ''; aprCard.style.display = 'none';
+    janCard.style.display = 'none'; febCard.style.display = 'none'; marCard.style.display = ''; aprCard.style.display = 'none'; mayCard.style.display = 'none';
     statsGrid.style.gridTemplateColumns = '1fr 1fr';
   } else if (curMonth === 'apr') {
-    janCard.style.display = 'none'; febCard.style.display = 'none'; marCard.style.display = 'none'; aprCard.style.display = '';
+    janCard.style.display = 'none'; febCard.style.display = 'none'; marCard.style.display = 'none'; aprCard.style.display = ''; mayCard.style.display = 'none';
+    statsGrid.style.gridTemplateColumns = '1fr 1fr';
+  } else if (curMonth === 'may') {
+    janCard.style.display = 'none'; febCard.style.display = 'none'; marCard.style.display = 'none'; aprCard.style.display = 'none'; mayCard.style.display = '';
     statsGrid.style.gridTemplateColumns = '1fr 1fr';
   } else {
     // 全部：顯示所有有資料的月份卡片
     const hasJan = STATS['jan_all'].v > 0;
     janCard.style.display = hasJan ? '' : 'none';
-    febCard.style.display = ''; marCard.style.display = ''; aprCard.style.display = '';
-    statsGrid.style.gridTemplateColumns = hasJan ? 'repeat(5, 1fr)' : 'repeat(4, 1fr)';
+    febCard.style.display = ''; marCard.style.display = ''; aprCard.style.display = ''; mayCard.style.display = '';
+    statsGrid.style.gridTemplateColumns = hasJan ? 'repeat(6, 1fr)' : 'repeat(5, 1fr)';
   }
 
   // 更新 1月卡片
@@ -903,6 +943,17 @@ function updateMonthlyCards() {
   document.getElementById('apr-v4').innerHTML = aSt.s + ' 所 <span class="up">↑+8校新</span>';
   document.getElementById('apr-v5').textContent = aSt.lt + ' 次（' + Math.round(aSt.lt / aSt.v * 100) + '%）';
   document.getElementById('apr-v6').textContent = aSt.nv + ' 次（' + Math.round(aSt.nv / aSt.v * 100) + '%）';
+
+  // 更新 5月卡片
+  const maySt = STATS['may_' + curRegion] || STATS['may_all'];
+  const mayFpct = Math.round(maySt.f / maySt.v * 100);
+  const mayGrowth = Math.round((maySt.v - aSt.v) / aSt.v * 100);
+  document.getElementById('may-v1').innerHTML = maySt.v + ' 次 <span style="color:' + (mayGrowth >= 0 ? '#28b84e' : '#ff453a') + ';font-weight:700">' + (mayGrowth >= 0 ? '↑+' : '↓') + Math.abs(mayGrowth) + '%</span>';
+  document.getElementById('may-v2').textContent = maySt.f + ' 次（' + mayFpct + '%）';
+  document.getElementById('may-v3').textContent = maySt.r + ' 次（' + (100 - mayFpct) + '%）';
+  document.getElementById('may-v4').textContent = maySt.s + ' 所';
+  document.getElementById('may-v5').textContent = maySt.lt + ' 次（' + Math.round(maySt.lt / maySt.v * 100) + '%）';
+  document.getElementById('may-v6').textContent = maySt.nv + ' 次（' + Math.round(maySt.nv / maySt.v * 100) + '%）';
 }
 
 function updateFunnel() {
@@ -1119,12 +1170,53 @@ function updateInsights() {
       // all + all
       const janV = STATS.all_all.janV || 57;
       cards = [
-        card('blue',   '📈 1–4月業務持續成長',
-             '1月 <b>' + janV + ' 次</b> → 2月 <b>' + STATS.all_all.febV + '</b> → 3月 <b>' + STATS.all_all.marV + '</b> → 4月 <b class="up">' + STATS.all_all.aprV + ' 次</b>，四個月穩步攀升。4月新增8所學校，高科大單月8次強勢登場，南北版圖同步擴展。'),
-        card('green',  '🏆 中部大學群是核心市場',
-             '中部地區1–4月累計 <b>95 次（42%）</b>，台中高校密集、校際關係緊密。東海（17次）、逢甲（18次）、中興（18次）、臺中教大（17次）構成穩定採購基盤，建議持續深化院所覆蓋率。'),
-        card('orange', '⚡ 4月版圖大擴：北入臺大、南進高雄',
-             '4月臺灣大學（北部5次全初訪）與高雄科技大學（南部8次）同步首次拜訪，是本季最大業務突破。建議5月集中跟進這兩校的待成案報價，確保初訪成果轉化為實績。'),
+        card('blue',   '📈 1–5月業務持續成長',
+             '1月 <b>' + janV + ' 次</b> → 2月 <b>' + STATS.all_all.febV + '</b> → 3月 <b>' + STATS.all_all.marV + '</b> → 4月 <b>' + STATS.all_all.aprV + '</b> → 5月 <b>' + STATS.all_all.mayV + ' 次</b>，5月聚焦深耕再訪，再訪率高達78%，體現紮實的關係維護成效。'),
+        card('green',  '🏆 輔仁大學與淡江大學並列累計冠軍',
+             '截至5月，輔仁大學（29次）與淡江大學（29次）並列1–5月累計第一，顯示北部業務核心穩固。中部的臺中教大（24次）、逢甲（23次）緊追，各區均有領頭學校支撐業績基盤。'),
+        card('orange', '⚡ 5月深耕既有學校，待追蹤初訪轉化',
+             '5月初訪11次（22%）創近期新低，主要拜訪為關係維護與交機服務。建議追蹤臺灣大學（4月初訪5次）的後續成案情況，並持續聯繫成功大學、高雄師範大學等本月未拜訪的學校。'),
+      ];
+    }
+  }
+
+  // ── 5月 ───────────────────────────────────────
+  else if (m === 'may') {
+    if (r === 'all') {
+      cards = [
+        card('blue',   '🤝 5月：深耕維護為主，再訪率 ' + (100-fp) + '%',
+             '5月共 <b>' + s.v + ' 次</b>拜訪，覆蓋 <b>' + s.s + ' 所學校</b>。再訪率高達 <b>' + (100-fp) + '%</b>，顯示業務重心已轉向既有關係深耕，並積極協助交機與採購流程推進。'),
+        card('green',  '📦 交機、交貨服務為本月主軸',
+             '本月多所學校以交機與開立發票為主要拜訪目的，包含亞洲大學、台北大學、淡江大學等，夥伴提供一站式到府服務，客戶滿意度高。建議持續記錄服務品質以利後續口碑推薦。'),
+        card('orange', '🎓 MAIC 與包裝設計比賽積極推廣',
+             '臺中教育大學、東海大學等5月拜訪中積極推廣 MAIC 及包裝設計比賽，多位老師表示會協助分享海報。建議6月持續追蹤老師轉發情況，並收集學生組隊參賽回饋。'),
+      ];
+    } else if (r === 'north') {
+      cards = [
+        card('blue',   '🏙️ 北部5月：26 次，輔仁大學領跑',
+             '北部 <b>' + s.v + ' 次</b>，輔仁大學9次、淡江大學5次、台北大學5次為主要貢獻學校。長期採購比例 <b>' + ltp + '%</b>，關係最為成熟穩固。'),
+        card('green',  '✅ 政治大學報價轉成單效率高',
+             '政治大學5月3次，歷史學系、選舉研究中心、經濟學系均完成採購，含 MacBook Neo、MBP 及 Studio Display，顯示與政大的合作已進入穩定成交節奏。'),
+        card('orange', '🔍 海洋大學本月4次，建議持續深化',
+             '海洋大學5月4次交機拜訪，成功建立門市服務口碑，告知老師未來有需求隨時聯繫。建議主動追蹤碰到的 iMac 送修案改購新機的進展，加速成單。'),
+      ];
+    } else if (r === 'central') {
+      cards = [
+        card('blue',   '🌆 中部5月：臺中教大 7 次，深度服務',
+             '中部 <b>' + s.v + ' 次</b>，臺中教大7次在本月獨占鰲頭，同時涵蓋 MAIC 推廣、交機、報價等多元目的，服務深度顯著。逢甲5次延續積極態勢，亞洲大學4次也持續鞏固關係。'),
+        card('green',  '🎉 亞洲大學完成多筆交機',
+             '亞洲大學5月多筆拜訪以交機為主，涵蓋 AirPods 4、MacBook Air、MacBook Neo，夥伴門市親送到府，老師高度肯定服務效率與專業度，有效建立深度合作口碑。'),
+        card('orange', '📢 中部 MAIC 推廣有成，建議追蹤',
+             '逢甲、臺中教大、東海等中部學校5月均有提及 MAIC 及包裝設計比賽推廣，多位老師表示會分享海報。建議6月定期回訪確認學生組隊狀況，強化比賽參與率。'),
+      ];
+    } else {
+      cards = [
+        card('blue',   '🌊 南部5月：高雄科技大學持續深耕',
+             '南部 <b>' + s.v + ' 次</b>，高雄科技大學5月2次，包含工業工程系王釗鴻老師報價 MBN 及自然科學博物館首次開拓，業務廣度持續擴大，也首次成功觸及機關客群。'),
+        card('green',  '🏛️ 自然科學博物館成為新機關客群',
+             '5月首次接洽國立自然科學博物館，透過報價單 Var 形式順利出貨，對方高度感謝高效協助。成功開拓機關客群，建議定期維繫聯繫，爭取成為長期採購夥伴。'),
+        card('orange', '📈 建議重新聯繫成功大學與高師大',
+             '成功大學、高雄師範大學5月無拜訪記錄，建議6月主動聯繫，確認下學期採購計畫並維護合作關係，避免關係冷卻影響後續業績。'),
       ];
     }
   }
@@ -1342,7 +1434,7 @@ function monthFrom(d) {
   const m = d.match(/\d{4}[\/\-](\d{1,2})/);
   if (!m) return null;
   const n = parseInt(m[1]);
-  return n === 1 ? 'jan' : n === 2 ? 'feb' : n === 3 ? 'mar' : 'other';
+  return n === 1 ? 'jan' : n === 2 ? 'feb' : n === 3 ? 'mar' : n === 4 ? 'apr' : n === 5 ? 'may' : 'other';
 }
 
 function confirmImport() {
