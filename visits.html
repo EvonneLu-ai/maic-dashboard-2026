@@ -135,15 +135,14 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
 .visit-tabs-wrap{padding:12px 16px 0;display:flex;align-items:center;gap:8px;overflow-x:auto;
   scrollbar-width:none}
 .visit-tabs-wrap::-webkit-scrollbar{display:none}
-.vtab{flex-shrink:0;padding:7px 14px;border-radius:99px;font-size:12px;font-weight:600;
+.vtab{flex-shrink:0;padding:6px 12px 6px 14px;border-radius:99px;font-size:12px;font-weight:600;
   border:1.5px solid var(--border);background:var(--fill);color:var(--sub);cursor:pointer;
   transition:all .18s;-webkit-appearance:none;white-space:nowrap;
-  display:inline-flex;align-items:center;gap:6px}
+  display:inline-flex;align-items:center;gap:5px}
 .vtab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 .vtab-new{border-color:var(--blue);color:var(--blue);background:#fff}
-.vtab-del{font-size:13px;line-height:1;opacity:.5;margin-left:2px;
-  background:none;border:none;cursor:pointer;padding:0;color:inherit;
-  display:inline-flex;align-items:center}
+.vtab-del{background:none;border:none;cursor:pointer;padding:0;color:inherit;
+  font-size:14px;line-height:1;opacity:.45;display:inline-flex;align-items:center}
 .vtab-del:hover{opacity:1}
 
 /* ─── CHECKLIST ─── */
@@ -529,6 +528,15 @@ const STATIC_DATA = {
       "p6_3_c": 1,
       "_note": "《學新館訪查》台大體驗店由小福樓遷至學新館，鄰近競品門市，面臨客群分流風險。\n\n《商品陣列》 M5 Pro/Max、M5 Air、MacBook Neo 尚未依「電資院／文理院／預算型新生」分眾陣列，建議調整。學新館客流高度依賴主動導流。\n\n《配件戡售》 Pencil、鍵盤、保護殼陣列完整度尚可，但 Attach Rate 仍主要依賴話術與開學潮，需加強主動推薦練習。\n\n《客群流失》文商院學生到店機率明顯下降。鄰近辛亥路後門有機會吸引台科大／台師大外部客群。\n\n《B2B》門市內 B2B 採購聯絡窗口資訊尚未張貼，建議優先處理以降低教授／助理諉詢摩擦成本。\n\n《社群召回》建議比照政大郷遷案例對小福樓舊會員進行 LINE 推播＋貼文系統性召回。\n\n《設攞》建議與搞宿舍、新生訓練、系學會迎新合作設攞，8 月下旬為關鍵時間點。\n\n《外部商機》①資安採購法案：禁購中國品牌，聯想市占 8% 有移轉空間。②Siri AI 換機潮：iOS 27 秋季推出，24% 受訪者願提前換機；M1 後 iPad／Mac 支援 Apple Intelligence，9 月詢問量預估上升。"
     },
+    "v_ntu_20260708": {
+      "p1_1_c": 1, "p1_2_c": 1, "p1_3_c": 1, "p1_4_c": 1,
+      "p2_1_c": 1, "p2_2_c": 1, "p2_3_c": 1,
+      "p3_1_c": 1, "p3_2_c": 1, "p3_3_c": 1,
+      "p4_1_c": 1, "p4_2_c": 1, "p4_3_c": 1, "p4_4_c": 1,
+      "p5_1_c": 2, "p5_2_c": 1, "p5_3_c": 1, "p5_4_c": 1,
+      "p6_3_c": 1,
+      "_note": "【學新館訪查】台大體驗店由小福樓遷至學新館，鄰近競品門市，面臨客群分流風險。\n\n【商品陳列】M5 Pro/Max、M5 Air、MacBook Neo 尚未依「電資院／文理院／預算型新生」分眾陳列，建議調整。學新館客流高度依賴主動導流。\n\n【配件搭售】Pencil、鍵盤、保護殼陳列完整度尚可，但 Attach Rate 仍主要仰賴話術與開學潮，需加強主動推薦練習。\n\n【客群流失】文商院學生到店機率明顯下降。鄰近辛亥路後門及社科院停車場，有機會吸引台科大／台師大外部客群。\n\n【B2B】門市內 B2B 採購聯絡窗口資訊尚未張貼，建議優先處理以降低教授／助理諮詢摩擦成本。\n\n【社群召回】建議比照政大搬遷案例對小福樓舊會員進行 LINE 推播＋貼文系統性召回。\n\n【設攤】建議與搬宿舍、新生訓練、系學會迎新合作設攤，8 月下旬為關鍵時間點。\n\n【外部商機】①資安採購法案：禁購中國品牌，聯想市占 8% 有移轉空間。②Siri AI 換機潮：iOS 27 秋季推出，24% 受訪者願提前換機；M1 後 iPad／Mac 支援 Apple Intelligence，9 月詢問量預估上升。"
+    },
     "v_1778820148424": {
       "p1_1_c": 1, "p1_2_c": 1, "p1_3_c": 1, "p1_4_c": 1,
       "p2_1_c": 1, "p2_2_c": 1, "p2_3_c": 1,
@@ -573,32 +581,23 @@ const STATIC_DATA = {
 };
 
 function loadStaticDataIfEmpty() {
-  // 合併：不論 localStorage 是否有資料，都補入 STATIC_DATA 裡缺少的 visits
   const idx = getIdx();
   let changed = false;
-  Object.entries(STATIC_DATA.idx || {}).forEach(([schoolId, school]) => {
-    if (!idx[schoolId]) { idx[schoolId] = { visits: [] }; }
-    const existingIds = new Set((idx[schoolId].visits || []).map(v => v.id));
-    (school.visits || []).forEach(v => {
+  Object.entries(STATIC_DATA.idx || {}).forEach(([sid, school]) => {
+    if (!idx[sid]) idx[sid] = { visits: [] };
+    const existingIds = new Set((idx[sid].visits||[]).map(v => v.id));
+    (school.visits||[]).forEach(v => {
       if (!existingIds.has(v.id)) {
-        idx[schoolId].visits.push(v);
-        // 依日期排序
-        idx[schoolId].visits.sort((a, b) => a.date.localeCompare(b.date));
+        idx[sid].visits.push(v);
+        idx[sid].visits.sort((a,b) => a.date.localeCompare(b.date));
         changed = true;
       }
     });
   });
-  // 同樣補入 visit 詳細資料
-  Object.entries(STATIC_DATA.visits || {}).forEach(([vid, vdata]) => {
-    if (!localStorage.getItem(VKEY(vid))) {
-      setVisitData(vid, vdata);
-      changed = true;
-    }
+  Object.entries(STATIC_DATA.visits||{}).forEach(([vid, vdata]) => {
+    if (!localStorage.getItem(VKEY(vid))) { setVisitData(vid, vdata); changed = true; }
   });
-  if (changed) {
-    setIdx(idx);
-    console.log('[visits] 已從內嵌備份補入缺少的拜訪記錄');
-  }
+  if (changed) { setIdx(idx); console.log("[visits] 已從內嵌備份補入缺少的拜訪記錄"); }
 }
 
 // ══════════════════════════════════════
@@ -1150,26 +1149,27 @@ function renderVisitTabs() {
   visits.forEach(v => {
     const btn = document.createElement('button');
     btn.className = 'vtab' + (v.id===curVisitId ? ' active' : '');
-    // date label
-    const label = document.createElement('span');
-    label.textContent = v.date;
-    btn.appendChild(label);
-    // delete × button
+    // 日期文字
+    const lbl = document.createElement('span');
+    lbl.textContent = v.date;
+    btn.appendChild(lbl);
+    // × 刪除按鈕
     const del = document.createElement('button');
     del.className = 'vtab-del';
     del.innerHTML = '&times;';
     del.title = '刪除此次拜訪';
     del.onclick = (e) => {
       e.stopPropagation();
-      if (!confirm(`確定刪除「${v.date}」的拜訪記錄？此動作無法復原。`)) return;
+      if (!confirm(`確定刪除「${v.date}」的拜訪記錄？`)) return;
       deleteVisit(curSchoolId, v.id);
-      const remaining = getSchoolVisits(curSchoolId);
-      curVisitId = remaining.length ? remaining[remaining.length-1].id : null;
+      const rem = getSchoolVisits(curSchoolId);
+      curVisitId = rem.length ? rem[rem.length-1].id : null;
       renderVisitTabs(); renderChecklist(); loadNote(); renderHistory(curSchoolId);
+      showToast('已刪除拜訪記錄');
     };
     btn.appendChild(del);
     btn.onclick = (e) => {
-      if (e.target === del) return;
+      if (e.target.classList.contains('vtab-del')) return;
       curVisitId = v.id;
       renderVisitTabs(); renderChecklist(); loadNote(); renderHistory(curSchoolId);
     };
@@ -1178,7 +1178,7 @@ function renderVisitTabs() {
 
   const newBtn = document.createElement('button');
   newBtn.className = 'vtab vtab-new';
-  newBtn.textContent = '＋ 新增拜訪';
+  newBtn.textContent = '+ 新增拜訪';
   newBtn.onclick = () => openAddVisitInline();
   wrap.appendChild(newBtn);
 
@@ -1187,13 +1187,38 @@ function renderVisitTabs() {
 }
 
 function openAddVisitInline() {
+  // 建立 inline date picker overlay
+  const existing = document.getElementById('add-visit-overlay');
+  if (existing) { existing.remove(); return; }
   const now = new Date();
-  const dateStr = prompt('請輸入拜訪日期（格式 YYYY/MM/DD）：',
-    `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`);
-  if (!dateStr) return;
-  curVisitId = createVisit(curSchoolId, dateStr.trim());
+  const todayVal = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const overlay = document.createElement('div');
+  overlay.id = 'add-visit-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;display:flex;align-items:flex-end;justify-content:center';
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:20px 20px 0 0;padding:24px 24px 40px;width:100%;max-width:480px">
+      <div style="font-size:15px;font-weight:700;margin-bottom:16px">新增拜訪記錄</div>
+      <input type="date" id="new-visit-date" value="${todayVal}"
+        style="width:100%;padding:12px 14px;border:1.5px solid #e5e5ea;border-radius:10px;font-size:15px;font-family:inherit;margin-bottom:14px">
+      <div style="display:flex;gap:10px">
+        <button onclick="document.getElementById('add-visit-overlay').remove()"
+          style="flex:1;padding:12px;border-radius:10px;border:1.5px solid #e5e5ea;background:#f2f2f7;font-size:15px;font-weight:600;cursor:pointer">取消</button>
+        <button onclick="confirmAddVisit()"
+          style="flex:1;padding:12px;border-radius:10px;border:none;background:#0071e3;color:#fff;font-size:15px;font-weight:600;cursor:pointer">新增</button>
+      </div>
+    </div>`;
+  overlay.onclick = (e) => { if (e.target===overlay) overlay.remove(); };
+  document.body.appendChild(overlay);
+}
+function confirmAddVisit() {
+  const val = document.getElementById('new-visit-date')?.value;
+  if (!val) return;
+  const [y,m,d] = val.split('-');
+  const dateStr = `${y}/${m}/${d}`;
+  curVisitId = createVisit(curSchoolId, dateStr);
+  document.getElementById('add-visit-overlay')?.remove();
   renderVisitTabs(); renderChecklist(); loadNote(); renderHistory(curSchoolId);
-  showToast(` 已建立 ${dateStr} 拜訪記錄`);
+  showToast(`已建立 ${dateStr} 拜訪記錄`);
 }
 
 // ══════════════════════════════════════
