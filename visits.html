@@ -572,11 +572,31 @@ const STATIC_DATA = {
 };
 
 function loadStaticDataIfEmpty() {
-  const existing = getIdx();
-  const hasData = Object.values(existing).some(s => (s.visits||[]).length > 0);
-  if (!hasData) {
-    applyGHData(STATIC_DATA);
-    console.log('[visits] localStorage 空，已套用內嵌備份資料');
+  // 合併：不論 localStorage 是否有資料，都補入 STATIC_DATA 裡缺少的 visits
+  const idx = getIdx();
+  let changed = false;
+  Object.entries(STATIC_DATA.idx || {}).forEach(([schoolId, school]) => {
+    if (!idx[schoolId]) { idx[schoolId] = { visits: [] }; }
+    const existingIds = new Set((idx[schoolId].visits || []).map(v => v.id));
+    (school.visits || []).forEach(v => {
+      if (!existingIds.has(v.id)) {
+        idx[schoolId].visits.push(v);
+        // 依日期排序
+        idx[schoolId].visits.sort((a, b) => a.date.localeCompare(b.date));
+        changed = true;
+      }
+    });
+  });
+  // 同樣補入 visit 詳細資料
+  Object.entries(STATIC_DATA.visits || {}).forEach(([vid, vdata]) => {
+    if (!localStorage.getItem(VKEY(vid))) {
+      setVisitData(vid, vdata);
+      changed = true;
+    }
+  });
+  if (changed) {
+    setIdx(idx);
+    console.log('[visits] 已從內嵌備份補入缺少的拜訪記錄');
   }
 }
 
