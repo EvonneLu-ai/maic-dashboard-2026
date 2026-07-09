@@ -215,6 +215,7 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
   transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;opacity:0;pointer-events:none}
 .save-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -254,7 +255,7 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
   </div>
   <div class="filter-wrap">
     <button class="filter-btn active" onclick="setFilter('all',this)">全部</button>
-    <button class="filter-btn" onclick="setFilter('北部',this)">北部</button>
+    <button class="filter-btn" onclick="setFilter('北部',this)"> 北部</button>
     <button class="filter-btn" onclick="setFilter('中部',this)"> 中部</button>
     <button class="filter-btn" onclick="setFilter('南部',this)"> 南部</button>
     <button class="filter-btn" onclick="setFilter('done',this)"> 已完成</button>
@@ -322,6 +323,10 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
   </div>
 
   <!-- Lightbox -->
+  <div class="lightbox hidden" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightbox-img" src="" alt="">
+  </div>
 
   <div class="history-section">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
@@ -443,6 +448,133 @@ const ITEMS_DEF = [
 ];
 
 const TOTAL = ITEMS_DEF.length; // 20
+
+// ══════════════════════════════════════
+// STATIC DATA FALLBACK（內嵌備份，localStorage 空時自動套用）
+// ══════════════════════════════════════
+const STATIC_DATA = {
+  "idx": {
+    "ntcu": {
+      "visits": [
+        { "id": "v_1777358767326", "date": "2026/04/24", "label": "第 1 次拜訪" }
+      ]
+    },
+    "ntu": {
+      "visits": [
+        { "id": "v_1777534033372", "date": "2026/04/30", "label": "第 1 次拜訪" },
+        { "id": "v_ntu_20260708",  "date": "2026/07/08", "label": "第 2 次拜訪" }
+      ]
+    },
+    "ntou": { "visits": [] },
+    "nchu": {
+      "visits": [
+        { "id": "v_1778820148424", "date": "2026/05/15", "label": "第 1 次拜訪" }
+      ]
+    },
+    "fcu": {
+      "visits": [
+        { "id": "v_1778820226789", "date": "2026/05/15", "label": "第 1 次拜訪" }
+      ]
+    }
+  },
+  "visits": {
+    "v_1777358767326": {
+      "p1_1_c": 1, "p1_2_c": 1, "p1_3_c": 1, "p1_4_c": 1,
+      "p2_1_c": 1, "p2_2_c": 1, "p2_3_c": 1,
+      "p3_1_c": 1, "p3_2_c": 1, "p3_3_c": 1,
+      "p4_1_c": 1, "p4_2_c": 1, "p4_3_c": 2, "p4_4_c": 2,
+      "p5_1_c": 1, "p5_2_c": 1, "p5_3_c": 1, "p5_4_c": 1,
+      "p6_3_c": 1,
+      "_note": "由中區督導Kay親自接洽。拜訪時MAIC海報尚未送達，但已有在安排MAIC一系列的活動。拜訪校園店時當天因下雨沒有其他客人，無法確認與客人的互動狀況。有在現場詢問到一些活動資訊，員工皆清楚且給予良好的互動。",
+      "_photos": [
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntcu/v_1777358767326_1778569379553.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntcu/v_1777358767326_1778569382402.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntcu/v_1777358767326_1778569384645.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntcu/v_1777358767326_1778569386949.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntcu/v_1777358767326_1778569389254.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntcu/v_1777358767326_1778569391426.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntcu/v_1777358767326_1778569393185.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntcu/v_1777358767326_1778569396108.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntcu/v_1777358767326_1778569398305.jpg"
+      ]
+    },
+    "v_1777534033372": {
+      "p1_1_c": 1, "p1_2_c": 1, "p1_3_c": 1, "p1_4_c": 1,
+      "p2_1_c": 1, "p2_2_c": 1, "p2_3_c": 1,
+      "p3_1_c": 1, "p3_2_c": 1, "p3_3_c": 1,
+      "p4_1_c": 1, "p4_2_c": 1, "p4_3_c": 1, "p4_4_c": 1,
+      "p5_1_c": 1, "p5_2_c": 1, "p5_3_c": 1, "p5_4_c": 1,
+      "p6_3_c": 1,
+      "_note": "北區督導Abbie親自接洽。現場有少數客戶前往詢問Macmini，因缺貨故有請客戶留下line資訊以利後續通知到貨。過程中與客戶互動良好。\n現場展示機、文宣無過期或破損。已有看到MAIC海報的張貼與宣傳。",
+      "_photos": [
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556324631.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556327003.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556328979.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556331524.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556334139.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/ntu/v_1777534033372_1778556336586.jpg"
+      ]
+    },
+    "v_ntu_20260708": {
+      "p1_1_c": 1, "p1_2_c": 1, "p1_3_c": 1, "p1_4_c": 1,
+      "p2_1_c": 1, "p2_2_c": 1, "p2_3_c": 1,
+      "p3_1_c": 1, "p3_2_c": 1, "p3_3_c": 1,
+      "p4_1_c": 1, "p4_2_c": 1, "p4_3_c": 1, "p4_4_c": 1,
+      "p5_1_c": 2, "p5_2_c": 1, "p5_3_c": 1, "p5_4_c": 1,
+      "p6_3_c": 1,
+      "_note": "《學新館訪查》台大體驗店由小福樓遷至學新館，鄰近競品門市，面臨客群分流風險。\n\n《商品陣列》 M5 Pro/Max、M5 Air、MacBook Neo 尚未依「電資院／文理院／預算型新生」分眾陣列，建議調整。學新館客流高度依賴主動導流。\n\n《配件戡售》 Pencil、鍵盤、保護殼陣列完整度尚可，但 Attach Rate 仍主要依賴話術與開學潮，需加強主動推薦練習。\n\n《客群流失》文商院學生到店機率明顯下降。鄰近辛亥路後門有機會吸引台科大／台師大外部客群。\n\n《B2B》門市內 B2B 採購聯絡窗口資訊尚未張貼，建議優先處理以降低教授／助理諉詢摩擦成本。\n\n《社群召回》建議比照政大郷遷案例對小福樓舊會員進行 LINE 推播＋貼文系統性召回。\n\n《設攞》建議與搞宿舍、新生訓練、系學會迎新合作設攞，8 月下旬為關鍵時間點。\n\n《外部商機》①資安採購法案：禁購中國品牌，聯想市占 8% 有移轉空間。②Siri AI 換機潮：iOS 27 秋季推出，24% 受訪者願提前換機；M1 後 iPad／Mac 支援 Apple Intelligence，9 月詢問量預估上升。"
+    },
+    "v_1778820148424": {
+      "p1_1_c": 1, "p1_2_c": 1, "p1_3_c": 1, "p1_4_c": 1,
+      "p2_1_c": 1, "p2_2_c": 1, "p2_3_c": 1,
+      "p3_1_c": 1, "p3_2_c": 1, "p3_3_c": 1,
+      "p4_1_c": 1, "p4_2_c": 2, "p4_3_c": 1, "p4_4_c": 1,
+      "p5_1_c": 1, "p5_2_c": 1, "p5_3_c": 1, "p5_4_c": 1,
+      "p6_3_c": 1,
+      "_note": "今天Chelsea店長在門市，故前往勘察地點，現場剛好有學生購買Apple watch ultra ，門市人員詳細介紹並完成結帳。也明確說明到貨地點與活動資訊。MAIC海報也有張貼在門口。桌面也有放置DM讓學生拿取，MAIC活動暫沒有聽到員工有在宣傳給現在購買設備的學生。。目前Macbookneo 持續有學生詢問，也因為缺貨故只能等有貨才能販售。Macmini也是持續缺貨中。",
+      "_photos": [
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/nchu/v_1778820148424_1779072123137.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/nchu/v_1778820148424_1779072126051.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/nchu/v_1778820148424_1779072129022.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/nchu/v_1778820148424_1779072131682.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/nchu/v_1778820148424_1779072134489.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/nchu/v_1778820148424_1779072136502.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/nchu/v_1778820148424_1779072138958.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/nchu/v_1778820148424_1779072141107.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/nchu/v_1778820148424_1779072143162.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/nchu/v_1778820148424_1779072145035.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/nchu/v_1778820148424_1779072147030.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/nchu/v_1778820148424_1779072149091.jpg"
+      ]
+    },
+    "v_1778820226789": {
+      "p1_1_c": 1, "p1_2_c": 1, "p1_3_c": 1, "p1_4_c": 1,
+      "p2_1_c": 1, "p2_2_c": 1, "p2_3_c": 1,
+      "p3_1_c": 1, "p3_2_c": 1, "p3_3_c": 1,
+      "p4_1_c": 1, "p4_2_c": 1, "p4_3_c": 1, "p4_4_c": 1,
+      "p5_1_c": 1, "p5_2_c": 1, "p5_3_c": 1, "p5_4_c": 1,
+      "p6_3_c": 1,
+      "_note": "與中區督導約定下午前往逢甲大學，介紹了目前環境跟MAIC所以宣傳的活動，因活動海報無法在公共場所張貼，故轉交給所屬單位張貼，目前並沒有在附近看到張貼的海報。客流量多，每個員工都很專業介紹並提供完整服務，商品擺放完整無缺失。剛好iOS club社團有舉辦工作坊，邀請社員參加，因剛好校園有舉辦其他活動，故參與學生大約8-10位左右。工作坊目的有助於推廣MAIC活動。目前有社團有10隊組隊參加，還在陸續報名中",
+      "_photos": [
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/fcu/v_1778820226789_1779073146239.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/fcu/v_1778820226789_1779073148646.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/fcu/v_1778820226789_1779073150707.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/fcu/v_1778820226789_1779073152883.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/fcu/v_1778820226789_1779073154916.jpg",
+        "https://raw.githubusercontent.com/EvonneLu-ai/maic-dashboard-2026/main/visit-photos/fcu/v_1778820226789_1779073156924.jpg"
+      ]
+    }
+  }
+};
+
+function loadStaticDataIfEmpty() {
+  const existing = getIdx();
+  const hasData = Object.values(existing).some(s => (s.visits||[]).length > 0);
+  if (!hasData) {
+    applyGHData(STATIC_DATA);
+    console.log('[visits] localStorage 空，已套用內嵌備份資料');
+  }
+}
 
 // ══════════════════════════════════════
 // STORAGE（Key 結構與舊版完全相容）
@@ -887,6 +1019,21 @@ async function saveDetail() {
   const btn = document.getElementById('detail-save-btn');
   if (btn) { btn.textContent = ' 儲存中…'; btn.disabled = true; }
 
+  // 1. 先上傳所有待上傳照片
+  if (pendingPhotos.length) {
+    showToast(` 上傳 ${pendingPhotos.length} 張照片中…`);
+    for (const p of pendingPhotos) {
+      const ghUrl = await uploadPhoto(p.schoolId, p.visitId, p.blob);
+      if (ghUrl) {
+        const d = getVisitData(p.visitId);
+        if (!d._photos) d._photos = [];
+        d._photos.push(ghUrl);
+        setVisitData(p.visitId, d);
+        URL.revokeObjectURL(p.localUrl);
+      }
+    }
+    pendingPhotos = [];
+  }
 
   // 2. 同步到 GitHub
   const ok = await ghWrite();
@@ -1097,32 +1244,32 @@ function saveNote() {
 // ══════════════════════════════════════
 
 // 壓縮圖片（canvas resize）
-function compressImage(){}
+compressImage=function(){}
 
 // 上傳單張照片到 GitHub
-function uploadPhoto(){}
+uploadPhoto=function(){}
 
 // 刪除 GitHub 上的照片
-function deletePhotoFromGH(){}
+deletePhotoFromGH=function(){}
 
 // 選照片後處理（只壓縮暫存，按儲存才上傳）
-function handlePhotoSelect(){}
+handlePhotoSelect=function(){}
 
-function renderThumbHTML(){}
+renderThumbHTML=function(){}
 
-function triggerPhotoUpload(){}
+triggerPhotoUpload=function(){}
 
 // 渲染照片區
-function renderPhotos(){}
+renderPhotos=function(){}
 
-function updatePhotoCount(){}
+updatePhotoCount=function(){}
 
 // 刪除照片
-function deletePhoto(){}
+deletePhoto=function(){}
 
 // Lightbox
-function openLightbox(){}
-function closeLightbox(){}
+openLightbox=function(){}
+closeLightbox=function(){}
 
 // ══════════════════════════════════════
 // HISTORY
@@ -1197,7 +1344,32 @@ function renderHistory(schoolId) {
     row.appendChild(info);
     row.appendChild(prog);
     row.appendChild(del);
-    el.appendChild(row);
+
+    // 若此次拜訪有照片，顯示縮圖列
+    const vd = getVisitData(v.id);
+    const vPhotos = vd._photos || [];
+    if (vPhotos.length) {
+      const photoRow = document.createElement('div');
+      photoRow.style.cssText = 'display:flex;gap:5px;padding:8px 0 4px 19px;flex-wrap:wrap';
+      vPhotos.forEach((url, pi) => {
+        const thumb = document.createElement('div');
+        thumb.style.cssText = 'width:48px;height:48px;border-radius:6px;overflow:hidden;flex-shrink:0;cursor:pointer;background:var(--fill)';
+        const img = document.createElement('img');
+        img.src = url;
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+        img.loading = 'lazy';
+        img.onclick = () => openLightbox(url);
+        thumb.appendChild(img);
+        photoRow.appendChild(thumb);
+      });
+      // 包一個完整行放在 row 下面
+      const wrapper = document.createElement('div');
+      wrapper.appendChild(row);
+      wrapper.appendChild(photoRow);
+      el.appendChild(wrapper);
+    } else {
+      el.appendChild(row);
+    }
   });
 }
 
@@ -1354,63 +1526,6 @@ async function forceSync() {
   showToast(' 同步完成');
 }
 
-
-// ── NTU 台大 昨天訪店預載記錄（2026/07/08）──
-function seedNTUVisit() {
-  const idx = getIdx();
-  if (idx.ntu && idx.ntu.visits && idx.ntu.visits.length > 0) return;
-  if (!idx.ntu) idx.ntu = {visits:[]};
-  const vid = 'v_ntu_20260708';
-  idx.ntu.visits.push({id: vid, date: '2026/07/08', label: '第 1 次拜訪'});
-  setIdx(idx);
-  setVisitData(vid, {
-    // 出發前準備
-    'p1_1_c': 1,  // 查閱近期銷售數據 ✓
-    'p1_2_c': 1,  // 確認校園促銷方案 ✓
-    'p1_3_c': 1,  // 與負責人確認到達時間 ✓
-    'p1_4_c': 1,  // 設備電量 & 裝備確認 ✓
-    // VMD 視覺陳列
-    'p2_1_c': 1,  // 文宣時效性 ✓
-    'p2_2_c': 1,  // 展示機狀態 ✓
-    'p2_3_c': 1,  // 店面整潔度 ✓
-    // 庫存管理
-    'p3_1_c': 1,  // 教育熱銷款庫存抽檢 ✓
-    'p3_2_c': 1,  // 配件週邊陳列 ✓
-    'p3_3_c': 1,  // 進銷存數據準確性 ✓
-    // 校園關係 & MAIC
-    'p4_1_c': 1,  // 校內合作進度詢問 ✓
-    'p4_2_c': 1,  // 工作坊 & 講座排程 ✓
-    'p4_3_c': 1,  // MAIC 宣傳品確認 & 張貼 ✓
-    'p4_4_c': 1,  // 介紹 MAIC & 收集名單 ✓
-    // 人員 & 設備
-    'p5_1_c': 2,  // 教育方案熟悉度確認 ✗ 待加強
-    'p5_2_c': 1,  // 服務流程觀察 ✓
-    'p5_3_c': 1,  // 硬體設備檢查 ✓
-    'p5_4_c': 1,  // 資產安全確認 ✓
-    // 拜訪後
-    'p6_3_c': 1,  // 更新 Dashboard ✓
-    '_note': [
-      '【背景】台大體驗店由小福樓遷至學新館，鄰近競品門市，面臨客群分流風險。',
-      '',
-      '【商品陳列】M5 Pro/Max、M5 Air、MacBook Neo 三線產品尚未依「電資院／文理院／預算型新生」分眾陳列，建議調整以對應學新館周邊理工科系結構。學新館客流高度依賴主動導流。',
-      '',
-      '【配件搭售】人員 KPI 以配件搭售為主。Pencil、鍵盤、保護殼組合陳列完整度尚可，但 Attach Rate 仍主要仰賴店員話術與到店動機（如新生開學潮），需加強主動推薦話術練習。',
-      '',
-      '【客群流失風險】文商院學生原以小福樓（椰林大道）為日常必經，遷店後到店機率明顯下降。但鄰近辛亥路後門及社科院停車場，有機會吸引台科大／台師大外部客群，建議設計導流動線。',
-      '',
-      '【B2B 採購】現教職員採購以理工科系為主，通常透過各系辦採購窗口對接。門市內 B2B 採購聯絡窗口資訊尚未張貼，建議優先處理以降低教授／助理諮詢摩擦成本。',
-      '',
-      '【社群召回】建議強化學新館門市自有社群帳號，比照政大搬遷案例，針對小福樓時期舊會員進行 LINE 推播＋貼文系統性召回。',
-      '',
-      '【活動設攤】建議與搬宿舍、新生訓練、系學會迎新等既有活動合作設攤，借用既有人流，8 月下旬新生報到為關鍵時間點。',
-      '',
-      '【外部商機】①資安採購法案：2025/12 數發部公告禁購中國品牌，聯想台灣市占 8% 有移轉空間。②Siri AI 換機潮：iOS 27 秋季推出，僅 iPhone 15 Pro 以後支援，瑞銀調查 24% 受訪者願提前換機；iPad／Mac 因 M1 後皆支援 Apple Intelligence，9 月詢問量預估上升。',
-      '',
-      '【綜合評估】外部商機有部分助益，能否轉化為台大門市銷量成長，仍取決於門市客群經營能力。'
-    ].join('\n')
-  });
-}
-
 window.onload = () => {
   // 偵測 URL ?token= 參數（手機掃 QR Code 後自動設定）
   const urlParams = new URLSearchParams(location.search);
@@ -1421,7 +1536,7 @@ window.onload = () => {
     history.replaceState(null, '', location.pathname);
     showToast(' Token 已自動設定，連線中…');
   }
-  seedNTUVisit();
+  loadStaticDataIfEmpty();  // localStorage 空時套用內嵌備份
   renderOverview();
   initSync();
 };
