@@ -282,6 +282,19 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
         <div style="font-size:11px;font-weight:400;color:var(--sub);margin-top:2px">選取備份 JSON</div>
       </button>
     </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+      <button onclick="exportCSV()" style="padding:14px 12px;border-radius:12px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:600;color:#af52de;cursor:pointer;text-align:left;line-height:1.4">
+        <div style="font-size:18px;margin-bottom:4px">↓</div>
+        匯出 CSV
+        <div style="font-size:11px;font-weight:400;color:var(--sub);margin-top:2px">用 Excel / Numbers 編輯</div>
+      </button>
+      <button onclick="document.getElementById('import-csv-file').click()" style="padding:14px 12px;border-radius:12px;border:1.5px solid var(--border);background:#fff;font-size:13px;font-weight:600;color:#ff9500;cursor:pointer;text-align:left;line-height:1.4">
+        <div style="font-size:18px;margin-bottom:4px">↑</div>
+        匯入 CSV
+        <div style="font-size:11px;font-weight:400;color:var(--sub);margin-top:2px">匯入後合併現有資料</div>
+      </button>
+    </div>
+    <input type="file" id="import-csv-file" accept=".csv" style="display:none" onchange="importCSV(event)">
     <button onclick="clearAll()" style="width:100%;margin-top:10px;padding:11px;border-radius:12px;border:1.5px solid #ffe5e5;background:#fff8f8;font-size:13px;font-weight:600;color:#ff3b30;cursor:pointer">清除所有資料</button>
     <input type="file" id="import-file" accept=".json" style="display:none" onchange="importAll(event)">
     <div class="backup-status" id="ov-backup-status" style="margin-top:8px;font-size:12px;text-align:center"></div>
@@ -1466,6 +1479,119 @@ function handleDelVisit(vid) {
 // ══════════════════════════════════════
 // BACKUP
 // ══════════════════════════════════════
+
+// ── CSV 欄位定義 ──
+const CSV_CHECKLIST_COLS = [
+  'p1_1','p1_2','p1_3','p1_4',
+  'p2_1','p2_2','p2_3',
+  'p3_1','p3_2','p3_3',
+  'p4_1','p4_2','p4_3','p4_4',
+  'p5_1','p5_2','p5_3','p5_4',
+  'p6_1','p6_2','p6_3'
+];
+
+function exportCSV() {
+  const idx   = getIdx();
+  const rows  = [['school_id','school_name','date','note', ...CSV_CHECKLIST_COLS]];
+  const schoolMap = {};
+  SCHOOLS.forEach(s => { schoolMap[s.id] = s.name; });
+
+  Object.entries(idx).forEach(([sid, school]) => {
+    (school.visits||[]).forEach(v => {
+      const d = getVisitData(v.id);
+      const note = (d._note||'').replace(/
+/g,' ').replace(/,/g,'，');
+      const checks = CSV_CHECKLIST_COLS.map(col => {
+        const val = d[col+'_c'];
+        return val===1 ? '1' : val===2 ? '2' : '0';
+      });
+      rows.push([sid, schoolMap[sid]||sid, v.date, note, ...checks]);
+    });
+  });
+
+  const csv = rows.map(r => r.map(f => `"${String(f).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `visits_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  setStatus('ov-backup-status','已匯出 CSV','var(--green)');
+}
+
+function importCSV(event) {
+  const file = event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const text   = e.target.result.replace(/^﻿/,'');
+      const lines  = text.split(/\r?\n/).filter(l => l.trim());
+      const header = parseCSVLine(lines[0]);
+      const sidCol  = header.indexOf('school_id');
+      const dateCol = header.indexOf('date');
+      const noteCol = header.indexOf('note');
+      if (sidCol<0||dateCol<0) { setStatus('ov-backup-status','CSV 欄位格式錯誤','var(--red)'); return; }
+
+      const idx = getIdx(); let count = 0;
+      lines.slice(1).forEach(line => {
+        if (!line.trim()) return;
+        const cols = parseCSVLine(line);
+        const sid  = cols[sidCol]?.trim();
+        const date = cols[dateCol]?.trim();
+        if (!sid||!date) return;
+
+        if (!idx[sid]) idx[sid] = {visits:[]};
+        // 找有沒有同一天的記錄
+        let existingVisit = idx[sid].visits.find(v => v.date===date);
+        let vid;
+        if (existingVisit) {
+          vid = existingVisit.id;
+        } else {
+          vid = 'v_'+sid+'_'+date.replace(/\//g,'');
+          idx[sid].visits.push({id:vid, date, label:`第 ${idx[sid].visits.length+1} 次拜訪`});
+          idx[sid].visits.sort((a,b)=>a.date.localeCompare(b.date));
+          // 重新編號 label
+          idx[sid].visits.forEach((v,i) => { v.label = `第 ${i+1} 次拜訪`; });
+        }
+
+        const vdata = getVisitData(vid)||{};
+        if (noteCol>=0 && cols[noteCol]) vdata._note = cols[noteCol];
+        CSV_CHECKLIST_COLS.forEach((col,i) => {
+          const val = parseInt(cols[header.indexOf(col)]||'0');
+          if (val>0) vdata[col+'_c'] = val;
+        });
+        setVisitData(vid, vdata);
+        count++;
+      });
+      setIdx(idx);
+      setStatus('ov-backup-status',`匯入成功：${count} 筆拜訪記錄`,'var(--green)');
+      renderOverview();
+    } catch(err) {
+      setStatus('ov-backup-status','匯入失敗：'+err.message,'var(--red)');
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function parseCSVLine(line) {
+  const result = []; let cur = ''; let inQ = false;
+  for (let i=0; i<line.length; i++) {
+    const ch = line[i];
+    if (inQ) {
+      if (ch==='"' && line[i+1]==='"') { cur+='"'; i++; }
+      else if (ch==='"') inQ = false;
+      else cur += ch;
+    } else {
+      if (ch==='"') inQ = true;
+      else if (ch===',') { result.push(cur); cur=''; }
+      else cur += ch;
+    }
+  }
+  result.push(cur);
+  return result;
+}
+
 function exportAll() {
   const idx = getIdx();
   const out = {_type:'sa_all', _exported_at:new Date().toLocaleString('zh-TW'), idx};
