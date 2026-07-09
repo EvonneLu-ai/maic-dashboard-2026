@@ -23,7 +23,7 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 /* ─── HEADER ─── */
-.hdr{background:#fff;padding:52px 20px 16px;border-bottom:1px solid var(--border)}
+.hdr{background:rgba(255,255,255,0.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:52px 20px 16px;border-bottom:1px solid var(--border)}
 .hdr-badge{display:inline-flex;align-items:center;gap:5px;
   background:rgba(0,113,227,.08);border:1px solid rgba(0,113,227,.15);
   border-radius:20px;padding:3px 10px;font-size:11px;margin-bottom:10px;color:var(--blue)}
@@ -35,7 +35,7 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
 
 /* ─── STATS BAR ─── */
 .stats-bar{display:flex;margin:14px 16px 0;background:var(--card);
-  border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04),0 4px 14px rgba(0,0,0,.05)}
 .stat-item{flex:1;padding:12px 6px;text-align:center;position:relative}
 .stat-item:not(:last-child)::after{content:'';position:absolute;right:0;top:20%;
   height:60%;width:1px;background:var(--border)}
@@ -58,7 +58,7 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
 .fab{position:fixed;bottom:28px;right:20px;z-index:100;
   height:48px;border-radius:99px;background:var(--blue);color:#fff;
   border:none;font-size:14px;font-weight:700;padding:0 20px;cursor:pointer;
-  box-shadow:0 4px 16px rgba(0,113,227,.4);display:flex;align-items:center;gap:6px;
+  box-shadow:0 2px 8px rgba(0,113,227,.25),0 8px 24px rgba(0,113,227,.16);display:flex;align-items:center;gap:6px;
   transition:transform .15s;-webkit-appearance:none;white-space:nowrap}
 .fab:active{transform:scale(.96)}
 
@@ -208,35 +208,6 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
 .backup-status{font-size:11px;color:var(--sub);margin-top:7px;min-height:14px}
 
 
-/* ─── PHOTO SECTION ─── */
-.photo-section{margin:12px 16px 0;background:var(--card);border-radius:14px;
-  padding:14px;box-shadow:0 1px 5px rgba(0,0,0,.05)}
-.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
-.photo-thumb{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;
-  background:var(--fill);cursor:pointer}
-.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block}
-.photo-del{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;
-  background:rgba(0,0,0,.55);color:#fff;border:none;font-size:11px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;-webkit-appearance:none}
-.photo-add{aspect-ratio:1;border-radius:10px;border:2px dashed var(--border);
-  background:var(--fill);display:flex;flex-direction:column;align-items:center;
-  justify-content:center;cursor:pointer;gap:4px;transition:all .18s}
-.photo-add:active{background:rgba(0,113,227,.06);border-color:var(--blue)}
-.photo-add-icon{font-size:24px;line-height:1}
-.photo-add-lbl{font-size:10px;font-weight:700;color:var(--sub)}
-.photo-uploading{position:absolute;inset:0;background:rgba(0,0,0,.45);
-  display:flex;align-items:center;justify-content:center;border-radius:10px}
-.photo-uploading-spin{width:24px;height:24px;border:3px solid rgba(255,255,255,.3);
-  border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-/* ─── LIGHTBOX ─── */
-.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:500;
-  display:flex;align-items:center;justify-content:center}
-.lightbox img{max-width:100%;max-height:90vh;border-radius:8px;object-fit:contain}
-.lightbox-close{position:absolute;top:20px;right:20px;width:36px;height:36px;
-  border-radius:50%;background:rgba(255,255,255,.15);color:#fff;border:none;
-  font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-
 /* ─── TOAST ─── */
 .save-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(80px);
   background:#1d1d1f;color:#fff;padding:9px 18px;border-radius:99px;
@@ -244,7 +215,6 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
   transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;opacity:0;pointer-events:none}
 .save-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -253,7 +223,7 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
 <!-- ══════════════════════════════ -->
 <div id="pg-overview" class="page">
   <div class="hdr">
-    <div class="hdr-badge">🍎 Straight A</div>
+    <div class="hdr-badge"> Straight A</div>
     <h1>校園巡店</h1>
     <p class="sub" id="ov-sub">載入中…</p>
   </div>
@@ -278,28 +248,28 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
   </div>
 
     <div style="display:flex;align-items:center;gap:8px;padding:10px 16px 0;flex-wrap:wrap">
-    <button id="sync-btn" class="btn-exp hidden" style="flex-shrink:0;padding:8px 16px;border-radius:99px;font-size:12px" onclick="syncToGitHub()">☁️ 儲存同步</button>
+    <button id="sync-btn" class="btn-exp hidden" style="flex-shrink:0;padding:8px 16px;border-radius:99px;font-size:12px" onclick="syncToGitHub()"> 儲存同步</button>
     <span id="sync-status" style="font-size:11px;color:var(--muted);flex:1">載入中…</span>
-    <button id="token-btn" style="padding:6px 12px;border-radius:99px;font-size:11px;font-weight:600;border:1.5px solid var(--border);background:var(--fill);color:var(--sub);cursor:pointer;-webkit-appearance:none" onclick="openTokenModal()">🔑 Token 設定</button>
+    <button id="token-btn" style="padding:6px 12px;border-radius:99px;font-size:11px;font-weight:600;border:1.5px solid var(--border);background:var(--fill);color:var(--sub);cursor:pointer;-webkit-appearance:none" onclick="openTokenModal()"> Token 設定</button>
   </div>
   <div class="filter-wrap">
     <button class="filter-btn active" onclick="setFilter('all',this)">全部</button>
-    <button class="filter-btn" onclick="setFilter('北部',this)">🔵 北部</button>
-    <button class="filter-btn" onclick="setFilter('中部',this)">🟠 中部</button>
-    <button class="filter-btn" onclick="setFilter('南部',this)">🔴 南部</button>
-    <button class="filter-btn" onclick="setFilter('done',this)">✅ 已完成</button>
-    <button class="filter-btn" onclick="setFilter('wip',this)">⏳ 進行中</button>
+    <button class="filter-btn" onclick="setFilter('北部',this)">北部</button>
+    <button class="filter-btn" onclick="setFilter('中部',this)"> 中部</button>
+    <button class="filter-btn" onclick="setFilter('南部',this)"> 南部</button>
+    <button class="filter-btn" onclick="setFilter('done',this)"> 已完成</button>
+    <button class="filter-btn" onclick="setFilter('wip',this)"> 進行中</button>
   </div>
 
   <div class="school-list" id="school-list"></div>
 
   <div class="backup-section" style="margin-top:20px">
-    <div class="section-title">🔒 資料備份</div>
+    <div class="section-title"> 資料備份</div>
     <div style="font-size:11px;color:var(--sub);margin-bottom:0">匯出所有拜訪紀錄，換裝置前請先備份</div>
     <div class="backup-btns">
-      <button class="btn-exp" onclick="exportAll()">⬇️ 匯出全部</button>
-      <button class="btn-imp" onclick="document.getElementById('import-file').click()">⬆️ 匯入還原</button>
-      <button class="btn-clr" onclick="clearAll()">🗑️ 清除</button>
+      <button class="btn-exp" onclick="exportAll()"> 匯出全部</button>
+      <button class="btn-imp" onclick="document.getElementById('import-file').click()"> 匯入還原</button>
+      <button class="btn-clr" onclick="clearAll()"> 清除</button>
     </div>
     <input type="file" id="import-file" accept=".json" style="display:none" onchange="importAll(event)">
     <div class="backup-status" id="ov-backup-status"></div>
@@ -318,7 +288,7 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
         style="padding:7px 16px;border-radius:99px;font-size:12px;font-weight:700;
                background:var(--blue);color:#fff;border:none;cursor:pointer;-webkit-appearance:none;
                display:flex;align-items:center;gap:5px">
-        💾 儲存
+         儲存
       </button>
     </div>
     <div style="font-size:18px;font-weight:700" id="detail-school-name"></div>
@@ -352,31 +322,19 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
   </div>
 
   <!-- Lightbox -->
-  <div class="lightbox hidden" id="lightbox" onclick="closeLightbox()">
-    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-    <img id="lightbox-img" src="" alt="">
-  </div>
-  <input type="file" id="photo-input" accept="image/*" capture="environment" multiple
-    style="display:none" onchange="handlePhotoSelect(event)">
 
   <div class="history-section">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div class="section-title" style="margin-bottom:0">📅 歷史拜訪紀錄</div>
-      <button onclick="triggerPhotoUpload()"
-        style="padding:6px 14px;border-radius:99px;font-size:11px;font-weight:700;
-               background:var(--fill);color:var(--sub);border:1.5px solid var(--border);
-               cursor:pointer;-webkit-appearance:none;display:flex;align-items:center;gap:4px">
-        📷 上傳照片
-      </button>
+      <div class="section-title" style="margin-bottom:0"> 歷史拜訪紀錄</div>
     </div>
     <div id="history-list"></div>
   </div>
 
   <div class="backup-section">
-    <div class="section-title">🔒 此校資料備份</div>
+    <div class="section-title"> 此校資料備份</div>
     <div class="backup-btns">
-      <button class="btn-exp" onclick="exportSchool()">⬇️ 匯出此校</button>
-      <button class="btn-imp" onclick="document.getElementById('import-school-file').click()">⬆️ 匯入還原</button>
+      <button class="btn-exp" onclick="exportSchool()"> 匯出此校</button>
+      <button class="btn-imp" onclick="document.getElementById('import-school-file').click()"> 匯入還原</button>
     </div>
     <input type="file" id="import-school-file" accept=".json" style="display:none" onchange="importSchool(event)">
     <div class="backup-status" id="det-backup-status"></div>
@@ -420,17 +378,17 @@ body{font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;
       前往 GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)，勾選 repo 權限
     </div>
     <button class="btn-primary" onclick="saveToken()">連線</button>
-    <button id="qr-btn" class="btn-cancel" style="display:none" onclick="toggleQR()">📱 手機掃描設定</button>
+    <button id="qr-btn" class="btn-cancel" style="display:none" onclick="toggleQR()"> 手機掃描設定</button>
     <div id="qr-section" style="display:none;margin-top:12px;text-align:center">
       <div style="font-size:12px;color:var(--sub);margin-bottom:8px">用手機掃描，自動填入 Token 並連線</div>
       <div id="qr-canvas" style="display:inline-block;padding:12px;background:#fff;border-radius:12px;border:1px solid var(--border)"></div>
-      <div style="font-size:11px;color:var(--muted);margin-top:8px">⚠️ QR Code 含有 Token，請勿截圖分享</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px"> QR Code 含有 Token，請勿截圖分享</div>
     </div>
     <button class="btn-cancel" onclick="disconnectGH()" style="color:var(--red)">移除連線</button>
     <button class="btn-cancel" onclick="closeTokenModal()">取消</button>
   </div>
 </div>
-<div class="save-toast" id="toast">已自動儲存 ✓</div>
+<div class="save-toast" id="toast">已自動儲存 </div>
 
 <script>
 // ══════════════════════════════════════
@@ -655,15 +613,15 @@ function applyGHData(data) {
 async function syncToGitHub() {
   const btn = document.getElementById('sync-btn');
   const status = document.getElementById('sync-status');
-  if (btn) { btn.disabled = true; btn.textContent = '☁️ 同步中…'; }
+  if (btn) { btn.disabled = true; btn.textContent = ' 同步中…'; }
   const ok = await ghWrite();
-  if (btn) { btn.disabled = false; btn.textContent = '☁️ 儲存同步'; }
+  if (btn) { btn.disabled = false; btn.textContent = ' 儲存同步'; }
   if (status) {
     const now = new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
-    status.textContent = ok ? `✅ 已同步 ${now}` : '❌ 同步失敗，請檢查 Token';
+    status.textContent = ok ? ` 已同步 ${now}` : '❌ 同步失敗，請檢查 Token';
     status.style.color = ok ? 'var(--green)' : 'var(--red)';
   }
-  if (ok) showToast('☁️ 已同步到 GitHub');
+  if (ok) showToast(' 已同步到 GitHub');
 }
 
 // Token 設定 modal
@@ -696,7 +654,7 @@ function toggleQR() {
   _qrVisible = !_qrVisible;
   sec.style.display = _qrVisible ? '' : 'none';
   if (_qrVisible) generateQR();
-  document.getElementById('qr-btn').textContent = _qrVisible ? '🔼 收起 QR Code' : '📱 手機掃描設定';
+  document.getElementById('qr-btn').textContent = _qrVisible ? ' 收起 QR Code' : ' 手機掃描設定';
 }
 function generateQR() {
   const token = getGHToken();
@@ -712,7 +670,7 @@ function disconnectGH() {
   ghSha = null;
   document.getElementById('sync-btn').classList.add('hidden');
   document.getElementById('sync-status').textContent = '未連線';
-  document.getElementById('token-btn').textContent = '🔑 設定 Token';
+  document.getElementById('token-btn').textContent = ' 設定 Token';
 }
 
 // 初始化同步（頁面載入時呼叫）
@@ -723,17 +681,17 @@ async function initSync() {
   if (!getGHToken()) {
     if (status) { status.textContent = '未連線'; status.style.color = 'var(--muted)'; }
     if (btn) btn.classList.add('hidden');
-    if (tBtn) tBtn.textContent = '🔑 設定 Token';
+    if (tBtn) tBtn.textContent = ' 設定 Token';
     return;
   }
   if (status) { status.textContent = '讀取中…'; status.style.color = 'var(--muted)'; }
   if (btn) btn.classList.add('hidden');
   const data = await ghRead();
   if (!data || data._authFail) {
-    const msg = data && data._authFail ? '❌ Token 已失效，請重新設定' : '❌ 連線失敗，請確認網路';
+    const msg = data && data._authFail ? 'Token 已失效，請重新設定' : '❌ 連線失敗，請確認網路';
     if (status) { status.textContent = msg; status.style.color = 'var(--red)'; }
     if (btn)   btn.classList.add('hidden');
-    if (tBtn)  tBtn.textContent = '🔑 重設 Token';
+    if (tBtn)  tBtn.textContent = ' 重設 Token';
     showToast(msg);
     return;
   }
@@ -754,7 +712,7 @@ async function initSync() {
     status.style.color = 'var(--sub)';
   }
   if (btn) btn.classList.remove('hidden');
-  if (tBtn) tBtn.textContent = '🔑 Token 設定';
+  if (tBtn) tBtn.textContent = ' Token 設定';
   renderOverview();
 }
 
@@ -772,7 +730,7 @@ let pendingPhotos = [];   // 待儲存的照片 {blob, localUrl}
 // ══════════════════════════════════════
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg || '已自動儲存 ✓';  // 無訊息時顯示預設
+  t.textContent = msg || '已自動儲存 ';  // 無訊息時顯示預設
   t.classList.add('show');
   clearTimeout(t._tid);
   t._tid = setTimeout(() => t.classList.remove('show'), 1800);
@@ -814,15 +772,15 @@ function renderOverview() {
     const hasToken = !!getGHToken();
     list.innerHTML = `
       <div class="empty-state">
-        <div class="e">${hasAny ? '🔍' : '🏫'}</div>
+        <div class="e">${hasAny ? '' : ''}</div>
         <h3>${hasAny ? '沒有符合條件的學校' : '尚無拜訪記錄'}</h3>
         <p>${hasAny
           ? '試試調整篩選條件'
           : hasToken
-            ? '頁面載入中…若資料仍未出現，請點下方「☁️ 重新同步」'
+            ? '頁面載入中…若資料仍未出現，請點下方「 重新同步」'
             : '點擊右下角 ＋ 按鈕開始記錄，或設定 Token 從 GitHub 還原資料'
         }</p>
-        ${!hasAny && hasToken ? '<button class="empty-cta" onclick="forceSync()" style="background:var(--purple)">☁️ 重新同步</button>' : ''}
+        ${!hasAny && hasToken ? '<button class="empty-cta" onclick="forceSync()" style="background:var(--purple)"> 重新同步</button>' : ''}
         ${!hasAny ? '<button class="empty-cta" onclick="openAddModal()" style="margin-top:8px">＋ 新增拜訪</button>' : ''}
       </div>`;
   } else {
@@ -912,14 +870,14 @@ function closeModalIfBg(e) {
 }
 
 function confirmNewVisit() {
-  if (!selectedSid) { showToast('⚠️ 請先選擇學校'); return; }
+  if (!selectedSid) { showToast(' 請先選擇學校'); return; }
   const raw = document.getElementById('new-visit-date').value;
-  if (!raw) { showToast('⚠️ 請填入拜訪日期'); return; }
+  if (!raw) { showToast(' 請填入拜訪日期'); return; }
   const dateStr = raw.replace(/-/g, '/');
   const vid = createVisit(selectedSid, dateStr);
   closeAddModal();
   goDetail(selectedSid, vid);
-  showToast(`✅ 已建立 ${dateStr} 拜訪記錄`);
+  showToast(` 已建立 ${dateStr} 拜訪記錄`);
 }
 
 // ══════════════════════════════════════
@@ -927,33 +885,18 @@ function confirmNewVisit() {
 // ══════════════════════════════════════
 async function saveDetail() {
   const btn = document.getElementById('detail-save-btn');
-  if (btn) { btn.textContent = '⏳ 儲存中…'; btn.disabled = true; }
+  if (btn) { btn.textContent = ' 儲存中…'; btn.disabled = true; }
 
-  // 1. 先上傳所有待上傳照片
-  if (pendingPhotos.length) {
-    showToast(`☁️ 上傳 ${pendingPhotos.length} 張照片中…`);
-    for (const p of pendingPhotos) {
-      const ghUrl = await uploadPhoto(p.schoolId, p.visitId, p.blob);
-      if (ghUrl) {
-        const d = getVisitData(p.visitId);
-        if (!d._photos) d._photos = [];
-        d._photos.push(ghUrl);
-        setVisitData(p.visitId, d);
-        URL.revokeObjectURL(p.localUrl);
-      }
-    }
-    pendingPhotos = [];
-  }
 
   // 2. 同步到 GitHub
   const ok = await ghWrite();
 
   if (btn) {
     btn.disabled = false;
-    btn.textContent = ok ? '✅ 已儲存' : '❌ 失敗';
-    setTimeout(() => { btn.textContent = '💾 儲存'; }, 2000);
+    btn.textContent = ok ? ' 已儲存' : '❌ 失敗';
+    setTimeout(() => { btn.textContent = ' 儲存'; }, 2000);
   }
-  showToast(ok ? '✅ 資料已儲存到雲端' : '❌ 儲存失敗，請重試');
+  showToast(ok ? ' 資料已儲存到雲端' : '❌ 儲存失敗，請重試');
 
   // 3. 重新渲染歷史（讓照片出現）
   if (ok) {
@@ -967,7 +910,7 @@ async function saveDetail() {
     renderChecklist();   // 全空白的 checklist
     loadNote();          // 空白備忘
     renderHistory(curSchoolId);  // 歷史更新（含剛儲存的那筆）
-    showToast('✅ 已儲存，新記錄已建立');
+    showToast(' 已儲存，新記錄已建立');
   }
 }
 
@@ -985,7 +928,7 @@ function goDetail(schoolId, jumpVid) {
   if (noteEl) noteEl.value = '';
   pendingPhotos = [];
   const savBtn = document.getElementById('detail-save-btn');
-  if (savBtn) savBtn.textContent = '💾 儲存';
+  if (savBtn) savBtn.textContent = ' 儲存';
 
   document.getElementById('pg-overview').classList.add('hidden');
   document.getElementById('pg-detail').classList.remove('hidden');
@@ -1000,7 +943,6 @@ function goDetail(schoolId, jumpVid) {
   renderVisitTabs();
   renderChecklist();
   loadNote();       // ← 載入當前學校的備忘
-  renderPhotos();   // ← 載入當前學校的照片
   renderHistory(curSchoolId);
   initMAICToggle(); // ← 套用 MAIC 開關狀態
   window.scrollTo(0,0);
@@ -1010,11 +952,11 @@ function goOverview() {
   // 離開時背景同步（不阻塞，但讓 status 有反饋）
   if (getGHToken() && curVisitId) {
     const statusEl = document.getElementById('sync-status');
-    if (statusEl) { statusEl.textContent = '☁️ 自動儲存中…'; statusEl.style.color = 'var(--muted)'; }
+    if (statusEl) { statusEl.textContent = ' 自動儲存中…'; statusEl.style.color = 'var(--muted)'; }
     ghWrite().then(ok => {
       if (statusEl) {
         const now = new Date().toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'});
-        statusEl.textContent = ok ? `✅ 已同步 ${now}` : '⚠️ 同步失敗，下次開啟可能遺失資料';
+        statusEl.textContent = ok ? ` 已同步 ${now}` : ' 同步失敗，下次開啟可能遺失資料';
         statusEl.style.color = ok ? 'var(--green)' : 'var(--red)';
       }
     });
@@ -1058,7 +1000,7 @@ function openAddVisitInline() {
   if (!dateStr) return;
   curVisitId = createVisit(curSchoolId, dateStr.trim());
   renderVisitTabs(); renderChecklist(); loadNote(); renderHistory(curSchoolId);
-  showToast(`✅ 已建立 ${dateStr} 拜訪記錄`);
+  showToast(` 已建立 ${dateStr} 拜訪記錄`);
 }
 
 // ══════════════════════════════════════
@@ -1071,7 +1013,7 @@ function renderChecklist() {
   if (!curVisitId) {
     container.innerHTML = `
       <div class="empty-state" style="padding:30px 20px">
-        <div class="e">📋</div>
+        <div class="e"></div>
         <p>點擊右上方「＋ 新增拜訪」<br>選擇日期開始記錄</p>
       </div>`;
     return;
@@ -1091,7 +1033,7 @@ function renderChecklist() {
       ph.innerHTML = `<span>${item.phase}</span>`;
       cl.appendChild(ph);
     }
-    const state  = d[item.id+'_c'] || 0;  // 0=空, 1=✓, 2=✗
+    const state  = d[item.id+'_c'] || 0;  // 0=空, 1=, 2=✗
     const isDone = state > 0;
     const isMaicPhase = (item.phase && item.phase.includes('MAIC')) ||
       (item.id && item.id.startsWith('p4_'));
@@ -1101,7 +1043,7 @@ function renderChecklist() {
     wrap.innerHTML = `
       <div class="cl-main">
         <div class="${state===1?'cb done':state===2?'cb fail':'cb'}" onclick="toggleItem(event,'${item.id}')">
-          <span class="cb-tick">${state===2?'✕':'✓'}</span>
+          <span class="cb-tick">${state===2?'✕':''}</span>
         </div>
         <div class="cl-text">
           <div class="cl-title">${item.title}</div>
@@ -1118,14 +1060,14 @@ function toggleItem(e, itemId) {
   e.stopPropagation();
   const d = getVisitData(curVisitId);
   const cur  = d[itemId+'_c'] || 0;
-  const next = (cur + 1) % 3;     // 0→1→2→0（空→✓→✗→空）
+  const next = (cur + 1) % 3;     // 0→1→2→0（空→→✗→空）
   d[itemId+'_c'] = next;
   setVisitData(curVisitId, d);
   // Update UI
   const cb = e.currentTarget;
   cb.className = next===1 ? 'cb done' : next===2 ? 'cb fail' : 'cb';
   const tick = cb.querySelector('.cb-tick');
-  if (tick) tick.textContent = next===2 ? '✕' : '✓';
+  if (tick) tick.textContent = next===2 ? '✕' : '';
   const card = cb.closest('.cl-item');
   if (card) card.className = 'cl-item' + (next>0?' done-item':'') + (card.className.includes('maic-phase-item')?' maic-phase-item':'');
   showToast();
@@ -1155,183 +1097,32 @@ function saveNote() {
 // ══════════════════════════════════════
 
 // 壓縮圖片（canvas resize）
-async function compressImage(file, maxPx = 1200, quality = 0.78) {
-  return new Promise(resolve => {
-    const img = new Image();
-    img.onload = () => {
-      const ratio = Math.min(maxPx / img.width, maxPx / img.height, 1);
-      const canvas = document.createElement('canvas');
-      canvas.width  = Math.round(img.width  * ratio);
-      canvas.height = Math.round(img.height * ratio);
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
-    };
-    img.src = URL.createObjectURL(file);
-  });
-}
+function compressImage(){}
 
 // 上傳單張照片到 GitHub
-async function uploadPhoto(schoolId, visitId, blob) {
-  const token = getGHToken();
-  if (!token) return null;
-  const ts   = Date.now();
-  const ghPath = `visit-photos/${schoolId}/${visitId}_${ts}.jpg`;
-  const b64  = await new Promise(r => {
-    const reader = new FileReader();
-    reader.onload = e => r(e.target.result.split(',')[1]);
-    reader.readAsDataURL(blob);
-  });
-  const res = await fetch(
-    `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${ghPath}`,
-    { method: 'PUT',
-      headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json',
-                 Accept: 'application/vnd.github.v3+json' },
-      body: JSON.stringify({ message: `photo ${schoolId} ${ts}`, content: b64, branch: GH_BRANCH }) }
-  );
-  if (!res.ok) return null;
-  const result = await res.json();
-  // 用 raw.githubusercontent.com 直連（不受 CDN 快取影響）
-  return `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/main/${ghPath}`;
-}
+function uploadPhoto(){}
 
 // 刪除 GitHub 上的照片
-async function deletePhotoFromGH(ghPath) {
-  const token = getGHToken();
-  if (!token) return;
-  // 先取得 SHA
-  const res = await fetch(
-    `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${ghPath}`,
-    { headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' } }
-  );
-  if (!res.ok) return;
-  const { sha } = await res.json();
-  await fetch(
-    `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${ghPath}`,
-    { method: 'DELETE',
-      headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json',
-                 Accept: 'application/vnd.github.v3+json' },
-      body: JSON.stringify({ message: `del photo ${ghPath}`, sha, branch: GH_BRANCH }) }
-  );
-}
+function deletePhotoFromGH(){}
 
 // 選照片後處理（只壓縮暫存，按儲存才上傳）
-async function handlePhotoSelect(event) {
-  if (!curVisitId) return;
-  const files = Array.from(event.target.files);
-  event.target.value = '';
-  if (!files.length) return;
+function handlePhotoSelect(){}
 
-  for (const file of files) {
-    showToast('📷 壓縮中…');
-    let blob;
-    try { blob = await compressImage(file); }
-    catch(e) { showToast('❌ 壓縮失敗'); continue; }
-    const localUrl = URL.createObjectURL(blob);
-    pendingPhotos.push({ blob, localUrl, visitId: curVisitId, schoolId: curSchoolId });
-  }
+function renderThumbHTML(){}
 
-  if (pendingPhotos.length) {
-    showToast(`📷 已選 ${pendingPhotos.length} 張照片，按「💾 儲存」上傳`);
-    // 在儲存按鈕旁顯示待上傳數量
-    const btn = document.getElementById('detail-save-btn');
-    if (btn) btn.textContent = `💾 儲存（含 ${pendingPhotos.length} 張照片）`;
-  }
-}
-
-function renderThumbHTML(url, idx) {
-  const div = document.createElement('div');
-  div.className = 'photo-thumb';
-  const img = document.createElement('img');
-  img.src = url;
-  img.loading = 'lazy';
-  img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
-  img.onclick = () => openLightbox(url);
-  const btn = document.createElement('button');
-  btn.className = 'photo-del';
-  btn.textContent = '✕';
-  btn.onclick = (e) => deletePhoto(e, idx);
-  div.appendChild(img);
-  div.appendChild(btn);
-  return div;  // 回傳 DOM 元素而非 HTML 字串
-}
-
-function triggerPhotoUpload() {
-  if (!curVisitId) { showToast('⚠️ 請先選擇或新增拜訪記錄'); return; }
-  if (!getGHToken()) { showToast('⚠️ 請先設定 GitHub Token'); return; }
-  document.getElementById('photo-input').click();
-}
+function triggerPhotoUpload(){}
 
 // 渲染照片區
-function renderPhotos() {
-  const grid    = document.getElementById('photo-grid');
-  const section = document.getElementById('photo-section');
-  const empty   = document.getElementById('photo-empty');
+function renderPhotos(){}
 
-  // 無拜訪記錄時隱藏整區
-  if (!curVisitId) {
-    if (section) section.classList.add('hidden');
-    return;
-  }
-  if (section) section.classList.remove('hidden');
-
-  const d = getVisitData(curVisitId);
-  const photos = d._photos || [];
-
-  // 清空（保留 photo-empty 元素）
-  Array.from(grid.children).forEach(el => {
-    if (el.id !== 'photo-empty') el.remove();
-  });
-
-  // 顯示 / 隱藏空白提示
-  if (empty) empty.style.display = photos.length ? 'none' : 'block';
-
-  // 渲染縮圖（renderThumbHTML 回傳 DOM 元素）
-  photos.forEach((url, i) => {
-    const el = renderThumbHTML(url, i);
-    grid.insertBefore(el, empty);
-  });
-
-  updatePhotoCount();
-}
-
-function updatePhotoCount() {
-  const d = getVisitData(curVisitId);
-  const n = (d._photos || []).length;
-  const el = document.getElementById('photo-count');
-  if (el) el.textContent = n ? `${n} 張` : '';
-}
+function updatePhotoCount(){}
 
 // 刪除照片
-async function deletePhoto(event, idx) {
-  event.stopPropagation();
-  if (!confirm('確定要刪除這張照片嗎？')) return;
-  const d = getVisitData(curVisitId);
-  if (!d._photos || !d._photos[idx]) return;
-  const url = d._photos[idx];
-
-  // 立即從畫面移除（不等 GitHub）
-  d._photos.splice(idx, 1);
-  setVisitData(curVisitId, d);
-  renderPhotos();
-  showToast('已刪除照片');
-
-  // 非同步刪除 GitHub 上的檔案（背景執行）
-  const match = url.match(/raw\.githubusercontent\.com\/[^\/]+\/[^\/]+\/main\/(.+)/);
-  if (match) {
-    deletePhotoFromGH(match[1]).catch(e => console.warn('GH photo delete failed:', e));
-  }
-}
+function deletePhoto(){}
 
 // Lightbox
-function openLightbox(url) {
-  document.getElementById('lightbox-img').src = url;
-  document.getElementById('lightbox').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-}
-function closeLightbox() {
-  document.getElementById('lightbox').classList.add('hidden');
-  document.body.style.overflow = '';
-}
+function openLightbox(){}
+function closeLightbox(){}
 
 // ══════════════════════════════════════
 // HISTORY
@@ -1344,7 +1135,7 @@ function renderHistory(schoolId) {
   // 把 section 標題加上學校名，方便確認
   const school = SCHOOLS.find(s => s.id === schoolId);
   const titleEl = el.closest ? el.closest('.history-section')?.querySelector('.section-title') : null;
-  if (titleEl) titleEl.textContent = school ? `📅 ${school.name} 拜訪記錄` : '📅 歷史拜訪紀錄';
+  if (titleEl) titleEl.textContent = school ? ` ${school.name} 拜訪記錄` : ' 歷史拜訪紀錄';
 
   if (!visits.length) {
     const empty = document.createElement('div');
@@ -1391,7 +1182,7 @@ function renderHistory(schoolId) {
     // 刪除按鈕
     const del = document.createElement('button');
     del.className = 'hist-del';
-    del.textContent = '🗑';
+    del.textContent = '';
     del.onclick = () => handleDelVisit(v.id);
 
     // 點擊切換到該次拜訪
@@ -1406,32 +1197,7 @@ function renderHistory(schoolId) {
     row.appendChild(info);
     row.appendChild(prog);
     row.appendChild(del);
-
-    // 若此次拜訪有照片，顯示縮圖列
-    const vd = getVisitData(v.id);
-    const vPhotos = vd._photos || [];
-    if (vPhotos.length) {
-      const photoRow = document.createElement('div');
-      photoRow.style.cssText = 'display:flex;gap:5px;padding:8px 0 4px 19px;flex-wrap:wrap';
-      vPhotos.forEach((url, pi) => {
-        const thumb = document.createElement('div');
-        thumb.style.cssText = 'width:48px;height:48px;border-radius:6px;overflow:hidden;flex-shrink:0;cursor:pointer;background:var(--fill)';
-        const img = document.createElement('img');
-        img.src = url;
-        img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
-        img.loading = 'lazy';
-        img.onclick = () => openLightbox(url);
-        thumb.appendChild(img);
-        photoRow.appendChild(thumb);
-      });
-      // 包一個完整行放在 row 下面
-      const wrapper = document.createElement('div');
-      wrapper.appendChild(row);
-      wrapper.appendChild(photoRow);
-      el.appendChild(wrapper);
-    } else {
-      el.appendChild(row);
-    }
+    el.appendChild(row);
   });
 }
 
@@ -1459,7 +1225,7 @@ function exportAll() {
   const d = new Date();
   const tag = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
   downloadJSON(out, `sa-all-backup-${tag}.json`);
-  setStatus('ov-backup-status', '✅ 已匯出全部資料！', 'var(--green)');
+  setStatus('ov-backup-status', ' 已匯出全部資料！', 'var(--green)');
 }
 
 function importAll(event) {
@@ -1472,7 +1238,7 @@ function importAll(event) {
       if (!confirm(`確定要匯入備份（${data._exported_at||'未知時間'}）？這將覆蓋目前所有資料。`)) return;
       localStorage.setItem(IDX_KEY, JSON.stringify(data.idx));
       Object.entries(data.visits||{}).forEach(([vid,vd]) => localStorage.setItem(VKEY(vid), JSON.stringify(vd)));
-      setStatus('ov-backup-status',`✅ 匯入成功（${data._exported_at}）`,'var(--green)');
+      setStatus('ov-backup-status',` 匯入成功（${data._exported_at}）`,'var(--green)');
       setTimeout(() => renderOverview(), 400);
     } catch(err) { setStatus('ov-backup-status','❌ 檔案格式錯誤','var(--red)'); }
   };
@@ -1486,7 +1252,7 @@ function clearAll() {
   Object.values(idx).forEach(s => (s.visits||[]).forEach(v => localStorage.removeItem(VKEY(v.id))));
   localStorage.removeItem(IDX_KEY);
   renderOverview();
-  setStatus('ov-backup-status','✅ 已清除所有資料','var(--green)');
+  setStatus('ov-backup-status',' 已清除所有資料','var(--green)');
 }
 
 function exportSchool() {
@@ -1497,7 +1263,7 @@ function exportSchool() {
   const d = new Date();
   const tag = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
   downloadJSON(out, `sa-${curSchoolId}-${tag}.json`);
-  setStatus('det-backup-status','✅ 已匯出此校資料！','var(--green)');
+  setStatus('det-backup-status',' 已匯出此校資料！','var(--green)');
 }
 
 function importSchool(event) {
@@ -1515,7 +1281,7 @@ function importSchool(event) {
       const visits = getSchoolVisits(curSchoolId);
       curVisitId = visits.length ? visits[visits.length-1].id : null;
       renderVisitTabs(); renderChecklist(); loadNote(); renderHistory(curSchoolId);
-      setStatus('det-backup-status','✅ 匯入成功','var(--green)');
+      setStatus('det-backup-status',' 匯入成功','var(--green)');
     } catch(err) { setStatus('det-backup-status','❌ 格式錯誤','var(--red)'); }
   };
   reader.readAsText(file);
@@ -1567,7 +1333,7 @@ function diagnoseLocalStorage() {
 function tryRecoverData() {
   const visitKeys = Object.keys(localStorage).filter(k => k.startsWith('sa_v_'));
   if (!visitKeys.length) {
-    showToast('⚠️ 找不到任何拜訪資料');
+    showToast(' 找不到任何拜訪資料');
     return false;
   }
   const result = diagnoseLocalStorage();
@@ -1579,13 +1345,70 @@ function tryRecoverData() {
 // 強制從 GitHub 重新同步（資料不見時使用）
 async function forceSync() {
   if (!getGHToken()) { showToast('請先設定 Token'); return; }
-  showToast('☁️ 重新同步中…');
+  showToast(' 重新同步中…');
   const data = await ghRead();
   if (!data) { showToast('❌ 無法連線，請確認 Token'); return; }
-  if (data._empty) { showToast('⚠️ GitHub 上尚無資料'); return; }
+  if (data._empty) { showToast(' GitHub 上尚無資料'); return; }
   applyGHData(data);
   renderOverview();
-  showToast('✅ 同步完成');
+  showToast(' 同步完成');
+}
+
+
+// ── NTU 台大 昨天訪店預載記錄（2026/07/08）──
+function seedNTUVisit() {
+  const idx = getIdx();
+  if (idx.ntu && idx.ntu.visits && idx.ntu.visits.length > 0) return;
+  if (!idx.ntu) idx.ntu = {visits:[]};
+  const vid = 'v_ntu_20260708';
+  idx.ntu.visits.push({id: vid, date: '2026/07/08', label: '第 1 次拜訪'});
+  setIdx(idx);
+  setVisitData(vid, {
+    // 出發前準備
+    'p1_1_c': 1,  // 查閱近期銷售數據 ✓
+    'p1_2_c': 1,  // 確認校園促銷方案 ✓
+    'p1_3_c': 1,  // 與負責人確認到達時間 ✓
+    'p1_4_c': 1,  // 設備電量 & 裝備確認 ✓
+    // VMD 視覺陳列
+    'p2_1_c': 1,  // 文宣時效性 ✓
+    'p2_2_c': 1,  // 展示機狀態 ✓
+    'p2_3_c': 1,  // 店面整潔度 ✓
+    // 庫存管理
+    'p3_1_c': 1,  // 教育熱銷款庫存抽檢 ✓
+    'p3_2_c': 1,  // 配件週邊陳列 ✓
+    'p3_3_c': 1,  // 進銷存數據準確性 ✓
+    // 校園關係 & MAIC
+    'p4_1_c': 1,  // 校內合作進度詢問 ✓
+    'p4_2_c': 1,  // 工作坊 & 講座排程 ✓
+    'p4_3_c': 1,  // MAIC 宣傳品確認 & 張貼 ✓
+    'p4_4_c': 1,  // 介紹 MAIC & 收集名單 ✓
+    // 人員 & 設備
+    'p5_1_c': 2,  // 教育方案熟悉度確認 ✗ 待加強
+    'p5_2_c': 1,  // 服務流程觀察 ✓
+    'p5_3_c': 1,  // 硬體設備檢查 ✓
+    'p5_4_c': 1,  // 資產安全確認 ✓
+    // 拜訪後
+    'p6_3_c': 1,  // 更新 Dashboard ✓
+    '_note': [
+      '【背景】台大體驗店由小福樓遷至學新館，鄰近競品門市，面臨客群分流風險。',
+      '',
+      '【商品陳列】M5 Pro/Max、M5 Air、MacBook Neo 三線產品尚未依「電資院／文理院／預算型新生」分眾陳列，建議調整以對應學新館周邊理工科系結構。學新館客流高度依賴主動導流。',
+      '',
+      '【配件搭售】人員 KPI 以配件搭售為主。Pencil、鍵盤、保護殼組合陳列完整度尚可，但 Attach Rate 仍主要仰賴店員話術與到店動機（如新生開學潮），需加強主動推薦話術練習。',
+      '',
+      '【客群流失風險】文商院學生原以小福樓（椰林大道）為日常必經，遷店後到店機率明顯下降。但鄰近辛亥路後門及社科院停車場，有機會吸引台科大／台師大外部客群，建議設計導流動線。',
+      '',
+      '【B2B 採購】現教職員採購以理工科系為主，通常透過各系辦採購窗口對接。門市內 B2B 採購聯絡窗口資訊尚未張貼，建議優先處理以降低教授／助理諮詢摩擦成本。',
+      '',
+      '【社群召回】建議強化學新館門市自有社群帳號，比照政大搬遷案例，針對小福樓時期舊會員進行 LINE 推播＋貼文系統性召回。',
+      '',
+      '【活動設攤】建議與搬宿舍、新生訓練、系學會迎新等既有活動合作設攤，借用既有人流，8 月下旬新生報到為關鍵時間點。',
+      '',
+      '【外部商機】①資安採購法案：2025/12 數發部公告禁購中國品牌，聯想台灣市占 8% 有移轉空間。②Siri AI 換機潮：iOS 27 秋季推出，僅 iPhone 15 Pro 以後支援，瑞銀調查 24% 受訪者願提前換機；iPad／Mac 因 M1 後皆支援 Apple Intelligence，9 月詢問量預估上升。',
+      '',
+      '【綜合評估】外部商機有部分助益，能否轉化為台大門市銷量成長，仍取決於門市客群經營能力。'
+    ].join('\n')
+  });
 }
 
 window.onload = () => {
@@ -1596,8 +1419,9 @@ window.onload = () => {
     setGHToken(urlToken);
     // 清除 URL 中的 token，避免留在瀏覽器歷史紀錄
     history.replaceState(null, '', location.pathname);
-    showToast('📱 Token 已自動設定，連線中…');
+    showToast(' Token 已自動設定，連線中…');
   }
+  seedNTUVisit();
   renderOverview();
   initSync();
 };
