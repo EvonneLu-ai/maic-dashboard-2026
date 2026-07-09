@@ -718,6 +718,11 @@ function clearGHToken() { localStorage.removeItem(GH_TOKEN_KEY); }
 
 // 從 GitHub 讀取全部資料
 async function ghRead() {
+  const controller = new AbortController();
+  const _tid = setTimeout(() => controller.abort(), 5000);
+  const _origFetch = window.fetch.bind(window);
+  window.fetch = (u,o={}) => _origFetch(u,{...o,signal:controller.signal})
+    .finally(()=>{ clearTimeout(_tid); window.fetch=_origFetch; });
   const token = getGHToken();
   if (!token) return null;
   try {
@@ -1743,7 +1748,7 @@ window.onload = () => {
   }
   loadStaticDataIfEmpty();  // localStorage 空時套用內嵌備份
   renderOverview();
-  initSync();
+  setTimeout(initSync, 0);  // 先渲染再 sync
 };
 </script>
 </body>
