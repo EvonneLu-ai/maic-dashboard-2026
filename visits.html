@@ -734,6 +734,17 @@ const STATIC_DATA = {
   "lastSync": "2026/5/18 上午10:59:18"
 };
 
+
+// ══════════════════════════════════════
+// STORAGE（Key 結構與舊版完全相容）
+// ══════════════════════════════════════
+const IDX_KEY = 'sa_idx_v1';
+const VKEY = id => `sa_v_${id}`;
+
+function getIdx()  { try { return JSON.parse(localStorage.getItem(IDX_KEY)||'{}'); } catch(e){ return {}; } }
+function setIdx(d) { try { localStorage.setItem(IDX_KEY, JSON.stringify(d)); } catch(e){} }
+function getVisitData(vid) { try { return JSON.parse(localStorage.getItem(VKEY(vid))||'{}'); } catch(e){ return {}; } }
+function setVisitData(vid,d) { try { localStorage.setItem(VKEY(vid), JSON.stringify(d)); } catch(e){} }
 function loadStaticDataIfEmpty() {
   // 每次開啟都把 STATIC_DATA 補入 localStorage（合併，不蓋掉使用者新資料）
   const idx = getIdx();
@@ -758,16 +769,6 @@ function loadStaticDataIfEmpty() {
   if (changed) setIdx(idx);
 }
 
-// ══════════════════════════════════════
-// STORAGE（Key 結構與舊版完全相容）
-// ══════════════════════════════════════
-const IDX_KEY = 'sa_idx_v1';
-const VKEY = id => `sa_v_${id}`;
-
-function getIdx()  { try { return JSON.parse(localStorage.getItem(IDX_KEY)||'{}'); } catch(e){ return {}; } }
-function setIdx(d) { try { localStorage.setItem(IDX_KEY, JSON.stringify(d)); } catch(e){} }
-function getVisitData(vid) { try { return JSON.parse(localStorage.getItem(VKEY(vid))||'{}'); } catch(e){ return {}; } }
-function setVisitData(vid,d) { try { localStorage.setItem(VKEY(vid), JSON.stringify(d)); } catch(e){} }
 function getSchoolVisits(sid) {
   const idx = getIdx();
   if (!idx[sid] || !idx[sid].visits) return [];
